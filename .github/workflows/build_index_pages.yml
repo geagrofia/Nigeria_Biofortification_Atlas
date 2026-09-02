@@ -15,12 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Get the files from the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Create a clean directory containing only the files
-      # that should be published to GitHub Pages
       - name: Prepare Pages site
         run: |
           mkdir _site
@@ -32,7 +29,7 @@ jobs:
             fi
           done
 
-          # Create the index page
+          # Start the index page
           cat > _site/index.html <<'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -80,23 +77,28 @@ jobs:
           <ul>
           EOF
 
-          # Add one link for every HTML file, except index.html
+          # Add one entry for each HTML file
           for file in *.html; do
+
             if [ -f "$file" ] && [ "$file" != "index.html" ]; then
 
-              # Remove .html from filename
-              name="${file%.html}"
+              # Extract the page title from the HTML <title> element
+              title=$(grep -oi '<title[^>]*>[^<]*</title>' "$file" \
+                | head -1 \
+                | sed -E 's/<\/?title[^>]*>//Ig')
 
-              # Replace underscores with spaces
-              name="${name//_/ }"
+              # If no title was found, use the filename
+              if [ -z "$title" ]; then
+                title="${file%.html}"
+                title="${title//_/ }"
+              fi
 
-              # Capitalize the first letter
-              name="$(tr '[:lower:]' '[:upper:]' <<< ${name:0:1})${name:1}"
-
-              # Add the link to index.html
-              echo "    <li><a href=\"$file\">$name</a></li>" >> _site/index.html
+              # Add the link to the index
+              printf '    <li><a href="%s">%s</a></li>\n' \
+                "$file" "$title" >> _site/index.html
 
             fi
+
           done
 
           # Finish index.html
@@ -107,17 +109,14 @@ jobs:
           </html>
           EOF
 
-      # Configure GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # Package the _site directory for Pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
 
-      # Publish to GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
