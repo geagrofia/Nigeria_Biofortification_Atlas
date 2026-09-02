@@ -1,0 +1,39 @@
+﻿ID,Market,Name_2,Lat,Long,State,Cassava,Cowpea,Maize,Millet,Sorghum,Label_lat,Label_long
+1,Aba,Aba,5.1066,7.3667,Abia,R_W,R_W,R_W,R,R_W,5.3066,7.4667
+2,Aliero,Aliero,12.290914,4.459946,Kebbi,R ,R_W,R ,R_W,R_W,12.290914,4.559946
+3,Bakori,Bakori,11.557712,7.424907,Katsina,R,W,W,W,A,11.757712,7.524907
+4,Bama,Bama,11.522025,13.6897,Borno,R,W,W,W,A,11.722025,13.7897
+5,Buni,Buni Yadi,11.277855,12.001496,Yobe,R,W,W,W,A,11.477855,12.101496
+6,Damasak,Damasak,13.1028,12.50907,Borno,R,R_W,R_W,R_W,R_W,13.3028,12.60907
+7,Dan Dume,Dan Dume,11.459596,7.12536,Katsina,R,A_W,A_W,A_W,A_W,11.459596,7.12536
+8,Danja,Danja,11.376967,7.561197,Katsina,R,W,W,W,A,11.176967,7.661197
+9,Dawanau,Dawanau,12.0897,8.4292,Kano,W,A,?,A,W,12.2897,8.4292
+10,Dodoru,Dodoru,12.435115,4.661509,Kebbi,R,R_W,R_W,R_W,R_W,12.635115,4.761509
+11,Enugu,Enugu,6.4584,7.5464,Enugu,R_W,R_W,R_W,R,R_W,6.6584,7.6464
+12,Funtua,Funtua,11.5233,7.3094,Katsina,R,R_W,A ,R_W,R_W,11.7233,7.3094
+13,Gombe,Gombe,10.2897,11.1711,Gombe,R,A,R_W,A,R_W,10.4897,11.2711
+14,Gujungu,Gujungu,12.36254,9.58054,Jigawa,R,W,W,W,A,12.56254,9.68054
+15,Ibadan,Ibadan,7.3775,3.947,Oyo,R_W,R_W,R_W,R_W,R_W,7.5775,4.047
+16,Illela,Illela,13.7317,5.2958,Sokoto,R,R_W,R_W,R_W,R_W,13.9317,5.3958
+17,Jibia,Jibia,13.0833,7.2333,Katsina,R_W,R_W,R_W,R_W,R_W,13.2833,7.3333
+18,Jos,Jos,9.920147,8.89315,Plateau,R_W,R_W,R_W,R,R_W,10.120147,8.99315
+19,Keffin Hausa,Keffin Hausa,12.24,9.9,Jigawa,R,W,W,W,A,12.24,10
+20,Kumo,Kumo,10.0469,11.2222,Gombe,R,W,W,W,A,10.2469,11.3222
+21,Lafia,Lafia,8.4905,8.514,Nasarawa,R_W,R ,R_W,R_W,R_W,8.6905,8.614
+22,Lagos,Lagos,6.5244,3.3792,Lagos,R_W,R_W,R_W,R_W,R_W,6.7244,3.4792
+23,Mai'aduwa,Mai'aduwa,13.176,8.232,Katsina,R_W,R_W,R_W,R_W,R_W,13.376,8.332
+24,Maiduguri,Maiduguri,11.8311,13.151,Borno,R_W,R_W,R_W,R_W,R_W,12.0311,13.251
+25,Maigatari,Maigatari,12.805817,9.445776,Jigawa,R,R_W,R,R_W,R_W,13.005817,9.545776
+26,Makarfi,Makarfi,11.379949,7.876817,Kaduna,R,A_W,A_W,W,A_W,11.379949,7.976817
+27,Michika,Michika,10.62044,13.389944,Adamawa,R,W,W,R,A,10.82044,13.489944
+28,Minna,Minna,9.6139,6.5569,Niger,R_W,R_W,R_W,R_W,R_W,9.8139,6.6569
+29,Mokwa,Mokwa,9.29,5.0592,Niger,R_W,R_W,R_W,?,R_W,9.49,5.1592
+30,Mongonu,Mongonu,12.669062,13.605448,Borno,R,W,W,W,A,12.869062,13.705448
+31,Mubi,Mubi,10.27023,13.251962,Adamawa,R,R,R,R,R,10.47023,13.351962
+32,Ngalda,Ngalda,11.104993,11.375082,Yobe,R,W,R,W,A,11.004993,11.475082
+33,Onitsha,Onitsha,6.145,6.7889,Anambra,R_W,R_W,R_W,R_W,R_W,6.345,6.8889
+34,Port Harcourt,Port Harcourt,4.8156,7.0498,Rivers,R_W,R_W,R_W,R,R_W,4.8156,7.1498
+35,Potiskum,Potiskum,11.7095,11.0691,Yobe,R,A,R_W,A,W,11.9095,11.1691
+36,Saminaka,Saminaka,10.417635,8.682811,Kaduna,R,R_W,A,R_W,W,10.617635,8.782811
+37,Warri,Warri,5.5167,5.75,Delta,R_W,R_W,R_W,R,R_W,5.7167,5.85
+38,Zaki Biam,Zaki Biam,7.5067,9.6104,Benue,R_W,R,R_W,R,R_W,7.7067,9.7104
