@@ -1,0 +1,1256 @@
+---
+title: "Nigeria Micro-nutrient Deficiencies"
+format:
+  html:
+    toc: true
+    toc-depth: 1
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(tidyverse)
+library(readODS)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+
+```
+
+# Introduction
+
+
+# Nigeria micro-nutrient deficiency data sources
+
+There are number of sources of food consumption and micro-nutrient
+deficiency data. The three main sources identified for Nigeria have
+different dates, and differing number of deficiencies and populations (
+@tbl-MNSources ).
+
++--------------+--------------+------------+----------------+-------------+
+| Source       | Spatial      | Most       | Deficiencies   | Population  |
+|              | Resolution   | recent     |                |             |
+|              |              | data       |                |             |
++==============+==============+===========:+================+=============+
+| National     | Geopolitical | 2021       | - serum        | - women     |
+| Food         | Zone         |            |   retinol      |   15–49     |
+| Consumption  |              |            |   (vitamin A)  | - children  |
+| and Micro    |              |            |                |   6–59      |
+| nutrient     |              |            |                |   months    |
+| Survey       |              |            |                |             |
+| (NFCMS) 2021 |              |            |                |             |
++--------------+--------------+------------+----------------+-------------+
+| NFCMS        | "            | "          | - serum        | - women     |
+|              |              |            |   ferritin /   |   15–49     |
+|              |              |            |   haemoglobin  | - children  |
+|              |              |            |                |   6–59      |
+|              |              |            |                |   months    |
++--------------+--------------+------------+----------------+-------------+
+| NFCMS        | "            | "          | - serum zinc   | - women     |
+|              |              |            |                |   15–49     |
+|              |              |            |                |             |
+|              |              |            |                | - children  |
+|              |              |            |                |   6–59      |
+|              |              |            |                |   months    |
++--------------+--------------+------------+----------------+-------------+
+| Nigeria      | State        | 2023-24    | - haemoglobin  | - children  |
+| Demographic  |              |            |   /anaemia     |   6–59      |
+| and Health   |              |            |                |   months    |
+| Survey       |              |            |                |             |
+| (NDHS)       |              |            |                | - women     |
+| 2023-24      |              |            |                |   15–49     |
++--------------+--------------+------------+----------------+-------------+
+| Modelled     | LGA          | 2018-19    | Apparent       | - household |
+| Data from    |              |            | micro-nutrient |             |
+| 2018/19 Food |              |            | intake         |             |
+| consumption  |              |            | estimated for: |             |
+| (Ishida et   |              |            |                |             |
+| al., 2026    |              |            | - folate       |             |
+| (submitted)) |              |            |                |             |
+|              |              |            | - vitamin B12  |             |
+|              |              |            |                |             |
+|              |              |            | - iron         |             |
++--------------+--------------+------------+----------------+-------------+
+
+:Micro-nutrient deficiency data sources for Nigeria {#tbl-MNSources} 
+
+[@federalgovernmentofnigeriafgonNationalFoodConsumption2024]
+[@federalministryofhealthandsocialwelfareofnigeriafmohswNigeriaDemographicHealth2025]
+[@ishidaMappingSubnationalVulnerability2026submitted]
+
+The data at state level need to be joined to the Nigeria States spatial
+dataset, and the data at zone level need to be joined to the
+geopolitical zones.
+
+The stages are:
+
+1.  Load the States dataset
+2.  Load the geopolitical zone
+3.  Load each health database
+4.  For each indicator in the database join to the state or zone spatial
+    dataset and plot
+
+# Load the States
+
+The source of the states data is from OSGOF-Ehealth-UNCS. These have
+previously been cleaned to remove sliver polygons and gaps, and were
+saved as a topojson format.
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+crs(vect_state_geo) <- "epsg:4326"
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+
+# levels(vect_state_geo$adm1_pcode) # Check levels
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  labs(
+    title = "Nigeria States",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+df_state <- as.data.frame(vect_state_geo)
+
+
+```
+
+# Load the geopolitical zones
+
+The geopolitical zones are a combination of states with similar ethnic
+groups, and/or common political history.
+
+There are six zones:
+
++---------------+---------------------------------------+
+| Zone name     | States                                |
++===============+=======================================+
+| North Central | Benue, Kogi, Kwara, Nasarawa, Niger,  |
+|               | and Plateau States, and Federal       |
+|               | Capital Territory                     |
++---------------+---------------------------------------+
+| North East    | Adamawa, Bauchi, Borno, Gombe,        |
+|               | Taraba, and Yobe                      |
++---------------+---------------------------------------+
+| North West    | Jigawa, Kaduna, Kano, Katsina, Kebbi, |
+|               | Sokoto, and Zamfara                   |
++---------------+---------------------------------------+
+| South East    | Abia, Anambra, Ebonyi, Enugu, and Imo |
++---------------+---------------------------------------+
+| South South   | Akwa Ibom, Bayelsa, Cross River,      |
+|               | Delta, Edo, and Rivers                |
++---------------+---------------------------------------+
+| South West    | Ekiti, Lagos, Ogun, Ondo, Osun, and   |
+|               | Oyo                                   |
++---------------+---------------------------------------+
+
+The zones are created by joining the states.
+
+```{r}
+#| label: create_zones
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+adm1_pcode <- c("NG001", "NG002", "NG003", "NG004", "NG005", "NG006",
+"NG007", "NG008", "NG009", "NG010", "NG011", "NG012", "NG013", "NG014",
+"NG015", "NG016", "NG017", "NG018", "NG019", "NG020", "NG021", "NG022",
+"NG023", "NG024", "NG025", "NG026", "NG027", "NG028", "NG029", "NG030",
+"NG031", "NG032", "NG033", "NG034", "NG035", "NG036", "NG037")
+
+geopolitical_zone <- c("South East", "North East", "South South", 
+"South East", "North East", "South South", "North Central", "North East",
+"South South", "South South", "South East", "South South", "South West",
+"South East", "North Central", "North East", "South East", "North West",
+"North West", "North West", "North West", "North West", "North Central",
+"North Central", "South West", "North Central", "North Central", 
+"South West", "South West", "South West", "South West", "North Central", 
+"South South", "North West", "North East", "North East", "North West")
+
+df_gpz <- tibble(adm1_pcode, geopolitical_zone)
+
+vect_gpz_geo <- dplyr::left_join(vect_state_geo, df_gpz, by =
+c("adm1_pcode")) |> aggregate(by = "geopolitical_zone")
+
+ggplot(vect_gpz_geo)+
+  geom_spatvector(aes(fill = geopolitical_zone)) +
+  geom_spatvector_text(aes(label = geopolitical_zone), size = 3) +
+  labs(
+    title = "Nigeria Geopolitical Zones",
+    fill = "Zone<br>Name") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# NFCMS 2021
+
+## Load the database
+
+The NFCMS data are loaded and there are data available for the following
+zones:
+
+```{r}
+#| label: NFCMS_deficiency_data
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_NFCMS <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_deficiencies.csv")
+
+df_NFCMS$geopolitical_zone <- as.factor(df_NFCMS$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+## Join the NFCMS database to the zone dataset
+
+The NFCMS dataset does not contain codes for the zones - only names.
+Therefore we need to join the two data frames using the name of the
+zone - and checking that all zones have data.
+
+```{r}
+#| label: NFCMS_join
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+vect_gpz_geo_NFCMS <- dplyr::left_join(vect_gpz_geo, df_NFCMS, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+```
+
+# NDHS 2023-24
+
+## Load the databases
+
+The NDHS state data are loaded and there are data available for the
+following states:
+
+```{r}
+#| label: NDHS_state_deficiency_data
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_NDHS_state <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NDHS_state_deficiencies.csv")
+# change name to match states dataset
+df_NDHS_state['State'][df_NDHS_state['State'] == "FCT-Abuja"] <- "Federal Capital Territory"
+
+df_NDHS_state$State <- as.factor(df_NDHS_state$State) 
+
+cat(paste(levels(df_NDHS_state$State), "; ")) # Check levels
+
+```
+
+The NDHS zone data are loaded and there are data available for the
+following zones:
+
+```{r}
+#| label: NDHS_zone_deficiency_data
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_NDHS_zone <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NDHS_zone_deficiencies.csv")
+
+df_NDHS_zone$Zone <- as.factor(df_NDHS_zone$Zone) 
+
+cat(paste(levels(df_NDHS_zone$Zone), "; ")) # Check levels
+
+```
+
+## Join the NDHS database to the state dataset
+
+The NDHS dataset does not contain codes for the states - only names.
+Therefore we need to join the two data frames using the name of the
+state - and checking that all states have data.
+
+```{r}
+#| label: NDHS_state_join
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+vect_state_geo_NDHS <- dplyr::left_join(vect_state_geo, df_NDHS_state, by = c("adm1_ref_name"  = "State"))
+vect_state_geo_NDHS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+```
+
+## Join the NDHS database to the zone dataset
+
+The NDHS dataset does not contain codes for the zones - only names.
+Therefore we need to join the two data frames using the name of the
+zone - and checking that all zones have data.
+
+```{r}
+#| label: NDHS_zone_join
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+vect_zone_gpz_NDHS <- dplyr::left_join(vect_gpz_geo, df_NDHS_zone, by = c("geopolitical_zone"  = "Zone"))
+vect_zone_gpz_NDHS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+```
+
+# Modelled Data from 2018/19 Food consumption
+
+It was decided not to use the data from this study, for two reasons.
+Firstly the data are now quite old and the other sources are more
+recent. Secondly, the deficiency values are imputed from dietary intake
+rather than from biomarkers.
+
+# Compare data sources
+
+To help select the best data source it is necessary to compare the
+statistics for each indicator from the two sources.
+
+## Vitamin A deficiency
+
+Vitamin A deficiency is only available from the NFCMS data, and
+therefore there is no spatial variation below the geopolitical zone
+level.
+
+There are data for women of reproductive age and children between 6 and
+59 months.
+
+### Vitamin A deficiency in women of reproductive age (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_vit_A_deficiency_WRA
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_def_vit_A_pc_246)) +
+  geom_spatvector_text(aes(label = WRA_def_vit_A_pc_246), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of vitamin A deficiency in women of reproductive age", fill = " %") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The highest values for vitamin A deficiency among women are in North
+West zone with 22.2%. These values are almost double the next highest
+value in South South. The lowest values are in South East with 3.4% of
+women with a deficiency.
+
+### Vitamin A deficiency in children (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_vit_A_deficiency_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CH_def_vit_A_pc_236)) +
+  geom_spatvector_text(aes(label = CH_def_vit_A_pc_236), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of vitamin A deficiency in children", fill = " %") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The pattern of vitamin A deficiency among children is similar, with the
+highest value again in North West zone with 50.6%. These values are 20%
+greater than in North East - the zone with next highest value. The
+lowest values were again in South East with 6.1% of children with a
+vitamin A deficiency.
+
+## Iron deficiency
+
+### Iron deficiency in women of reproductive age (NFCMS, 2021)
+
+Iron deficiency is defined as serum ferritin concentration \<15 µg/L
+corrected for inflammation.
+
+```{r}
+#| label: NFCMS_iron_deficiency
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_def_iron_pc_245)) +
+  geom_spatvector_text(aes(label = WRA_def_iron_pc_245), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of iron deficiency in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Iron deficiency in women of reproductive age is highest in North East
+geopolitical zone, followed by South South and South East - all three
+had values higher than 10%. The zone with lowest value was South West.
+
+### Anaemia in women of reproductive age (NFCMS, 2021)
+
+Iron deficiency anaemia defined as serum ferritin concentration \<15
+µg/L, adjusted for inflammation and adjusted haemoglobin \<12 g/dL
+Estimates calculated using weights that account for survey design and
+non-response.
+
+```{r}
+#| label: NFCMS_anaemia
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_def_anaemia_pc_245)) +
+  geom_spatvector_text(aes(label = WRA_def_anaemia_pc_245), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The variation among zones of iron deficiency anaemia was small, varying
+between 4.7% and 5.5%, except in South West where the percentage of
+anaemic women was only 1.6%. The North East zone once again had the
+highest rate.
+
+### Anaemia in women of reproductive age (NDHS, 2023-24)
+
+The Nigeria Demographic and Health Survey of 2023-24 gives data for four
+levels of anaemia: (1) Any; (2) Mild; (3) Moderate, and; (4) Severe
+anaemia.
+
+**Any anaemia** is when haemoglobin level \<12.0 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_any
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_any)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_any), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (any) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The zone with the highest percentage of women with anaemia was South
+East, with over 50% of women. The other zones all had values between 40%
+and 50%. The zone with the lowest levels was North Central.
+
+```{r}
+#| label: NDHS_anaemia_any
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_any)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_any), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (any) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The individual states show a more mixed pattern. The state with the
+highest value is Ebonyi with 71.8% of women anaemic. Other states in the
+same zone (South East) have lower values, such as Imo with 41.7%.
+
+In North West zone there are instances of negative spatial
+auto-correlation where neighbouring states have very different values -
+a clear example is the difference between Sokoto (67.7%) and Kebbi
+(21.4%). States in South West zone, in contrast, have more similar
+values.
+
+**Mild anaemia** when haemoglobin level 11.0–11.9 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_mild
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_mild)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_mild), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (mild) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The zone with the highest percentage of women with mild anaemia was
+South East, with over 30% of women. The other zones all had values
+between 20% and 30%. The zone with the lowest levels was North West
+
+```{r}
+#| label: NDHS_anaemia_mild
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_mild)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_mild), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (mild) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+For mild anaemia Ebonyi is no longer the state with the highest values.
+There are numerous southern states with values around 30%. In the North
+East zone the values per state are very similar, whereas in North West
+there is again a big difference between Kebbi and its neighbouring
+states.
+
+**Moderate anaemia** when haemoglobin level 8.0–10.9 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_mod
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_mod)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_mod), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (moderate) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The zone with the highest percentage of women with moderate anaemia was
+again South East, with over 25% of women. The other zones varied between
+17% and 23%. The zone with the lowest levels was North Central.
+
+```{r}
+#| label: NDHS_anaemia_mod
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_mod)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_mod), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (moderate) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The state with the highest value for moderate anaemia is Sokoto, with
+44% of women - a higher value than for mild anaemia. A similar situation
+is encountered in Katsina, Adamawa, Abia, Ebonyi, and Akwa Ibom states.
+
+Once again the state with the lowest percentage of women with anaemia is
+Kebbi.
+
+**Severe anaemia** when haemoglobin level \<8.0 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_sev
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_sev)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_sev), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (severe) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+There was a different spatial pattern for severe anaemia. The zone with
+the highest percentage of women with severe anaemia was North East, 1.7%
+of women anaemic. The other zones varied between 0.4% and 1.2%. The zone
+with the lowest levels was South West.
+
+```{r}
+#| label: NDHS_anaemia_sev
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = WRA_anaemia_sev)) +
+  geom_spatvector_text(aes(label = WRA_anaemia_sev), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (severe) in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Levels of severe anaemia show less obvious differences within
+geopolitical zones, except in North East where Bauchi has the highest
+value for any state with 3.3% but neighbouring Yobe has a value of 0.6%.
+South West zone has consistently low vales for severe anaemia.
+
+### Compare sources
+
+The only micro nutrient for which there are data in different sources is
+for iron. However, there are some differences in the indicators used for
+iron deficiency anaemia in the two sources.
+
+The NDHS has a finer spatial resolution, and the data were collected
+more recently. The only issue would be to decide which of the four
+anaemia indicators to use.
+
+### Iron deficiency in children between 6 and 59 months (NFCMS, 2021)
+
+Iron deficiency is defined as serum ferritin concentration \<15 µg/L
+corrected for inflammation.
+
+```{r}
+#| label: NFCMS_iron_deficiency_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CH_def_iron_pc_235)) +
+  geom_spatvector_text(aes(label = CH_def_iron_pc_235), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of iron deficiency in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Iron deficiency among children in 2021 was far higher in the northern
+geopolitical zones than in the south. North East zone had the highest
+values while South South had the lowest. This was a differing pattern to
+that for women of reproductive age.
+
+### Anaemia in children between 6 and 59 months (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_anaemia_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CH_def_anaemia_pc_235)) +
+  geom_spatvector_text(aes(label = CH_def_anaemia_pc_235), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Anaemia among young children is highest in North West zone, with far
+lower figures in the southern zones. The pattern is slightly different
+to iron deficiency with bigger differences among the northern states
+
+### Anaemia in children between 6 and 59 months (NDHS, 2023-24)
+
+The Nigeria Demographic and Health Survey of 2023-24 gives data for four
+levels of anaemia: (1) Any; (2) Mild; (3) Moderate, and; (4) Severe
+anaemia.
+
+**Any anaemia** is when haemoglobin level \<12.0 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_any_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_any)) +
+  geom_spatvector_text(aes(label = CH_anaemia_any), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (any) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Levels of child anaemia are high throughout Nigeria with five out of six
+zones showing rates above 50%. The zone with the highest percentage is
+South East with 63.7%, while the lowest is in South West with 45.5%.
+
+```{r}
+#| label: NDHS_anaemia_any_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_any)) +
+  geom_spatvector_text(aes(label = CH_anaemia_any), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (any) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The individual states show a more mixed pattern. The state with the
+highest value is Ebonyi with 84.8% of children anaemic, the next highest
+value is 74.5% in Akwa Ibom state in South South zone.
+
+The state with the lowest value is Delta state with 33.4%.
+
+**Mild anaemia** when haemoglobin level 11.0–11.9 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_mild_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_mild)) +
+  geom_spatvector_text(aes(label = CH_anaemia_mild), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (mild) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The zone with the highest percentage of women with mild anaemia was
+South South, with over 30% of children However all zones had values
+between 26% and 32%. The zone with the lowest levels was South West.
+
+```{r}
+#| label: NDHS_anaemia_mild_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_mild)) +
+  geom_spatvector_text(aes(label = CH_anaemia_mild), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (mild) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+For mild anaemia in children the differences among states are not great,
+with the highest at 38.4% in Abia (South East) and the lowest at 19.8%
+in Ondo (South West).
+
+**Moderate anaemia** when haemoglobin level 8.0–10.9 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_mod_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_mod)) +
+  geom_spatvector_text(aes(label = CH_anaemia_mod), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (moderate) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The zone with the highest percentage of children with moderate anaemia
+was again South East, with over 32% of children The other zones varied
+between 19% and 31% - a bigger range than for mild anaemia. The zone
+with the lowest levels was South West.
+
+```{r}
+#| label: NDHS_anaemia_mod_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_mod)) +
+  geom_spatvector_text(aes(label = CH_anaemia_mod), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (moderate) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+There are some very big differences in the levels of moderate anaemia
+among the states - with a low of 9% in the Federal Capital Territory and
+Delta states, while both Akwa Ibom and Zamfara had levels above 40%.
+
+These are patterns which were masked in the zone map.
+
+**Severe anaemia** when haemoglobin level \<8.0 g/dl
+
+```{r}
+#| label: NDHS_zone_anaemia_sev_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_zone_gpz_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_sev)) +
+  geom_spatvector_text(aes(label = CH_anaemia_sev), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (severe) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+There was a different spatial pattern for severe anaemia. The zone with
+the highest percentage of children with severe anaemia was North East,
+2.5% of children anaemic. The other zones varied between 0.1% and 1.8%.
+The zone with the lowest levels was South West. This showed a similar
+pattern to the values for women of reproductive age.
+
+```{r}
+#| label: NDHS_anaemia_sev_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_sev)) +
+  geom_spatvector_text(aes(label = CH_anaemia_sev), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (severe) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Levels of severe anaemia show less obvious differences within
+geopolitical zones, except in North East where Adamawa has the highest
+value for any state with 4.6% but neighbouring Borno has a value of
+0.8%. North West zone also has large differences among states, while
+states in South West zone have consistently low vales for severe
+anaemia.
+
+### Compare sources
+
+The only micro nutrient for which there are data in different sources is
+for iron. However, there are some differences in the indicators used for
+iron deficiency anaemia in the two sources.
+
+The NDHS has a finer spatial resolution, and the data were collected
+more recently. The only issue would be to decide which of the four
+anaemia indicators to use.
+
+## Zinc deficiency
+
+### Zinc deficiency in women of reproductive age (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_zinc_deficiency_WRA
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_def_zinc_pc_252)) +
+  geom_spatvector_text(aes(label = WRA_def_zinc_pc_252), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of zinc deficiency in women of reproductive age", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+There are large differences in the percentage of women of reproductive
+age with zinc deficiency among geopolitical zones in Nigeria. The zone
+with the lowest values is South East, with 15.5%, whereas in North West
+over 60% of women are deficient in zinc.
+
+### Zinc deficiency in children (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_zinc_deficiency_CH
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CH_def_zinc_pc_238)) +
+  geom_spatvector_text(aes(label = CH_def_zinc_pc_238), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of zinc deficiency in children", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The patterns of zinc deficiency for children are almost exactly the same
+for children. The zone with the lowest values is again South East, with
+11.8%, whereas in North West over 55% of young children are zinc
+deficient.
