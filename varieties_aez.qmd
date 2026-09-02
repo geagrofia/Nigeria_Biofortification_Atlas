@@ -1,7 +1,19 @@
 ---
 title: "Biofortified Varieties - target agro-ecological zones"
-format: html
-bibliography: references.bib
+format:
+  html:
+    toc: true
+    toc-depth: 1
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: /css/style.css
+bibliography: biofort_quarto_better.bib
 ---
 
 ```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
