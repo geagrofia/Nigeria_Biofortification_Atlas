@@ -1,0 +1,123 @@
+name: Build and deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Get the files from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Create a clean directory containing only the files
+      # that should be published to GitHub Pages
+      - name: Prepare Pages site
+        run: |
+          mkdir _site
+
+          # Copy all HTML files from the repository root
+          for file in *.html; do
+            if [ -f "$file" ]; then
+              cp "$file" _site/
+            fi
+          done
+
+          # Create the index page
+          cat > _site/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <title>Reports</title>
+
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                max-width: 900px;
+                margin: 40px auto;
+                padding: 0 20px;
+                line-height: 1.5;
+              }
+
+              h1 {
+                margin-bottom: 30px;
+              }
+
+              ul {
+                padding-left: 25px;
+              }
+
+              li {
+                margin: 10px 0;
+              }
+
+              a {
+                text-decoration: none;
+              }
+
+              a:hover {
+                text-decoration: underline;
+              }
+            </style>
+          </head>
+
+          <body>
+
+          <h1>Reports</h1>
+
+          <ul>
+          EOF
+
+          # Add one link for every HTML file, except index.html
+          for file in *.html; do
+            if [ -f "$file" ] && [ "$file" != "index.html" ]; then
+
+              # Remove .html from filename
+              name="${file%.html}"
+
+              # Replace underscores with spaces
+              name="${name//_/ }"
+
+              # Capitalize the first letter
+              name="$(tr '[:lower:]' '[:upper:]' <<< ${name:0:1})${name:1}"
+
+              # Add the link to index.html
+              echo "    <li><a href=\"$file\">$name</a></li>" >> _site/index.html
+
+            fi
+          done
+
+          # Finish index.html
+          cat >> _site/index.html <<'EOF'
+          </ul>
+
+          </body>
+          </html>
+          EOF
+
+      # Configure GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Package the _site directory for Pages
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      # Publish to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
