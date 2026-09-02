@@ -1,0 +1,230 @@
+---
+title: "Biofortified Varieties - target agro-ecological zones"
+format: html
+bibliography: references.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(tidyr)
+
+```
+
+# Load the Agro-Ecological Zones
+
+```{r}
+#| label: aez
+#| message: false
+#| warning: false
+
+vect_aez_geo <- vect("spatial_data/IITA_AEZ_LGP_2020_SRTM_RCL_NGA_topo.topojson")
+vect_aez_geo$AEZ <- as.factor(vect_aez_geo$AEZ)
+levels(vect_aez_geo$AEZ) # Check levels
+plot(vect_aez_geo, main = "Nigeria Agro-ecological zones based on 2020 LGP and elevation", levels=TRUE)
+
+AEZ <- 1:7
+AEZ_name <- c("Sahel Savanna", "Sudan Savanna", "Northern Guinea Savanna", "Southern Guinea Savanna", "Derived/Transition Savanna", "Forest", "Mid-Altitude")
+
+df_aez_names <- tibble(AEZ, AEZ_name)
+df_aez_names$AEZ <- as.factor(df_aez_names$AEZ)
+levels(df_aez_names$AEZ) # Check levels
+
+vect_aez_geo <- dplyr::left_join(vect_aez_geo, df_aez_names, by = c("AEZ") )
+
+ggplot(vect_aez_geo)+
+  geom_spatvector(aes(fill = AEZ_name)) +
+  theme_minimal()
+
+df_aez <- as.data.frame(vect_aez_geo)
+
+```
+
+
+
+# Load the Variety data
+
+## Nigeria Seed Portal
+
+```{r}
+#| label: nsp_variety_data
+#| message: false
+#| warning: false
+
+df_nsp <- read.csv("seedportal_varieties.csv")
+
+str(df_nsp)
+summary(df_nsp)
+
+```
+
+## Filter Bio-fortified Varieties
+
+```{r}
+#| label: filter_biofort
+#| message: false
+#| warning: false
+
+df_nsp_biofort <- dplyr::filter(df_nsp, zinc == 1 |
+                                  vit_A == 1 | iron == 1)
+
+paste("Number of Bio-fortified varieties =", nrow(df_nsp_biofort))
+biofort_crop_list <- as.list(unique(df_nsp_biofort$Crop.Name))
+
+
+df_nsp_biofort_zinc <- dplyr::filter(df_nsp, zinc == 1)
+paste("Number of varieties Bio-fortified with zinc =", nrow(df_nsp_biofort_zinc))
+
+df_nsp_biofort_crop_zinc_sum <- df_nsp_biofort_zinc %>%
+  group_by(Crop.Name) %>%
+  summarise(across(
+    c(
+      n_guinea,
+      s_guinea,
+      sudan,
+      derived,
+      forest,
+      mid_alt,
+      lowland,
+      sahel,
+      all_zones
+    ),
+    sum,
+    na.rm = TRUE
+  ))
+
+df_nsp_biofort_crop_zinc_sum |> print()
+
+df_nsp_biofort_iron <- dplyr::filter(df_nsp, iron == 1)
+paste("Number of varieties Bio-fortified with iron =", nrow(df_nsp_biofort_iron))
+
+df_nsp_biofort_crop_iron_sum  <- df_nsp_biofort_iron %>%
+  group_by(Crop.Name) %>%
+  summarise(across(
+    c(
+      n_guinea,
+      s_guinea,
+      sudan,
+      derived,
+      forest,
+      mid_alt,
+      lowland,
+      sahel,
+      all_zones
+    ),
+    sum,
+    na.rm = TRUE
+  ))
+
+df_nsp_biofort_crop_iron_sum |> print()
+
+df_nsp_biofort_vit_A <- dplyr::filter(df_nsp, vit_A == 1)
+paste("Number of varieties Bio-fortified with vitamin A =", nrow(df_nsp_biofort_vit_A))
+
+df_nsp_biofort_crop_vit_A_sum <- df_nsp_biofort_vit_A %>%
+  group_by(Crop.Name) %>%
+  summarise(across(
+    c(
+      n_guinea,
+      s_guinea,
+      sudan,
+      derived,
+      forest,
+      mid_alt,
+      lowland,
+      sahel,
+      all_zones
+    ),
+    sum,
+    na.rm = TRUE
+  ))
+
+df_nsp_biofort_crop_vit_A_sum |> print()
+
+```
+
+# Map the varieties in each AEZ
+
+## Step 1: Reshape varieties data to long format by AEZ
+
+```{r}
+
+# Map AEZ classes to your column names
+aez_map <- c(
+  "1" = "sahel",
+  "2" = "sudan",
+  "3" = "n_guinea",
+  "4" = "s_guinea",
+  "5" = "derived",
+  "6" = "forest",
+  "7" = "mid_alt"
+)
+
+# For each AEZ class, count varieties per crop & micronutrient
+# A variety "belongs" to an AEZ if its AEZ column value == 1
+
+df_nsp_biofort_long <- df_nsp_biofort %>%
+  pivot_longer(cols = c(sahel, sudan, n_guinea, s_guinea, derived, forest, mid_alt),
+               names_to = "aez_name",
+               values_to = "in_aez") %>%
+  filter(in_aez == 1) %>%                         # keep only varieties present in that AEZ
+  mutate(AEZ = as.character(match(aez_name,        # convert name back to AEZ class number
+                                   c("sahel","sudan","n_guinea",
+                                     "s_guinea","derived","forest","mid_alt"))))
+```
+
+## Step 2: Count varieties per Crop, Micronutrient, and AEZ
+
+```{r}
+
+micronutrients <- c("zinc", "iron", "vit_A")
+
+df_nsp_biofort_counts <- df_nsp_biofort_long %>%
+  pivot_longer(cols = all_of(micronutrients),
+               names_to  = "micronutrient",
+               values_to = "has_trait") %>%
+  filter(has_trait == 1) %>%                       # keep only varieties with that micronutrient
+  group_by(Crop.Name, micronutrient, AEZ) %>%
+  summarise(n_varieties = n(), .groups = "drop")
+
+```
+
+##Step 3: Join to your SpatVector and plot
+
+```{r}
+
+# Join counts to spatial data
+vect_aez_geo_joined <- vect_aez_geo %>%
+  mutate(AEZ = as.character(AEZ)) %>%
+  left_join(df_nsp_biofort_counts, by = "AEZ", relationship = "many-to-many")
+
+vect_aez_geo_joined <- vect_aez_geo_joined |> 
+  filter(!is.na(micronutrient))|> 
+  filter(!is.na(Crop.Name))
+
+
+# Plot: one facet per Crop x Micronutrient combination
+ggplot(vect_aez_geo_joined) +
+  geom_spatvector(data = vect_aez_geo, fill = "lightgrey", color = "lightgrey", linewidth = 0.2) +
+  geom_spatvector(aes(fill = n_varieties), color = "lightgrey", linewidth = 0.2) +
+  scale_fill_viridis_c(option = "blues", na.value = "lightgrey",
+                       name = "# Varieties", direction = -1) +
+  facet_grid(micronutrient ~ Crop.Name, drop = TRUE) +
+  labs(title = "Number of biofortified varieties per AEZ",
+       caption = "Grey = no varieties for that crop/nutrient/AEZ combination") +
+  theme_minimal() +
+  theme(
+    axis.text    = element_blank(),
+    axis.ticks   = element_blank(),
+    panel.grid   = element_blank(),
+    strip.text   = element_text(face = "bold", size = 8),
+    legend.position = "bottom"
+  )
+
+```
+
