@@ -14,9 +14,6 @@ format:
     code-summary: "Show the code"
     css: /css/style.css
 bibliography: biofort_quarto_better.bib
-editor: 
-  markdown: 
-    wrap: 72
 ---
 
 ```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
@@ -33,31 +30,19 @@ library(tidyr)
 
 # Introduction
 
-The interventions associated with crop biofortification vary depending
-on the stage of the genetic innovation pipeline [@lungaho2025], from
-design to delivery.
+The interventions associated with crop biofortification vary depending on the stage of the genetic innovation pipeline [@lungaho2025], from design to delivery.
 
-The spatial components of those interventions are most visible in the
-product development phase, during the testing of materials, and the
-delivery phase, where new Varieties, are released and are multiplied
-within the seed system.
+The spatial components of those interventions are most visible in the product development phase, during the testing of materials, and the delivery phase, where new Varieties, are released and are multiplied within the seed system.
 
-Information on testing locations is generally sparse, but the testing
-regime provides information (e.g. via National Variety Trials) on the
-geographies for which a new biofortified crop variety is adapted. When
-the variety is released it can be linked to the zones for which it is
-adapted and mapped.
+Information on testing locations is generally sparse, but the testing regime provides information (e.g. via National Variety Trials) on the geographies for which a new biofortified crop variety is adapted. When the variety is released it can be linked to the zones for which it is adapted and mapped.
 
 # Methods 
 
 ## Extracting released variety information
 
-Variety adaptation is one of the pieces of information contained in the
-Nigerian Seed Portal Initiative [@nigerianseedportalinitiative2026].
+Variety adaptation is one of the pieces of information contained in the Nigerian Seed Portal Initiative [@nigerianseedportalinitiative2026].
 
-The seed portal contains information about released seed Varieties, or
-other improved planting material. The portal has information on improved
-varieties of over 30 crops ( @tbl-cropvar).
+The seed portal contains information about released seed Varieties, or other improved planting material. The portal has information on improved varieties of over 30 crops ( @tbl-cropvar).
 
 +------------------------------------------------+---------------------+
 | Crop                                           | Improved Varieties  |
@@ -113,12 +98,9 @@ varieties of over 30 crops ( @tbl-cropvar).
 
 : \# of varieties per crop {#tbl-cropvar}
 
-It would be time consuming to extract information about these varieties
-manually. Instead a script was written in R to ‘scrape’ the website and
-automatically extract the pertinent information.
+It would be time consuming to extract information about these varieties manually. Instead a script was written in R to ‘scrape’ the website and automatically extract the pertinent information.
 
-Each ‘page’ of the seed portal contains summaries of 20 varieties and
-there are 41 pages.
+Each ‘page’ of the seed portal contains summaries of 20 varieties and there are 41 pages.
 
 For each variety summary the scraper extracts:
 
@@ -138,20 +120,15 @@ The script loops through all 41 pages:
 
 - Loops pages 1–41 using the URL format provided
 
-- Polite delay of 1.5 seconds between requests `(DELAY_SECS`) — keeps
-  you from hammering the server; adjust as needed
+- Polite delay of 1.5 seconds between requests `(DELAY_SECS`) — keeps you from hammering the server; adjust as needed
 
-- Auto-retry — if a page fetch fails, it waits 3 seconds and tries once
-  more before skipping
+- Auto-retry — if a page fetch fails, it waits 3 seconds and tries once more before skipping
 
-- Page number column added to the output so each entry can be traced to
-  a page
+- Page number column added to the output so each entry can be traced to a page
 
-- Combined output saved to a single `seedportal_varieties.csv` and
-  `seedportal_varieties.xlsx`
+- Combined output saved to a single `seedportal_varieties.csv` and `seedportal_varieties.xlsx`
 
-Each seed variety has a separate page with more information, the detail
-pages contain these extra fields:
+Each seed variety has a separate page with more information, the detail pages contain these extra fields:
 
 - National Code
 
@@ -167,18 +144,13 @@ pages contain these extra fields:
 
 - Potential Yield (t/ha)
 
-The links on the list pages contain both `varid` and `cropid`, so the
-strategy is: scrape the links from each list page, then visit each
-detail page.
+The links on the list pages contain both `varid` and `cropid`, so the strategy is: scrape the links from each list page, then visit each detail page.
 
 The script is a two-stage scraper.
 
-Stage 1 — Collect links loops all 41 list pages and harvests every
-`varid`= link, then deduplicates them. The detail page URL format is
-`variety.php?varid=XXX&cropid=YYY&task=view`.
+Stage 1 — Collect links loops all 41 list pages and harvests every `varid`= link, then deduplicates them. The detail page URL format is `variety.php?varid=XXX&cropid=YYY&task=view`.
 
-Stage 2 — Scrape detail pages visits each link and extracts the full set
-of fields that only appear on the detail page:
+Stage 2 — Scrape detail pages visits each link and extracts the full set of fields that only appear on the detail page:
 
 | Detail                       | Example                              |
 |------------------------------|--------------------------------------|
@@ -197,140 +169,85 @@ of fields that only appear on the detail page:
 
 : Details of variety
 
-The scraper further parses the results after scraping to assign flags
-depending on whether the variety characteristics include high or notable
-levels of micronutrients:
+The scraper further parses the results after scraping to assign flags depending on whether the variety characteristics include high or notable levels of micronutrients:
 
-(1) Add a new column called ‘zinc’. If the ‘outstanding characteristic’
-    column includes the words ‘Zinc’ or ‘Zn’ then code the zinc column
-    as 1, otherwise 0
+(1) Add a new column called ‘zinc’. If the ‘outstanding characteristic’ column includes the words ‘Zinc’ or ‘Zn’ then code the zinc column as 1, otherwise 0
 
-(2) Add a new column called ‘vit_A’. If the ‘outstanding characteristic’
-    column includes the words ‘vitamin A’ or ‘vit A’ or ‘beta carotene’
-    , then code the vit_A column as 1, otherwise 0.
+(2) Add a new column called ‘vit_A’. If the ‘outstanding characteristic’ column includes the words ‘vitamin A’ or ‘vit A’ or ‘beta carotene’ , then code the vit_A column as 1, otherwise 0.
 
-(3) Add a new column called ‘iron’. If the ‘outstanding characteristic’
-    column includes the words ‘Iron’ or ‘Fe’ then code the iron column
-    as 1, otherwise 0 .
+(3) Add a new column called ‘iron’. If the ‘outstanding characteristic’ column includes the words ‘Iron’ or ‘Fe’ then code the iron column as 1, otherwise 0 .
 
-(4) Add a new column called ‘n_guinea’ . If the ‘Agroecological Zones’
-    column includes the word ‘northern guinea’ or ‘N guinea’ or just
-    ‘northern’ then code the ‘n_guinea’ column as 1, otherwise 0 .
+(4) Add a new column called ‘n_guinea’ . If the ‘Agroecological Zones’ column includes the word ‘northern guinea’ or ‘N guinea’ or just ‘northern’ then code the ‘n_guinea’ column as 1, otherwise 0 .
 
-(5) Add a new column called ‘s_guinea’ . If the ‘Agroecological Zones’
-    column includes the word ‘southern guinea’ or ‘S guinea’ or just
-    ‘southern’ then code the ‘n_guinea’ column as 1, otherwise 0 .
+(5) Add a new column called ‘s_guinea’ . If the ‘Agroecological Zones’ column includes the word ‘southern guinea’ or ‘S guinea’ or just ‘southern’ then code the ‘n_guinea’ column as 1, otherwise 0 .
 
-(6) . If the ‘Agroecological Zones’ column includes the word ‘guinea’
-    without northern or southern then code both the ‘n_guinea’ and
-    ‘s_guinea’ column as 1 .
+(6) . If the ‘Agroecological Zones’ column includes the word ‘guinea’ without northern or southern then code both the ‘n_guinea’ and ‘s_guinea’ column as 1 .
 
-(7) Add a new column called ‘sudan’ . If the ‘Agroecological Zones’
-    column includes the word ‘sudan’ or ‘sudano’ then code the ‘sudan’
-    column as 1, otherwise 0 .
+(7) Add a new column called ‘sudan’ . If the ‘Agroecological Zones’ column includes the word ‘sudan’ or ‘sudano’ then code the ‘sudan’ column as 1, otherwise 0 .
 
-(8) Add a new column called ‘derived’ . If the ‘Agroecological Zones’
-    column includes the word ‘derived’ or ‘transition’ then code the
-    ‘derived’ column as 1, otherwise 0 .
+(8) Add a new column called ‘derived’ . If the ‘Agroecological Zones’ column includes the word ‘derived’ or ‘transition’ then code the ‘derived’ column as 1, otherwise 0 .
 
-(9) Add a new column called ‘forest’ . If the ‘Agroecological Zones’
-    column includes the word ‘forest’ then code the ‘forest’ column as
-    1, otherwise 0 .
+(9) Add a new column called ‘forest’ . If the ‘Agroecological Zones’ column includes the word ‘forest’ then code the ‘forest’ column as 1, otherwise 0 .
 
-(10) . If the ‘Agroecological Zones’ column includes the word ‘savanna’
-     or ‘savanna’ without ‘guinea’ or ‘sudan’ then code the ‘n_guinea’,
-     ‘sudan’ and ‘s_guinea’ column as 1 .
+(10) . If the ‘Agroecological Zones’ column includes the word ‘savanna’ or ‘savanna’ without ‘guinea’ or ‘sudan’ then code the ‘n_guinea’, ‘sudan’ and ‘s_guinea’ column as 1 .
 
-(11) Add a new column called ‘mid_alt’ . If the ‘Agroecological Zones’
-     column includes the word ‘mid altitude’ or ‘mid alt’ then code the
-     ‘mid_alt’ column as 1, otherwise 0 .
+(11) Add a new column called ‘mid_alt’ . If the ‘Agroecological Zones’ column includes the word ‘mid altitude’ or ‘mid alt’ then code the ‘mid_alt’ column as 1, otherwise 0 .
 
-(12) Add a new column called ‘lowland’ . If the ‘Agroecological Zones’
-     column includes the word ‘lowland’ or ‘low’ then code the ‘lowland’
-     column as 1, otherwise 0 .
+(12) Add a new column called ‘lowland’ . If the ‘Agroecological Zones’ column includes the word ‘lowland’ or ‘low’ then code the ‘lowland’ column as 1, otherwise 0 .
 
-(13) Add a new column called ‘sahel’ . If the ‘Agroecological Zones’
-     column includes the word ‘sahel’ or ‘sahelian’ then code the
-     ‘sahel’ column as 1, otherwise 0 . In all cases ignore the case of
-     the word and also include parts of words.
+(13) Add a new column called ‘sahel’ . If the ‘Agroecological Zones’ column includes the word ‘sahel’ or ‘sahelian’ then code the ‘sahel’ column as 1, otherwise 0 . In all cases ignore the case of the word and also include parts of words.
 
-(14) Add a new column called ‘all’ . If the ‘Agroecological Zones’
-     column includes the word ‘all’ then code the ‘all’ column as 1,
-     otherwise 0 . In all cases ignore the case of the word and also
-     include parts of words.
+(14) Add a new column called ‘all’ . If the ‘Agroecological Zones’ column includes the word ‘all’ then code the ‘all’ column as 1, otherwise 0 . In all cases ignore the case of the word and also include parts of words.
 
-+----------------------------------+----------------------------------+
-| Column                           | Logic                            |
-+==================================+==================================+
-| zinc                             | “zinc” or “Zn” in                |
-|                                  | characteristics                  |
-+----------------------------------+----------------------------------+
-| vit_A                            | “vitamin A”, “vit A”, or “beta   |
-|                                  | carotene”                        |
-+----------------------------------+----------------------------------+
-| iron                             | “iron” or “Fe”                   |
-+----------------------------------+----------------------------------+
-| n_guinea                         | northern guinea / N guinea /     |
-|                                  | northern / plain “guinea” /      |
-|                                  | plain “savanna”                  |
-+----------------------------------+----------------------------------+
-| s_guinea                         | southern guinea / S guinea /     |
-|                                  | southern / plain “guinea” /      |
-|                                  | plain “savanna”                  |
-+----------------------------------+----------------------------------+
-| sudan                            | sudan / sudano / plain “savanna” |
-+----------------------------------+----------------------------------+
-| derived                          | “derived” or “transition”        |
-+----------------------------------+----------------------------------+
-| forest                           | “forest”                         |
-+----------------------------------+----------------------------------+
-| mid_alt                          | “mid altitude” or “mid alt”      |
-+----------------------------------+----------------------------------+
-| lowland                          | “lowland” or “low”               |
-+----------------------------------+----------------------------------+
-| sahel                            | “sahel” or “sahelian”            |
-+----------------------------------+----------------------------------+
-| all_zones                        | “all”                            |
-|                                  |                                  |
-| (named all_zones to avoid        |                                  |
-| conflict with R’s built-in       |                                  |
-| all())                           |                                  |
-+----------------------------------+----------------------------------+
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| Column                                                      | Logic                                                                     |
++=============================================================+===========================================================================+
+| zinc                                                        | “zinc” or “Zn” in characteristics                                         |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| vit_A                                                       | “vitamin A”, “vit A”, or “beta carotene”                                  |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| iron                                                        | “iron” or “Fe”                                                            |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| n_guinea                                                    | northern guinea / N guinea / northern / plain “guinea” / plain “savanna”  |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| s_guinea                                                    | southern guinea / S guinea / southern / plain “guinea” / plain “savanna”  |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| sudan                                                       | sudan / sudano / plain “savanna”                                          |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| derived                                                     | “derived” or “transition”                                                 |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| forest                                                      | “forest”                                                                  |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| mid_alt                                                     | “mid altitude” or “mid alt”                                               |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| lowland                                                     | “lowland” or “low”                                                        |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| sahel                                                       | “sahel” or “sahelian”                                                     |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
+| all_zones                                                   | “all”                                                                     |
+|                                                             |                                                                           |
+| (named all_zones to avoid conflict with R’s built-in all()) |                                                                           |
++-------------------------------------------------------------+---------------------------------------------------------------------------+
 
 : extraction logic
 
-The savanna cascade (rule 10) and the bare “guinea” rule (rule 6) are
-handled cleanly through intermediate boolean flags before the final
-as.integer() conversion.
+The savanna cascade (rule 10) and the bare “guinea” rule (rule 6) are handled cleanly through intermediate boolean flags before the final as.integer() conversion.
 
 ## Constructing Agro-Ecological Zones for Nigeria
 
-There is no source of agro-ecological zones that incorporate the zones
-most commonly referenced and used in Nigeria i.e. the “Sahel Savanna”,
-“Sudan Savanna”, “Northern Guinea Savanna”, “Southern Guinea Savanna”,
-“Derived/Transition Savanna”, “Forest”, and “Mid-Altitude zones.
+There is no source of agro-ecological zones that incorporate the zones most commonly referenced and used in Nigeria i.e. the “Sahel Savanna”, “Sudan Savanna”, “Northern Guinea Savanna”, “Southern Guinea Savanna”, “Derived/Transition Savanna”, “Forest”, and “Mid-Altitude zones.
 
-In 2015 HarvestChoice developed Agro-Ecological Zones (AEZ) for Africa
-South of the Sahara (SSA), based on the methodology developed by FAO and
-IIASA. The dataset includes three classification schemes: 5, 8, and 16
-classes, referred to as the AEZ5, AEZ8, and AEZ16, respectively.
+In 2015 HarvestChoice developed Agro-Ecological Zones (AEZ) for Africa South of the Sahara (SSA), based on the methodology developed by FAO and IIASA. The dataset includes three classification schemes: 5, 8, and 16 classes, referred to as the AEZ5, AEZ8, and AEZ16, respectively.
 
-The AEZ16 scheme specifically groups regions into classes based only on
-climatic criteria and thresholds. There are no soil or landform
-criteria, in contrast to the FAO/IIASA Global Agro-Ecological Zones
-(GAEZ) methodology:
+The AEZ16 scheme specifically groups regions into classes based only on climatic criteria and thresholds. There are no soil or landform criteria, in contrast to the FAO/IIASA Global Agro-Ecological Zones (GAEZ) methodology:
 
 Climatic Characteristics
 
-Length of Growing Period (LGP): The number of days in a year when
-temperature and moisture conditions are suitable for crop growth.
+Length of Growing Period (LGP): The number of days in a year when temperature and moisture conditions are suitable for crop growth.
 
-Thermal Regimes: Defined by temperature regimes (e.g., tropical,
-subtropical, temperate) that influence crop suitability.
+Thermal Regimes: Defined by temperature regimes (e.g., tropical, subtropical, temperate) that influence crop suitability.
 
-Aridity Index: A measure of water availability, calculated as the ratio
-of precipitation to potential evapotranspiration. This helps distinguish
-between arid, semi-arid, and humid zones
+Aridity Index: A measure of water availability, calculated as the ratio of precipitation to potential evapotranspiration. This helps distinguish between arid, semi-arid, and humid zones
 
 The HarvestChoice dataset only has five zones for Nigeria:
 
@@ -344,33 +261,27 @@ The HarvestChoice dataset only has five zones for Nigeria:
 
 - Tropic - warm / arid
 
-The agro-ecological zones used in Nigeria do not map exactly onto the
-harvest choice zones, but they do use similar criteria
-[@akinwumiju2020a].
+The agro-ecological zones used in Nigeria do not map exactly onto the harvest choice zones, but they do use similar criteria [@akinwumiju2020a].
 
 For this analysis I use the following criteria and thresholds
 
-+------------------------+-------------------+------------------------+
-| AEZ Name               | LGP (2020) (days) | Elevation              |
-|                        |                   | (masl)[@reuter2007a]   |
-+========================+===================+========================+
-| Sahel Savanna          | \<= 90            | \< 800                 |
-+------------------------+-------------------+------------------------+
-| Sudan Savanna          | 90 - 150          | \< 800                 |
-+------------------------+-------------------+------------------------+
-| Northern Guinea        | 150 - 181         | \< 800                 |
-| Savanna                |                   |                        |
-+------------------------+-------------------+------------------------+
-| Southern Guinea        | 181 - 211         | \< 800                 |
-| Savanna                |                   |                        |
-+------------------------+-------------------+------------------------+
-| Derived/Transition     | 211 - 270         | \< 800                 |
-| Savanna                |                   |                        |
-+------------------------+-------------------+------------------------+
-| Forest                 | \> 270            | \< 800                 |
-+------------------------+-------------------+------------------------+
-| Mid-Altitude zones     |                   | \> 800                 |
-+------------------------+-------------------+------------------------+
++----------------------------+-------------------+---------------------------------+
+| AEZ Name                   | LGP (2020) (days) | Elevation (masl)[@reuter2007a]  |
++============================+===================+=================================+
+| Sahel Savanna              | \<= 90            | \< 800                          |
++----------------------------+-------------------+---------------------------------+
+| Sudan Savanna              | 90 - 150          | \< 800                          |
++----------------------------+-------------------+---------------------------------+
+| Northern Guinea Savanna    | 150 - 181         | \< 800                          |
++----------------------------+-------------------+---------------------------------+
+| Southern Guinea Savanna    | 181 - 211         | \< 800                          |
++----------------------------+-------------------+---------------------------------+
+| Derived/Transition Savanna | 211 - 270         | \< 800                          |
++----------------------------+-------------------+---------------------------------+
+| Forest                     | \> 270            | \< 800                          |
++----------------------------+-------------------+---------------------------------+
+| Mid-Altitude zones         |                   | \> 800                          |
++----------------------------+-------------------+---------------------------------+
 
 # Load the Agro-Ecological Zones
 
