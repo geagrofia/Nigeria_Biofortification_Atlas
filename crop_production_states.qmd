@@ -1,0 +1,1769 @@
+---
+title: "Nigeria Crop Production"
+format:
+  html:
+    toc: true
+    toc-depth: 1
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: /css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+
+```
+
+# Introduction
+
+There are number of sources of crop production data. The three main sources identified for Nigeria have different dates, and differing number of crops ( @tbl-Sources ).
+
++--------------+--------------------+------------------+-------------------+-----------------+
+| Source       | Spatial Resolution | Most recent data | Crops             | Indicators      |
++==============+====================+=================:+===================+=================+
+| NAERLS/FMAFS | State              | 2024             | - Banana/Plantain | - Area          |
+|              |                    |                  | - Cassava         | - Production    |
+|              |                    |                  | - Cowpea          | - Yield         |
+|              |                    |                  | - Maize           |                 |
+|              |                    |                  | - Rice            |                 |
+|              |                    |                  | - Sorghum         |                 |
++--------------+--------------------+------------------+-------------------+-----------------+
+| HarvestStat  | State              | 2006-2023        | - Banana          | - Cropped Area  |
+|              |                    |                  | - Cassava         | - Production    |
+|              |                    |                  | - Cowpea          | - Yield         |
+|              |                    |                  | - Maize           |                 |
+|              |                    |                  | - Rice            |                 |
+|              |                    |                  | - Sorghum         |                 |
+|              |                    |                  | - Sweet Potato    |                 |
++--------------+--------------------+------------------+-------------------+-----------------+
+| MapSpam      | 5' Pixel           | 2020             | - Banana/Plantain | - Physical Area |
+|              |                    |                  | - Cassava         | - Harvest Area  |
+|              |                    |                  | - Cowpea          | - Production    |
+|              |                    |                  | - Maize           | - Yield         |
+|              |                    |                  | - Rice            |                 |
+|              |                    |                  | - Sorghum         |                 |
+|              |                    |                  | - Sweet Potato    |                 |
++--------------+--------------------+------------------+-------------------+-----------------+
+: Crop Production data sources for Nigeria {#tbl-Sources}
+
+# Methods
+
+The data at state level need to be joined to the Nigeria States spatial dataset.
+
+The stages are:
+
+1.  Load the States dataset
+2.  Load each crop database
+3.  For each crop in the database join to the state spatial dataset and plot
+
+## Load the States
+
+The source of the states data is from OSGOF-Ehealth-UNCS.
+These have previously been cleaned to remove sliver polygons and gaps, and were saved as a topojson format.
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+crs(vect_state_geo) <- "epsg:4326"
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+
+# levels(vect_state_geo$adm1_pcode) # Check levels
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  labs(
+    title = "Nigeria States",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+df_state <- as.data.frame(vect_state_geo)
+
+
+```
+
+## NAERLS/FMAFS crop database
+
+The NAERLS/FMAFS crop database [@naerls/fmafs2024WetSeason2024] has csv files for each crop. The csv files need to be loaded and joined to the state dataset.
+
+**Banana/Plantain** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_plantain_banana
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_naerls_plantain_banana <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Plantain_Banana.csv")
+df_naerls_plantain_banana$State <- as.factor(df_naerls_plantain_banana$State)
+cat(paste(levels(df_naerls_plantain_banana$State), "; ")) # Check levels
+
+vect_plantain_banana_2024 <- dplyr::left_join(vect_state_geo, df_naerls_plantain_banana, by = c("adm1_name" = "State"))
+
+df_plantain_banana_2024 <- as.data.frame(vect_plantain_banana_2024) |> rename(plantain_banana_2024 = Area_Ha_2024)
+
+```
+
+**Cassava** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_cassava
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_naerls_cassava <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Cassava.csv")
+df_naerls_cassava$State <- as.factor(df_naerls_cassava$State)
+cat(paste(levels(df_naerls_cassava$State), "; ")) # Check levels
+
+vect_cassava_2024 <- dplyr::left_join(vect_state_geo, df_naerls_cassava, by = c("adm1_name" = "State"))
+
+df_cassava_2024 <- as.data.frame(vect_cassava_2024) |> rename(cassava_2024 = Area_Ha_2024)
+
+```
+
+**Cowpea** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_cowpea
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_naerls_cowpea <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Cowpea.csv")
+df_naerls_cowpea$State <- as.factor(df_naerls_cowpea$State)
+cat(paste(levels(df_naerls_cowpea$State), "; ")) # Check levels
+
+vect_cowpea_2024 <- dplyr::left_join(vect_state_geo, df_naerls_cowpea, by = c("adm1_name" = "State"))
+
+df_cowpea_2024 <- as.data.frame(vect_cowpea_2024) |> rename(cowpea_2024 = Area_Ha_2024)
+
+```
+
+**Maize** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_maize
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+#| 
+df_naerls_maize <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Maize.csv")
+df_naerls_maize$State <- as.factor(df_naerls_maize$State)
+cat(paste(levels(df_naerls_maize$State), "; ")) # Check levels
+
+vect_maize_2024 <- dplyr::left_join(vect_state_geo, df_naerls_maize, by = c("adm1_name" = "State"))
+
+df_maize_2024 <- as.data.frame(vect_maize_2024) |> rename(maize_2024 = Area_Ha_2024)
+
+```
+
+**Rice** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_rice
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+
+df_naerls_rice <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Rice.csv")
+df_naerls_rice$State <- as.factor(df_naerls_rice$State)
+cat(paste(levels(df_naerls_rice$State), "; ")) # Check levels
+    
+vect_rice_2024 <- dplyr::left_join(vect_state_geo, df_naerls_rice, by = c("adm1_name" = "State"))
+
+df_rice_2024 <- as.data.frame(vect_rice_2024) |> rename(rice_2024 = Area_Ha_2024)
+
+```
+
+**Sorghum** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_sorghum
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_naerls_sorghum <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NAERLS Crop Stats 2024/Sorghum.csv")
+df_naerls_sorghum$State <- as.factor(df_naerls_sorghum$State)
+cat(paste(levels(df_naerls_sorghum$State), "; ")) # Check levels
+
+vect_sorghum_2024 <- dplyr::left_join(vect_state_geo, df_naerls_sorghum, by = c("adm1_name" = "State"))
+
+df_sorghum_2024 <- as.data.frame(vect_sorghum_2024) |> rename(sorghum_2024 = Area_Ha_2024)
+
+```
+
+## HarvestStat
+
+The HarvestStat database [@leeHarvestStatAfricaHarmonized2025] has a single file with crop production indicators (as columns) for each crop
+
+### Load the database
+
+The HarvestStat data are loaded and there are data available for the following states:
+
+```{r}
+#| label: hstat_production_data
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_hstat <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/HarvestStat/adm_crop_production_NG.csv")
+df_hstat$admin_1 <- as.factor(df_hstat$admin_1) 
+
+cat(paste(levels(df_hstat$admin_1), "; ")) # Check levels
+
+```
+
+HarvestStat has the following structure:
+
+```{r}
+
+cat(str(df_hstat))
+
+```
+
+### Join the HarvestStat database to the state dataset
+
+The HarvestStat dataset does not contain codes for the states - only names. Therefore we need to join the two data frames using the name of the state - and checking that all states have data.
+
+```{r}
+#| label: hstat_name_join
+#| message: false
+#| warning: false
+#| cache: true
+#| results: hide
+
+df_state_production <- dplyr::left_join(df_state, df_hstat, by = c("adm1_name" = "admin_1"))
+str(df_state_production)
+
+```
+
+**Banana - 2021**
+
+```{r}
+#| label: hstat_banana
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_banana_2021 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Banana", harvest_year == "2021", indicator == "area"), by = c("adm1_name" = "admin_1"))
+df_banana_2021 <- as.data.frame(vect_banana_2021) |> rename(banana_2021 = value)
+
+```
+**Cassava - 2023**
+
+```{r}
+#| label: hstat_cassava
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_cassava_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Cassava", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+df_cassava_2023 <- as.data.frame(vect_cassava_2023) |> rename(cassava_2023 = value)
+
+```
+
+**Cowpea - 2023**
+
+```{r}
+#| label: hstat_cowpea
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_cowpea_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Cowpea", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+df_cowpea_2023 <- as.data.frame(vect_cowpea_2023) |> rename(cowpea_2023 = value)
+
+```
+
+**Maize - 2023**
+
+```{r}
+#| label: hstat_maize
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_maize_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Maize", harvest_year == "2023", indicator             == "area"), by = c("adm1_name" = "admin_1"))
+df_maize_2023 <- as.data.frame(vect_maize_2023) |> rename(maize_2023 = value)
+
+```
+
+**Rice - 2023**
+
+```{r}
+#| label: hstat_rice
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_rice_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Rice", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+df_rice_2023 <- as.data.frame(vect_rice_2023) |> rename(rice_2023 = value)
+
+```
+
+**Sorghum - 2023**
+
+```{r}
+#| label: hstat_sorghum
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_sorghum_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Sorghum", harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+df_sorghum_2023 <- as.data.frame(vect_sorghum_2023) |> rename(sorghum_2023 = value)
+
+```
+
+**Sweet Potato - 2006**
+
+```{r}
+#| label: hstat_spotato
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_spotato_2006 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, product == "Sweet Potatoes", harvest_year == "2006", indicator == "area"), by = c("adm1_name" = "admin_1"))
+df_spotato_2006 <- as.data.frame(vect_spotato_2006) |> rename(spotato_2006 = value)
+
+```
+
+## MapSpam 2020 
+
+The MapSpam 2020 data are provided as GeoTiff raster images,
+
+::: callout-note
+### Total area per grid cell
+
+The spatial resolution of each cell in MapSpam 2020 is 5 arc minutes. This means that there is not a constant total area, but we can estimate the total area per cell for Nigeria:
+
+Latitude side (5 arc-minutes north-south): 1° of latitude ≈ 111.2 km (nearly constant everywhere on Earth) 5' = 5/60° → 111.2 × (5/60) ≈ 9.27 km
+
+Longitude side (5 arc-minutes east-west): 1° of longitude shrinks with latitude by a factor of cos(latitude). At 10°N: cos(10°) ≈ 0.9848 1° longitude ≈ 111.2 × 0.9848 ≈ 109.5 km 5' = 109.5 × (5/60) ≈ 9.13 km
+
+Area of the grid cell: 9.27 km × 9.13 km ≈ 84.6 km²
+
+Convert to hectares (1 km² = 100 ha): 84.6 × 100 ≈ 8,460 hectares
+
+This means that no cell has more than 10,000 hectares, this knowledge is useful for plotting the crops.
+:::
+
+**Banana & Plantain**
+
+```{r}
+#| label: spam_banp
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_ban_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_BANA_A.tif")
+rast_plan_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_PLNT_A.tif")
+
+rast_banp_spam_2020 <- sum(rast_ban_spam_2020, rast_plan_spam_2020, na.rm = TRUE)
+
+rast_banp_spam_2020_nig <- crop(rast_banp_spam_2020, vect_state_geo)
+
+```
+
+**Cassava**
+
+```{r}
+#| label: spam_cassava
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_cassava_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_CASS_A.tif")
+
+rast_cassava_spam_2020_nig <- crop(rast_cassava_spam_2020, vect_state_geo)
+
+```
+
+**Cowpea**
+
+```{r}
+#| label: spam_cowpea
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_cowpea_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_COWP_A.tif")
+
+rast_cowpea_spam_2020_nig <- crop(rast_cowpea_spam_2020, vect_state_geo)
+
+```
+
+**Maize**
+
+```{r}
+#| label: spam_maize
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_maize_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_MAIZ_A.tif")
+
+rast_maize_spam_2020_nig <- crop(rast_maize_spam_2020, vect_state_geo)
+
+```
+
+**Rice**
+
+```{r}
+#| label: spam_rice
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_rice_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_RICE_A.tif")
+
+rast_rice_spam_2020_nig <- crop(rast_rice_spam_2020, vect_state_geo)
+
+```
+
+**Sorghum**
+
+```{r}
+#| label: spam_sorghum
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_sorghum_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_SORG_A.tif")
+
+rast_sorghum_spam_2020_nig <- crop(rast_sorghum_spam_2020, vect_state_geo)
+
+```
+
+**Sweet Potato**
+
+```{r}
+#| label: spam_spot
+#| message: false
+#| warning: false
+#| cache: true
+
+rast_spot_spam_2020 <- rast("E:/SpatialDataExternal/MAPSPAM_2020/Global_Geotiff/spam2020V2r2_global_harvested_area/spam2020_V2r2_global_H_SWPO_A.tif")
+
+rast_spot_spam_2020_nig <- crop(rast_spot_spam_2020, vect_state_geo)
+
+```
+
+## MapSpam 2020 - Total area per state 
+
+In order to produce maps of crop production at the state level there are two methods. The first method is to calculate the zonal statistics of the crop raster datasets, within the state polygons. The second method is to load the MapSpam csv files which already have codes for each state. The csv file uses the centroid location of the raster. In some cases the centroid appears to be in a different state to that which appears in the csv table, but the MapSpam data use crop statistics as part of the model, so it is safer to assume that the state name is correct.
+
+### Raster to polygon method
+
+```{r}
+#| label: spam_state_production
+#| message: false
+#| warning: false
+#| cache: true
+#| results: hide
+
+rast_collection <- c(rast_banp_spam_2020_nig)
+
+add(rast_collection) <- c(rast_cassava_spam_2020_nig, rast_cowpea_spam_2020_nig, rast_maize_spam_2020_nig, rast_rice_spam_2020_nig, rast_sorghum_spam_2020_nig, rast_spot_spam_2020_nig)
+
+rast_collection
+
+```
+
+**Banana & Plantain**
+
+```{r}
+#| label: spam_state_banp
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_banp_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_BANA_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_banp_2020 <- as.data.frame(vect_banp_2020) |> rename(banp_2020 = spam2020_V2r2_global_H_BANA_A)
+
+```
+
+**Cassava**
+
+```{r}
+#| label: spam_state_cassava
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_cassava_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_CASS_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_cassava_2020 <- as.data.frame(vect_cassava_2020) |> rename(cassava_2020 = spam2020_V2r2_global_H_CASS_A)
+
+```
+
+**Cowpea**
+
+```{r}
+#| label: spam_state_cowpea
+#| message: false
+#| warning: false
+#| cache: true
+vect_cowpea_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_COWP_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_cowpea_2020 <- as.data.frame(vect_cowpea_2020) |> rename(cowpea_2020 = spam2020_V2r2_global_H_COWP_A)
+
+```
+
+**Maize**
+
+```{r}
+#| label: spam_state_maize
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_maize_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_MAIZ_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_maize_2020 <- as.data.frame(vect_maize_2020) |> rename(maize_2020 = spam2020_V2r2_global_H_MAIZ_A)
+
+```
+
+**Rice**
+
+```{r}
+#| label: spam_state_rice
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_rice_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_RICE_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_rice_2020 <- as.data.frame(vect_rice_2020) |> rename(rice_2020 = spam2020_V2r2_global_H_RICE_A)
+
+```
+
+**Sorghum**
+
+```{r}
+#| label: spam_state_sorghum
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_sorghum_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_SORG_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_sorghum_2020 <- as.data.frame(vect_sorghum_2020) |> rename(sorghum_2020 = spam2020_V2r2_global_H_SORG_A)
+
+```
+
+**Sweet Potato**
+
+```{r}
+#| label: spam_state_spot
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_spot_2020 <- zonal(rast_collection$spam2020_V2r2_global_H_SWPO_A, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+
+df_spot_2020 <- as.data.frame(vect_spot_2020) |> rename(spot_2020 = spam2020_V2r2_global_H_SWPO_A)
+
+```
+
+### Summarise csv and join to polygon method
+
+```{r}
+#| label: spam_csv_state_production
+#| message: false
+#| warning: false
+#| cache: true
+#| results: hide
+
+# get the csv file
+
+df_spam_nigeria <- read.csv(
+"E:/SpatialDataExternal/MAPSPAM_2020/Global_CSV/spam2020V2r2_global_harvested_area.csv/spam2020V2r2_global_harvested_area/spam2020V2r2_global_H_TA.csv") |> dplyr::filter(ADM0_NAME == "Nigeria")
+
+str(df_spam_nigeria)
+
+# change name to match states dataset
+
+df_spam_nigeria['ADM1_NAME'][df_spam_nigeria['ADM1_NAME'] == 'Abuja'] <- 'Federal Capital Territory'
+df_spam_nigeria['ADM1_NAME'][df_spam_nigeria['ADM1_NAME'] == 'Nassarawa'] <- 'Nasarawa'
+
+```
+
+**Banana & Plantain**
+
+```{r}
+#| label: spam_csv_state_banp
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_banp_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_banp = sum(bana + plnt))
+
+```
+
+
+**Cassava**
+
+```{r}
+#| label: spam_csv_state_cassava
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_cassava_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_cassava = sum(cass))
+
+```
+
+**Cowpea**
+
+```{r}
+#| label: spam_csv_state_cowpea
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_cowpea_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_cowpea = sum(cowp))
+
+```
+
+**Maize**
+
+```{r}
+#| label: spam_csv_state_maize
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_maize_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_maize = sum(maiz))
+
+```
+
+**Rice**
+
+```{r}
+#| label: spam_csv_state_rice
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_rice_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_rice = sum(rice))
+
+```
+
+**Sorghum**
+
+```{r}
+#| label: spam_csv_state_sorghum
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_sorghum_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_sorghum = sum(sorg))
+
+```
+
+**Sweet Potato**
+
+```{r}
+#| label: spam_csv_state_spot
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_spot_2 <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(sum_spot = sum(swpo))
+
+```
+
+# Compare data sources
+
+To help select the best data source it is necessary to compare the state statistics for each crop from the three sources.
+
+## Banana & Plantain
+
+### Banana/Plantain (NAERLS/FMAFS 2024)
+
+```{r}
+#| label: naerls_plantain_banana_map
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_plantain_banana_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 200000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Plantain/Banana Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Banana (HarvestStat 2021)
+
+```{r}
+#| label: hstat_banana_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_banana_2021) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 200000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Banana Production - 2021",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Banana & Plantain (MapSpam 2020)
+
+```{r}
+#| label: spam_banp_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_banp_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Banana & Plantain - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+
+### Compare sources for Banana & Plantain 
+
+The table below displays all three sources together. The data are initially sorted according to the NAERLS data source, and by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+
+```{r}
+#| label: compare_sources_banp
+#| message: false
+#| warning: false
+#| cache: true
+
+df_banp_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_plantain_banana_2024, adm1_pcode, adm1_ref_name, plantain_banana_2024), dplyr::select(df_banana_2021, adm1_pcode, banana_2021), by = 'adm1_pcode' ), df_spam_banp_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_banp_comb_rename <- df_banp_comb |> dplyr::rename(NAERLS_2024 = plantain_banana_2024, HarvestStat_2021 = banana_2021, MapSpam_2020 = sum_banp)
+
+df_banp_comb_rename_round <- df_banp_comb_rename
+
+df_banp_comb_rename_round$NAERLS_2024 <- round(df_banp_comb_rename$NAERLS_2024, digits = 0)
+df_banp_comb_rename_round$HarvestStat_2021 <- round(df_banp_comb_rename$HarvestStat_2021, digits = 0)
+df_banp_comb_rename_round$MapSpam_2020 <- round(df_banp_comb_rename$MapSpam_2020, digits = 0)
+
+df_banp_comb_rename_round |>
+  base::sort_by(df_banp_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+<div style="margin-bottom:50px;">
+</div>
+
+The NAERLS/FMAFS and HarvestStat data are more or less consistent, and it is likely that the HarvestStat data are the same as the NAERLS/FMAFS data from 2021.
+However, there are significant differences with the MapSpam data for 2020. MapSpam has banana and plantain data for many more states than the other two sources. The patterns are different however: Kwara is the state with the largest area of banana and plantain in the NAERLS and HarvestStat sources, but has no harvested area in the MapSpam 2020 data.
+
+As a consequence, the most suitable data to use are the NAERLS/FMAFS data from 2024 for Banana and Plantain.
+
+
+## Cassava
+
+### Cassava (NAERLS/FMAFS 2024)
+
+```{r}
+#| label: naerls_cassava_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_cassava_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 1000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cassava Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cassava (HarvestStat 2023)
+
+```{r}
+#| label: hstat_cassava_map
+#| message: false
+#| warning: false
+#| cache: true
+
+
+ggplot(vect_cassava_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 1000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cassava Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cassava (MapSpam 2020)
+
+```{r}
+#| label: spam_cassava_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_cassava_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cassava - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+### Compare sources
+
+The table below displays all three sources together. The data are initially sorted according to the NAERLS data source, and  by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+
+```{r}
+#| label: compare_sources_cass
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cass_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_cassava_2024, adm1_pcode, adm1_ref_name, cassava_2024), dplyr::select(df_cassava_2023, adm1_pcode, cassava_2023), by = 'adm1_pcode' ), df_spam_cassava_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_cass_comb_rename <- df_cass_comb |> dplyr::rename(NAERLS_2024 = cassava_2024, HarvestStat_2023 = cassava_2023, MapSpam_2020 = sum_cassava)
+
+df_cass_comb_rename_round <- df_cass_comb_rename
+
+df_cass_comb_rename_round$NAERLS_2024 <- round(df_cass_comb_rename$NAERLS_2024, digits = 0)
+df_cass_comb_rename_round$HarvestStat_2023 <- round(df_cass_comb_rename$HarvestStat_2023, digits = 0)
+df_cass_comb_rename_round$MapSpam_2020 <- round(df_cass_comb_rename$MapSpam_2020, digits = 0)
+
+df_cass_comb_rename_round |>
+  base::sort_by(df_cass_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+The HarvestStat appears to use the same data source as NAERLS, so these data sources are consistent. There are some notable differences with the MapSpam data for 2020. The Federal Capital Territory has a very low harvested area in MapSpam compared with NAERLS 2024 data. Similarly Bayelsa and Kwara have lower areas in MapSpam. Meanwhile in MapSpam Borno state has a very large cassava harvested area - bigger than any other state in fact. In the NAERLS source there are no data for Borno, Kano or Adamawa. The former two states are generally not considered large producers of Cassava, but Adamawa is considered a minor producing region so this omission is surprising.
+
+The NAERLS data is still the most appropriate to use, given its provenance and the relative recency of the data.
+
+## Cowpea
+
+### Cowpea (NAERLS/FMAFS 2024)
+
+```{r}
+#| label: naerls_cowpea_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_cowpea_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 1000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cowpea Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Cowpea (HarvestStat 2023)
+
+```{r}
+#| label: hstat_cowpea_map
+#| message: false
+#| warning: false
+#| cache: true
+
+
+ggplot(vect_cowpea_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cowpea Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea (MapSpam 2020)
+
+```{r}
+#| label: spam_cowpea_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_cowpea_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Cowpea - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Compare sources
+
+The table below displays all three sources together. The data are initially sorted according to the NAERLS data source, and by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+
+```{r}
+#| label: compare_sources_cowp
+#| message: false
+#| warning: false
+#| cache: true
+
+
+df_cowp_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_cowpea_2024, adm1_pcode, adm1_ref_name, cowpea_2024), dplyr::select(df_cowpea_2023, adm1_pcode, cowpea_2023), by = 'adm1_pcode' ), df_spam_cowpea_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_cowp_comb_rename <- df_cowp_comb |> dplyr::rename(NAERLS_2024 = cowpea_2024, HarvestStat_2023 = cowpea_2023, MapSpam_2020 = sum_cowpea)
+
+df_cowp_comb_rename_round <- df_cowp_comb_rename
+
+df_cowp_comb_rename_round$NAERLS_2024 <- round(df_cowp_comb_rename$NAERLS_2024, digits = 0)
+df_cowp_comb_rename_round$HarvestStat_2023 <- round(df_cowp_comb_rename$HarvestStat_2023, digits = 0)
+df_cowp_comb_rename_round$MapSpam_2020 <- round(df_cowp_comb_rename$MapSpam_2020, digits = 0)
+
+df_cowp_comb_rename_round |>
+  base::sort_by(df_cowp_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+There are some considerable differences between the NAERLS and MapSpam data. These are unlikely to be due to the 4 years difference between the sources.
+The state with the largest area of cowpea in the NAERLS source is Kogi, whereas for MapSpam it is Zamfara. Both states have agro-ecological conditions suitable for growing cowpea, but the figures for Zamfara seem excessive - almost double the area of cowpea in Taraba - the state with the second highest harvested area. 
+NAERLS acknowledge that production in Zamfara had declined recently due to adverse weather conditions, pest infestations, and reduced input use.
+
+Other notable differences are Osun (where NAERLS estimates almost 200 thousand and MapSpam just 5544 hectares) and Abia.
+
+Again the NAERLS source is preferred due to the more recent date of the estimates. However, the comparison shows that year-to-year variations will have an impact on how the crop area are used and interpreted.
+
+## Maize
+
+### Maize (NAERLS/FMAFS 2024)
+
+```{r}
+#| label: naerls_maize_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_maize_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Maize Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize (HarvestStat 2023)
+
+```{r}
+#| label: hstat_maize_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_maize_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 400000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Maize Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize (MapSpam 2020)
+
+```{r}
+#| label: spam_maize_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_maize_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Maize - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Compare sources for Maize 
+
+The table below displays all three sources together. The data are initially sorted according to the NAERLS data source, and  by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+
+```{r}
+#| label: compare_sources_maize
+#| message: false
+#| warning: false
+#| cache: true
+
+df_maize_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_maize_2024, adm1_pcode, adm1_ref_name, maize_2024), dplyr::select(df_maize_2023, adm1_pcode, maize_2023), by = 'adm1_pcode' ), df_spam_maize_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_maize_comb_rename <- df_maize_comb |> dplyr::rename(NAERLS_2024 = maize_2024, HarvestStat_2023 = maize_2023, MapSpam_2020 = sum_maize)
+
+df_maize_comb_rename_round <- df_maize_comb_rename
+
+df_maize_comb_rename_round$NAERLS_2024 <- round(df_maize_comb_rename$NAERLS_2024, digits = 0)
+df_maize_comb_rename_round$HarvestStat_2023 <- round(df_maize_comb_rename$HarvestStat_2023, digits = 0)
+df_maize_comb_rename_round$MapSpam_2020 <- round(df_maize_comb_rename$MapSpam_2020, digits = 0)
+
+df_maize_comb_rename_round |>
+  base::sort_by(df_maize_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+The comparison of maize crop area between MapSpam and NAERLS show more consistency than other crops - at least for states like Gombe, Bauchi, Kaduna and Borno. A state that has a large difference is Yobe. In the 2020 MapSpam data the harvested area is less than 150,000 hectares, whereas in the NAERLS and HarvestStat data for 2024 and 2023 respectively the area is more than double. The opposite situation is encountered for Borno, although declines in production were acknowledged in the NAERLS 2024 report.
+
+The NAERLS data are once again the best source for maize.
+
+
+## Rice
+
+### Rice (NAERLS/FMAFS 2024)
+
+```{r}
+#| label: naerls_rice_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_rice_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Rice Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Rice (HarvestStat 2023)
+
+```{r}
+#| label: hstat_rice_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_rice_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 400000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Rice Production - HarvestStat 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Rice (MapSpam 2020)
+
+```{r}
+#| label: spam_rice_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_rice_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Rice - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+
+### Compare sources for Rice 
+
+The table below displays all three sources together. The data are initially sorted according to the NAERLS data source, and by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+```{r}
+#| label: compare_sources_rice
+#| message: false
+#| warning: false
+#| cache: true
+
+df_rice_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_rice_2024, adm1_pcode, adm1_ref_name, rice_2024), dplyr::select(df_rice_2023, adm1_pcode, rice_2023), by = 'adm1_pcode' ), df_spam_rice_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_rice_comb_rename <- df_rice_comb |> dplyr::rename(NAERLS_2024 = rice_2024, HarvestStat_2023 = rice_2023, MapSpam_2020 = sum_rice)
+
+df_rice_comb_rename_round <- df_rice_comb_rename
+
+df_rice_comb_rename_round$NAERLS_2024 <- round(df_rice_comb_rename$NAERLS_2024, digits = 0)
+df_rice_comb_rename_round$HarvestStat_2023 <- round(df_rice_comb_rename$HarvestStat_2023, digits = 0)
+df_rice_comb_rename_round$MapSpam_2020 <- round(df_rice_comb_rename$MapSpam_2020, digits = 0)
+
+df_rice_comb_rename_round |>
+  base::sort_by(df_rice_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+For rice harvested area there is a very strong alignment among the data sources, with Kogi, Niger and Benue states consistently high.
+
+There are no obvious anomalies among the values.
+
+## Sorghum
+
+### Sorghum (NAERLS/FMAFS 2024)
+
+```{r}
+#| label: naerls_sorghum_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_sorghum_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sorghum Production - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum (HarvestStat 2023)
+
+```{r}
+#| label: hstat_sorghum_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_sorghum_2023) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sorghum Production - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Sorghum (MapSpam 2020)
+
+```{r}
+#| label: spam_sorghum_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_sorghum_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sorghum - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Compare sources for Sorghum 
+
+The table below displays all three sources together. The data are initially sorted according to the NAERLS data source, and by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+
+```{r}
+#| label: compare_sources_sorghum
+#| message: false
+#| warning: false
+#| cache: true
+
+
+df_sorghum_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_sorghum_2024, adm1_pcode, adm1_ref_name, sorghum_2024), dplyr::select(df_sorghum_2023, adm1_pcode, sorghum_2023), by = 'adm1_pcode' ), df_spam_sorghum_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_sorghum_comb_rename <- df_sorghum_comb |> dplyr::rename(NAERLS_2024 = sorghum_2024, HarvestStat_2023 = sorghum_2023, MapSpam_2020 = sum_sorghum)
+
+
+df_sorghum_comb_rename_round <- df_sorghum_comb_rename
+
+df_sorghum_comb_rename_round$NAERLS_2024 <- round(df_sorghum_comb_rename$NAERLS_2024, digits = 0)
+df_sorghum_comb_rename_round$HarvestStat_2023 <- round(df_sorghum_comb_rename$HarvestStat_2023, digits = 0)
+df_sorghum_comb_rename_round$MapSpam_2020 <- round(df_sorghum_comb_rename$MapSpam_2020, digits = 0)
+
+df_sorghum_comb_rename_round |>
+  base::sort_by(df_sorghum_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+For sorghum there are some big differences in the harvested area by state between the NAERLS and MapSpam sources. While Kano is the biggest producer in both datasets the difference between Kano and other states is extreme in the MapSpam data, with almost double the area of the next state Kaduna. Other anomalies are Niger and Edo states which have a far higher level of area in MapSpam than the other sources.
+
+NAERLS provides no estimates for many southern states. There is likely to be some production here, perhaps for fodder rather than grain, but these estimates do not appear in the report.
+
+## Sweet Potato
+
+### Sweet Potato (HarvestStat 2006)
+
+```{r}
+#| label: hstat_spotato_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_spotato_2006) +
+  geom_spatvector(aes(fill = value)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 30000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sweet Potato Production - 2006",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sweet Potato (MapSpam 2020)
+
+```{r}
+#| label: spam_spot_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot() +
+  geom_spatraster(data = rast_spot_spam_2020_nig) +
+  geom_spatvector(data = vect_state_geo, fill = NA) +
+  geom_spatvector_text(data = vect_state_geo, aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Sweet Potato - 2020",
+    fill = "Harvested<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Compare sources for Sweet Potato 
+
+The table below displays both sources together. The data are initially sorted according to the HarvestStat data source, and by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+```{r}
+#| label: compare_sources_spotato
+#| message: false
+#| warning: false
+#| cache: true
+
+
+df_spotato_comb <- dplyr::left_join(dplyr::select(df_spotato_2006, adm1_pcode, adm1_ref_name, spotato_2006), df_spam_spot_2, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_spotato_comb_rename <- df_spotato_comb |> dplyr::rename(HarvestStat_2006 = spotato_2006, MapSpam_2020 = sum_spot)
+
+df_spotato_comb_rename_round <- df_spotato_comb_rename
+
+df_spotato_comb_rename_round$HarvestStat_2006 <- round(df_spotato_comb_rename$HarvestStat_2006, digits = 0)
+df_spotato_comb_rename_round$MapSpam_2020 <- round(df_spotato_comb_rename$MapSpam_2020, digits = 0)
+
+df_spotato_comb_rename_round |>
+  base::sort_by(df_spotato_comb_rename_round$HarvestStat_2006, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+The comparison between the 2006 estimates from HarvestStat and those of 2020 from MapSpam show very large differences in the absolute harvested areas, with many states in the 2020 dataset showing areas an order of magnitude different, such as Niger, Benue and Taraba, or more extremely for Enugu.
+
+Sweet Potato production has increased in Nigeria, and the 2006 data are now very old. While the MapSpam data show unusual patterns and obvious missing data for Bayelsa, Ebonyi, Ekiti and Nasarawa, those data are still more recent than the 2006 data.
+
+
+# Conclusions
+
+It is therefore necessary to use a mixture of the sources, with government sources and more recent data given a higher priority ( @tbl-Conclusion ).
+
+
+
++--------------+--------------------+------------------+-----------------------+-----------------+
+| Source       | Spatial Resolution | Most recent data | Crops (selected)      | Indicators      |
++==============+====================+=================:+=======================+=================+
+| NAERLS/FMAFS | State              | 2024             | - **Banana/Plantain** | - Area          |
+|              |                    |                  | - **Cassava**         | - Production    |
+|              |                    |                  | - **Cowpea**          | - Yield         |
+|              |                    |                  | - **Maize**           |                 |
+|              |                    |                  | - **Rice**            |                 |
+|              |                    |                  | - **Sorghum**         |                 |
++--------------+--------------------+------------------+-----------------------+-----------------+
+| MapSpam      | 5' Pixel           | 2020             | - **Sweet Potato**    | - Harvest Area  |
+|              |                    |                  |                       | - Production    |
+|              |                    |                  |                       | - Yield         |
++--------------+--------------------+------------------+-----------------------+-----------------+
+
+: Selected Crop Production data sources for Nigeria {#tbl-Conclusion}
+
+These are saved to the local database.
+
+```{r}
+#| label: save_data
+#| message: false
+#| warning: false
+#| cache: true
+
+# plantain banana 2024
+writeVector(
+  x = vect_plantain_banana_2024,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/plantain_banana_2024_naerls.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+# Cassava 2024
+writeVector(
+  x = vect_cassava_2024,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cassava_2024_naerls.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+# Cowpea 2024
+writeVector(
+  x = vect_cowpea_2024,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cowpea_2024_naerls.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+# Maize 2024
+writeVector(
+  x = vect_maize_2024,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/maize_2024_naerls.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+# Rice 2024
+writeVector(
+  x = vect_rice_2024,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/rice_2024_naerls.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+
+# Sorghum 2024
+writeVector(
+  x = vect_sorghum_2024,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/sorghum_2024_naerls.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+
+# Sweet Potato MapSpam 2020
+# join df to vect
+vect_spam_spot_2 <- tidyterra::left_join(vect_state_geo, df_spam_spot_2, by =c("adm1_ref_name" = "ADM1_NAME"))
+
+writeVector(
+  x = vect_spam_spot_2,
+  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/spotato_2020_mapspam.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+```
+
+
+
