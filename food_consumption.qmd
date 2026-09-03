@@ -1,0 +1,4598 @@
+---
+title: "Nigeria Food Consumption"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(tidyverse)
+library(readODS)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+
+```
+
+# Nigeria food consumption data sources
+
+There are number of sources of food consumption and micro-nutrient deficiency data. The three main sources identified for Nigeria have different dates, and differing number of deficiencies and populations ( @tbl-FCSources ).
+
++------------------------------------------------------------------+--------------------+------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------+
+| Source                                                           | Spatial Resolution | Most recent data | Indicators                                                                                                                                                      | Population                       |
++==================================================================+====================+==================+=================================================================================================================================================================+==================================+
+| National Food Consumption and Micronutrient Survey (NFCMS), 2021 | Geopolitical Zone  | 2021             | - Minimum Dietary Diversity for Women (MDD-W)                                                                                                                   | - women 15–49                    |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Global Dietary Quality Score (GDQS)                                                                                                                           |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Global Diet Recommendation Score (GDR Score)                                                                                                                  |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Usual Intakes of energy                                                                                                                                       |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Usual intakes of selected macronutrients                                                                                                                      |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Usual intakes of selected micronutrients                                                                                                                      |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Proportion of respondents who consumed biofortified foods in the past 30 days                                                                                 |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Frequency of consumption of biofortified foods in the past 30 days                                                                                            |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Usual intakes of specific foods (raw form): biofortified foods (yellow cassava, orange-fleshed sweet potato, orange maize)                                    |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Contribution of specific foods to energy and Vitamin A intake                                                                                                 |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Percentage of Non-Pregnant Women Whose Households Consumed Maize Flour (purchased, branded, labelled as fortified)                                            |                                  |
++------------------------------------------------------------------+--------------------+------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------+
+| GHS household survey (National Bureau of Statistics (NBS), 2024  | Geopolitical Zone  | 2023-2024        | - Quantity and value of food consumed within the household during the past 7 days, as well as the quantity and value of food purchased during the past 30 days. | - Consumption at household level |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Number of days the household consumed each food group item during the last 7 days                                                                             |                                  |
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
+|                                                                  |                    |                  | - Women Dietary Diversity for the previous day                                                                                                                  |                                  |
++------------------------------------------------------------------+--------------------+------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------+
+|                                                                  |                    |                  |                                                                                                                                                                 |                                  |
++------------------------------------------------------------------+--------------------+------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------+
+
+: Food Consumption data sources for Nigeria {#tbl-FCSources}
+
+[@federalgovernmentofnigeriafgonNationalFoodConsumption2024]
+[@nationalbureauofstatisticsnbsNigeriaGeneralHousehold2024]
+
+
+# Load the States
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+crs(vect_state_geo) <- "epsg:4326"
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+
+# levels(vect_state_geo$adm1_pcode) # Check levels
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  labs(
+    title = "Nigeria States",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+df_state <- as.data.frame(vect_state_geo)
+
+
+```
+
+# Load the geopolitical zones
+
+The geopolitical zones are a combination of states with similar ethnic groups, and/or common political history.
+
+There are six zones:
+
++---------------+----------------------------------------------------------------------------------------+
+| Zone name     | States                                                                                 |
++===============+========================================================================================+
+| North Central | Benue, Kogi, Kwara, Nasarawa, Niger, and Plateau States, and Federal Capital Territory |
++---------------+----------------------------------------------------------------------------------------+
+| North East    | Adamawa, Bauchi, Borno, Gombe, Taraba, and Yobe                                        |
++---------------+----------------------------------------------------------------------------------------+
+| North West    | Jigawa, Kaduna, Kano, Katsina, Kebbi, Sokoto, and Zamfara                              |
++---------------+----------------------------------------------------------------------------------------+
+| South East    | Abia, Anambra, Ebonyi, Enugu, and Imo                                                  |
++---------------+----------------------------------------------------------------------------------------+
+| South South   | Akwa Ibom, Bayelsa, Cross River, Delta, Edo, and Rivers                                |
++---------------+----------------------------------------------------------------------------------------+
+| South West    | Ekiti, Lagos, Ogun, Ondo, Osun, and Oyo                                                |
++---------------+----------------------------------------------------------------------------------------+
+
+The zones are created by joining the states.
+
+```{r}
+#| label: create_zones
+#| message: false
+#| warning: false
+
+adm1_pcode <- c("NG001", "NG002", "NG003", "NG004", "NG005", "NG006", "NG007", "NG008", "NG009", "NG010", "NG011", "NG012", "NG013", "NG014", "NG015", "NG016", "NG017", "NG018", "NG019", "NG020", "NG021", "NG022", "NG023", "NG024", "NG025", "NG026", "NG027", "NG028", "NG029", "NG030", "NG031", "NG032", "NG033", "NG034", "NG035", "NG036", "NG037")
+
+geopolitical_zone<- c("South East", "North East", "South South", "South East", "North East", "South South", "North Central", "North East", "South South", "South South", "South East", "South South", "South West", "South East", "North Central", "North East", "South East", "North West", "North West", "North West", "North West", "North West", "North Central", "North Central", "South West", "North Central", "North Central", "South West", "South West", "South West", "South West", "North Central", "South South", "North West", "North East", "North East", "North West")
+
+df_gpz <- tibble(adm1_pcode, geopolitical_zone)
+
+vect_gpz_geo <- dplyr::left_join(vect_state_geo, df_gpz, by = c("adm1_pcode")) |> aggregate(by = "geopolitical_zone")
+
+ggplot(vect_gpz_geo)+
+  geom_spatvector(aes(fill = geopolitical_zone)) +
+  geom_spatvector_text(aes(label = geopolitical_zone), size = 3) +
+  theme_minimal()
+
+```
+
+# NFCMS 2021
+
+## Load the NFCMS database
+
+The NFCMS data are loaded and there are data available for the following zones:
+
+```{r}
+#| label: NFCMS_consumption_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_consumption.csv")
+
+df_NFCMS$geopolitical_zone <- as.factor(df_NFCMS$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+```{r}
+#| label: NFCMS_energy_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A10 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A10_energy_top10.csv")
+
+df_NFCMS_A10$geopolitical_zone <- as.factor(df_NFCMS_A10$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A10$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+
+```{r}
+#| label: NFCMS_protein_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A12 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A12_protein_top10.csv")
+
+df_NFCMS_A12$geopolitical_zone <- as.factor(df_NFCMS_A12$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A12$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+
+
+```{r}
+#| label: NFCMS_carbohydrate_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A17 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A17_carb_top10.csv")
+
+df_NFCMS_A17$geopolitical_zone <- as.factor(df_NFCMS_A17$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A17$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+
+```{r}
+#| label: NFCMS_calcium_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A19 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A19_calc_top10.csv")
+
+df_NFCMS_A19$geopolitical_zone <- as.factor(df_NFCMS_A19$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A19$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+```{r}
+#| label: NFCMS_iron_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A21 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A21_iron_top10.csv")
+
+df_NFCMS_A21$geopolitical_zone <- as.factor(df_NFCMS_A21$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A21$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+```{r}
+#| label: NFCMS_zinc_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A23 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A23_zinc_top10.csv")
+
+df_NFCMS_A23$geopolitical_zone <- as.factor(df_NFCMS_A23$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A23$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+```{r}
+#| label: NFCMS_vitA_top10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_A25 <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_A25_vitA_top10.csv")
+
+df_NFCMS_A25$geopolitical_zone <- as.factor(df_NFCMS_A25$geopolitical_zone) 
+
+cat(paste(levels(df_NFCMS_A25$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+## Join the NFCMS database to the zone dataset
+
+The NFCMS dataset does not contain codes for the zones - only names. Therefore we need to join the two data frames using the name of the zone - and checking that all zones have data.
+
+```{r}
+#| label: NFCMS_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_gpz_geo_NFCMS <- dplyr::left_join(vect_gpz_geo, df_NFCMS, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Consumption summary",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+vect_gpz_geo_NFCMS_A10 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A10, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A10 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Energy top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+vect_gpz_geo_NFCMS_A12 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A12, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A12 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Protein top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+vect_gpz_geo_NFCMS_A17 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A17, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A17 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Carbohydrate top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+vect_gpz_geo_NFCMS_A19 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A19, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A19 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Calcium top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+vect_gpz_geo_NFCMS_A21 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A21, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A21 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Iron top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+vect_gpz_geo_NFCMS_A23 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A23, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A23 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Zinc top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+vect_gpz_geo_NFCMS_A25 <- dplyr::left_join(vect_gpz_geo, df_NFCMS_A25, by = c("geopolitical_zone"))
+vect_gpz_geo_NFCMS_A25 |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "NFCMS Vitamin A top 10",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+```
+
+# GHS 2023-24
+
+Many of the relevant indicators are already summarised by geopolitical zone and are displayed in the GHS report.
+These are pre-digitised and are loaded as a single csv file.
+
+## Load the GHS database
+
+```{r}
+#| label: GHS_consumption_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+df_GHS <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/GHS_consumption.csv")
+
+df_GHS$geopolitical_zone <- as.factor(df_GHS$geopolitical_zone) 
+
+cat(paste(levels(df_GHS$geopolitical_zone), "; ")) # Check levels
+
+
+```
+
+## Join the GHS database to the zone dataset
+
+The GHS dataset does not contain codes for the zones - only names. Therefore we need to join the two data frames using the name of the zone - and checking that all zones have data.
+
+```{r}
+#| label: GHS_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_gpz_geo_GHS <- dplyr::left_join(vect_gpz_geo, df_GHS, by = c("geopolitical_zone"))
+vect_gpz_geo_GHS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+# Compare data sources
+
+To help select the best data source it is necessary to compare the statistics for each indicator from the two sources. However, the indicators in the National Food Consumption and Micronutrient Survey are in many cases different to the GHS survey. The indicators that are most similar are the values for dietary diversity.
+
+# Women's Minimum Dietary Diversity (MDD-W)
+
+MDD-W is an indicator that measures the proportion of women 15-49 years of age who consumed food items (at least 15g) from at least five out of the ten defined food groups the previous day or night. The higher the MDD-W, the higher the probability of nutrient adequacy for most key micro-nutrients needed for sustenance of health.
+
+There are two indicators in the datasets for MDD-W:
+1) the percentage of women achieving the MDD
+2) the average MDD score
+
+## MDD-W (NFCMS, 2021)
+
+
+```{r}
+#| label: NFCMS_WDD_PC_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = MDD_PC_W_179)) +
+  geom_spatvector_text(aes(label = MDD_PC_W_179), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women achieving minimum dietary diversity", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_WDD_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = MDD_W_180)) +
+  geom_spatvector_text(aes(label = MDD_W_180), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's dietary diversity score (0-10)", fill = "score") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## MDD-W  (GHS, 2024)
+
+
+```{r}
+#| label: GHS_WDD_PC_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = W_min_DDS)) +
+  geom_spatvector_text(aes(label = W_min_DDS), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women achieving minimum dietary diversity", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: GHS_WDD_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = DDS)) +
+  geom_spatvector_text(aes(label = DDS), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's dietary diversity score (0-10)", fill = "score") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Conclusion 
+
+The NFCMS data from 2021 show that overall most women do not achieve minimum dietary diversity. The zone with the highest percentage of women achieving MDD is South West. This is the only zone where a majority of women achieve MDD. The zone with the lowest percentage is North West, with only 13.3% of women achieving MDD.
+
+The average MDD scores per zone range between 3 and 4.6. These are low scores, with the southern zones having the most diverse diets. North West zone has the least diverse diet. This indicator is consistent with the % of women achieving MDD.
+
+
+The percentage of women achieving MDD from the 2024 GHS data show far higher percentages compared to the NFCMS data from 2021, especially in North West and North East zones. However, the South West was no longer the zone with the highest percentage, instead South East zone was the highest with 53.7%.
+
+The pattern from the 2024 GHS data show relatively higher scores for all zones compared to 2021 NFCMS, although the range is still between 3.6 and 4.8. The zone with the lowest diversity is North Central.
+
+Both datasets are from reliable sources, but the GHS data are more recent.
+
+
+# Macro-nutrient intake
+
+
+## Total Energy intake
+
+The NFCMS provides a list of the 10 food products that contribute most to energy intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A10_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN1_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN1_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #1 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A10_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN2_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #2 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A10_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN3_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #3 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A10_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN4_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #4 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A10_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN5_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #5 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A10_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN6_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #6 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A10_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN7_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #7 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A10_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN8_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #8 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A10_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN9_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #9 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A10_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A10) +
+  geom_spatvector(aes(fill = SN10_kcal)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 350),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Energy Intake intake - #10 Food Product",
+    fill = "kcal"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Total Protein intake
+
+The NFCMS provides a list of the 10 food products that contribute most to protein intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A12_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN1_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN1_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #1 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A12_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN2_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #2 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A12_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN3_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #3 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A12_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN4_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #4 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A12_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN5_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #5 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A12_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN6_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #6 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A12_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN7_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #7 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A12_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN8_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #8 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A12_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN9_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #9 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A12_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A12) +
+  geom_spatvector(aes(fill = SN10_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 6),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Protein Intake intake - #10 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Total Carbohydrate intake
+
+The NFCMS provides a list of the 10 food products that contribute most to carbohydrate intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A17_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN1_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #1 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A17_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN2_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #2 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A17_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN3_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #3 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A17_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN4_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #4 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A17_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN5_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #5 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A17_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN6_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #6 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A17_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN7_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #7 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A17_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN8_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #8 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A17_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN9_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #9 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A17_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A17) +
+  geom_spatvector(aes(fill = SN10_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 75),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Carbohydrate Intake intake - #10 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Carbohydrates
+
+The NFCMS dataset includes information about the consumption of macro-nutrients, and their contribution to energy intake.
+
+### Carbohydrate intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_CARB_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CARB_IN_W_63)) +
+  geom_spatvector_text(aes(label = CARB_IN_W_63), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 300),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Carbohydrate intake", fill = "g") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Contribution of carbohydrate to total usual energy intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_CARB_EN_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CARB_EN_IN_W_65)) +
+  geom_spatvector_text(aes(label = CARB_EN_IN_W_65), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = " Contribution of carbohydrate to women's total usual energy intake", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Grains, white roots and tubers, and plantains (GHS, 2024)
+
+The GHS does not extract the macro-nutrient data from the food products consumed. Instead the dataset combines food products into major food groups.
+
+These food groups are not directly comparable to the macro-nutrients in the NFCMS, but it is useful to compare food groups that are important sources of the macro-nutrients. For instance, grains, roots, tubers and plantains are major sources of carbohydrates.
+
+```{r}
+#| label: GHS_WDD_gr_rtb
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = gr_rtb)) +
+  geom_spatvector_text(aes(label = gr_rtb), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming grains, white roots and tubers, and plantains", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Conclusion
+
+The NFCMS data show the amount of carbohydrates consumed. There are not huge differences across zones in the amounts consumed. Similarly, the contribution of carbohydrates to women's energy intake varies little among the zones - with carbohydrate providing just over half of all energy.
+
+The GHS from 2023/24 shows that most women regularly consume carbohydrate rich grains, roots, tubers and plantains. The only zone where this percentage is below 90% is South South.
+
+
+## Plant Proteins
+
+### Plant Protein intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_PL_PROT_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = PL_PROT_IN_W_48)) +
+  geom_spatvector_text(aes(label = PL_PROT_IN_W_48), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Plant Protein intake", fill = "g") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Contribution of plant proteins to total usual energy intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_PL_PROT_EN_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = PL_PROT_EN_IN_W_57)) +
+  geom_spatvector_text(aes(label = PL_PROT_EN_IN_W_57), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = " Contribution of plant protein to women's total usual energy intake", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Pulses (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_pulses
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = pulses)) +
+  geom_spatvector_text(aes(label = pulses), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming pulses", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Conclusion
+
+Plant protein intake among women is less than carbohydrates in all states, and shows a wide variation from 38g in South South to almost 80g per day in North West. The contribution of plant proteins to energy intakes is far lower than for carbohydrates. The figures do not vary too greatly among the zones, but are consistent with the spatial pattern of the intake. The zone with the lowest contribution is South South with plant proteins contributing to just 5.3% of usual energy intake.
+
+There is no direct comparison in the GHS dataset, but the group of food products most often associated with plant protein is pulses.
+The proportion of women consuming pulses in the GHS shows a similar pattern to the amount of plant protein consumed in 2021, with women in North East and North West zones the most regular consumers.
+
+
+## Animal Proteins
+
+### Animal Protein intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_AN_PROT_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = AN_PROT_IN_W_47)) +
+  geom_spatvector_text(aes(label = AN_PROT_IN_W_47), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Animal Protein intake", fill = "g") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Contribution of animal proteins to total usual energy intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_AN_PROT_EN_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = AN_PROT_EN_IN_W_55)) +
+  geom_spatvector_text(aes(label = AN_PROT_EN_IN_W_55), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = " Contribution of animal protein to women's total usual energy intake", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Dairy (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_dairy
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = dairy)) +
+  geom_spatvector_text(aes(label = dairy), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming dairy products", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Meat, poultry, fish (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_meat_fish
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = meat_fish)) +
+  geom_spatvector_text(aes(label = meat_fish), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming meat, poultry and fish products", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Eggs (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_eggs
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = eggs)) +
+  geom_spatvector_text(aes(label = eggs), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming eggs", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Conclusion
+
+Animal proteins are less relevant for crop bio fortification, but they are useful to consider because they are often nutrient dense, an alternative to plant based food products (especially pulses), and many consumers aspire to consume more of these products. The consumption of these products therefore needs to be monitored to see if the Nigerian diet is evolving over time to include more animal products.
+
+Animal protein intake in the 2021 NFCMS is in general lower than plant protein, but there are regional differences. Animal protein intake in South South is almost as high as plant protein intake, whereas in North East the animal protein intake is only 1/4 of the plant protein intake.
+
+The contribution of animal protein to overall usual energy intake follows the same pattern with the South South and South West zones showing the highest contribution.
+
+Women in the North West are the most common consumers of dairy products, while the neighbouring zone of North Central has the lowest percentage of women consuming milk or milk products.
+
+A majority of women consume meat, poultry or fish in the southern zones, while the North West zone has the lowest proportion - perhaps dairy products are a more sustainable source of products for extensive livestock owners.
+
+Eggs have very low consumption throughout Nigeria. The only two zones where these are consumed by more than 15% of women are in South West and South South.
+
+In general the data from the two surveys are complementary and display the same spatial patterns; the NFCMS shows the overall contribution of animal protein to women's diets, while the GHS shows the prevalence of consumption of animal food products.
+
+
+# Micro-nutrient Intake
+
+There are no micro-nutrient intake data in the GHS dataset.
+
+## Total Calcium intake
+
+The NFCMS provides a list of the 10 food products that contribute most to Calcium intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A19_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN1_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN1_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #1 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A19_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN2_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #2 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A19_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN3_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #3 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A19_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN4_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #4 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A19_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN5_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #5 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A19_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN6_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #6 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A19_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN7_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #7 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A19_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN8_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #8 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A19_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN9_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #9 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A19_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A19) +
+  geom_spatvector(aes(fill = SN10_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 150),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Calcium Intake intake - #10 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Calcium intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_CALC_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CALC_IN_W_67)) +
+  geom_spatvector_text(aes(label = CALC_IN_W_67), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Calcium intake (EAR = 800-1100) ", fill = "mg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Calcium intake is highest in the southern zones, and also in North West (where dairy products are consumed).
+
+The average intake in all zones is below the recommended intake for non-pregnant women.
+
+## Total Iron intake
+
+The NFCMS provides a list of the 10 food products that contribute most to Iron intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A21_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN1_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN1_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #1 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A21_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN2_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #2 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A21_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN3_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #3 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A21_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN4_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #4 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A21_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN5_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #5 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A21_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN6_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #6 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A21_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN7_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #7 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A21_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN8_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #8 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A21_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN9_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #9 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A21_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A21) +
+  geom_spatvector(aes(fill = SN10_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Iron Intake intake - #10 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Iron intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_IRON_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = IRON_IN_W_71)) +
+  geom_spatvector_text(aes(label = IRON_IN_W_71), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 20),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Iron intake (EAR = 14.2 - 14.6)", fill = "mg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Iron intake is highest in North West and North East zones.
+
+The average intake is above the recommended intake for non-pregnant women in three zones: North East, North West and South East, within the range for South South and South West, and below the recommended intake in North Central.
+
+
+## Total Zinc intake
+
+The NFCMS provides a list of the 10 food products that contribute most to Zinc intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A23_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN1_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN1_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #1 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A23_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN2_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #2 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A23_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN3_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #3 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A23_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN4_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #4 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A23_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN5_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #5 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A23_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN6_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #6 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A23_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN7_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #7 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A23_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN8_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #8 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A23_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN9_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #9 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A23_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A23) +
+  geom_spatvector(aes(fill = SN10_g)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 3),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Zinc Intake intake - #10 Food Product",
+    fill = "g"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Zinc intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_ZINC_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = ZINC_IN_W_75)) +
+  geom_spatvector_text(aes(label = ZINC_IN_W_75), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 15),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Zinc intake (EAR = 6.8 - 7.3)", fill = "mg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Women's zinc intake is highest in the southern zones.
+
+The average intake is above the recommended intake for non-pregnant women in four zones, within the range for North Central, and below the recommended intake in North East
+
+
+## Total Vitamin A intake
+
+The NFCMS provides a list of the 10 food products that contribute most to Vitamin A intake for each zone.
+These data provide context to the macro-nutrient intake for each zone, and provide insights into the food basket composition for each zone.
+
+```{r}
+#| label: NFCMS_A25_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN1_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN1_Name, ": ", SN1_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #1 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A25_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN2_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN2_Name, ": ", SN2_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #2 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A25_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN3_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN3_Name, ": ", SN3_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #3 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A25_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN4_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN4_Name, ": ", SN4_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #4 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A25_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN5_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN5_Name, ": ", SN5_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #5 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A25_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN6_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN6_Name, ": ", SN6_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #6 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A25_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN7_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN7_Name, ": ", SN7_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #7 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A25_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN8_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN8_Name, ": ", SN8_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #8 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: NFCMS_A25_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN9_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN9_Name, ": ", SN9_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #9 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_A25_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS_A25) +
+  geom_spatvector(aes(fill = SN10_mcg)) +
+  geom_spatvector_label(
+    aes(label = paste(SN10_Name, ": ", SN10_pc, "%")),
+    position = position_jitter(width = 0.1, height = 1.2, seed = 3),
+    size = 3
+  ) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(
+    title = "Women's Vitamin A Intake intake - #10 Food Product",
+    fill = "µg"
+  ) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Vitamin A intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_VITA_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITA_IN_W_79)) +
+  geom_spatvector_text(aes(label = VITA_IN_W_79), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2000),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Vitamin A intake (EAR = 485 - 500)", fill = "µg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Women's Vitamin A intake is again highest in the southern zones.
+
+The average intake is above the recommended intake for non-pregnant women in all zones, however, the average vitamin A intake in South South and South East are over double the values in the three northern zones.
+
+#### Consumption of Biofortified Vitamin A rich foods: yellow cassava
+
+```{r}
+#| label: NFCMS_CASS_VITA_CONS_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_cass_vit_A_pc_cons_fig10)) +
+  geom_spatvector_text(aes(label = WRA_cass_vit_A_pc_cons_fig10), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming yellow cassava in past 30 days", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+In 2021 very few women had consumed yellow cassava in the previous month. The zone with the highest proportion was North East. The neighbouring North West zone had the lowest percentage at only 1%.
+
+
+```{r}
+#| label: NFCMS_CASS_VITA_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_cass_vit_A_daily_122)) +
+  geom_spatvector_text(aes(label = WRA_cass_vit_A_daily_122), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women daily intake of yellow cassava (raw weight)", fill = "g") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The average daily intake of yellow cassava had a different pattern to the proportion of women consuming the product. The values are very low overall, and the difference between 6.36 grams in South South, and 0.23 in North East are small in absolute terms.  
+
+
+```{r}
+#| label: NFCMS_CASS_VITA_IN_EN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_cass_vit_A_pc_energy_124)) +
+  geom_spatvector_text(aes(label = WRA_cass_vit_A_pc_energy_124), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of yellow cassava to usual energy intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The contribution of yellow cassava to energy intake was small in all zones. Only in South East did the contribution surpass 1% of energy intake.
+
+
+```{r}
+#| label: NFCMS_CASS_VITA_IN_VITA_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_cass_vit_A_pc_vit_A_126)) +
+  geom_spatvector_text(aes(label = WRA_cass_vit_A_pc_vit_A_126), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of yellow cassava to usual Vitamin A intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+With respect to Vitamin A intake the values were again extremely low, suggesting that in 2021 yellow cassava was having little aggregate impact on Vitamin A intake.
+
+
+#### Consumption of Vitamin A rich foods: orange-flesh sweet potato
+
+```{r}
+#| label: NFCMS_OFSP_CONS_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_ofsp_pc_cons_fig12)) +
+  geom_spatvector_text(aes(label = WRA_ofsp_pc_cons_fig12), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming ofsp in past 30 days", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+In all zones bar one Orange Flesh Sweet Potato was consumed by fewer women in the past 30 days than yellow cassava. The exception was North East where over 16% of women had consumed the product.
+
+
+
+```{r}
+#| label: NFCMS_OFSP_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_ofsp_daily_128)) +
+  geom_spatvector_text(aes(label = WRA_ofsp_daily_128), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women daily intake of ofsp (raw weight)", fill = "g") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The average daily consumption was minimal, suggesting that those women who had tried OFSP did not consume the sweet potato frequently, and/or consumed only small portions.
+
+
+```{r}
+#| label: NFCMS_OFSP_IN_EN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_ofsp_pc_energy_130)) +
+  geom_spatvector_text(aes(label = WRA_ofsp_pc_energy_130), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of ofsp to usual energy intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Due to the low consumption quantities the contribution of OFSP to energy intake was practically 0 in all zones.
+
+
+```{r}
+#| label: NFCMS_OFSP_IN_VITA_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_ofsp_pc_vit_A_132)) +
+  geom_spatvector_text(aes(label = WRA_ofsp_pc_vit_A_132), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of ofsp to usual Vitamin A intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+Due to the low consumption quantities the contribution of OFSP to Vitamin A intake was also insignificant in all zones.
+
+#### Consumption of Vitamin A rich foods: yellow maize
+
+```{r}
+#| label: NFCMS_MAIZ_VITA_CONS_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_maiz_vit_A_pc_cons_fig14)) +
+  geom_spatvector_text(aes(label = WRA_maiz_vit_A_pc_cons_fig14), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming yellow maize in past 30 days", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The proportion of women having eaten yellow maize in the previous month was substantial in North East, moderate in South East, South West and North Central, but low in South South and North West.
+
+
+```{r}
+#| label: NFCMS_MAIZ_VITA_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_maiz_vit_A_daily_134)) +
+  geom_spatvector_text(aes(label = WRA_maiz_vit_A_daily_134), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 15),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women daily intake of yellow maize (raw weight)", fill = "g") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+As with yellow cassava, despite a large proportion of the women having tried yellow maize in North East, the daily intake was minimal, whereas larger quantities were consumed in South East and South West. These amounts are still very small when compared to overall daily carbohydrate consumption.
+
+
+```{r}
+#| label: NFCMS_MAIZ_VITA_IN_EN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_maiz_vit_A_pc_energy_136)) +
+  geom_spatvector_text(aes(label = WRA_maiz_vit_A_pc_energy_136), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of yellow maize to usual energy intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The contribution of yellow maize to energy intakes was below 1% in North East, North West and South South zones.
+
+
+```{r}
+#| label: NFCMS_MAIZ_VITA_IN_VITA_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = WRA_maiz_vit_A_pc_vit_A_138)) +
+  geom_spatvector_text(aes(label = WRA_maiz_vit_A_pc_vit_A_138), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Contribution of yellow maize to usual Vitamin A intake of women", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The contribution of yellow maize to Vitamin A intakes was practically non-existent in all zones.
+
+### Vitamin C intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_VITC_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITC_IN_W_83)) +
+  geom_spatvector_text(aes(label = VITC_IN_W_83), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Vitamin C intake (EAR 56 - 60)", fill = "mg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+Vitamin C intake is highest in North West and North East zones.
+
+The average intake is above the recommended intake for non-pregnant women in four zones: the three southern zones and North Central, and below the recommended intake in North East and North West.
+
+### Vitamin B1 intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_VITB1_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB1_IN_W_87)) +
+  geom_spatvector_text(aes(label = VITB1_IN_W_87), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) + 
+  labs(title = "Women's Vitamin B1 intake (EAR = 0.9)", fill = "mg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+Vitamin B1 intake is highest in North West and South West zones. The average intake is at the recommended intake for non-pregnant women in those two zones, and below the requirements in the other four zones.
+
+### Vitamin B2 intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_VITB2_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB2_IN_W_91)) +
+  geom_spatvector_text(aes(label = VITB2_IN_W_91), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Vitamin B2 intake (EAR = 0.9)", fill = "mg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Vitamin B2 intake is highest in the South West zone. This zone is the only zone where average intake is at the recommended intake for non-pregnant women. Vitamin B2 intake is below the EAR in the other five zones.
+
+### Vitamin B9 intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_VITB9_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB9_IN_W_95)) +
+  geom_spatvector_text(aes(label = VITB9_IN_W_95), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Vitamin B9 intake (EAR = 320 - 330)", fill = "µg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Vitamin B9 (folate) intake is highest in the three southern zones.
+
+However, the average intake is below the recommended intake for non-pregnant women in **all** zones.
+
+
+### Vitamin B12 intake (NFCMS, 2021)
+
+```{r}
+#| label: NFCMS_VITB12_IN_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB12_IN_W_99)) +
+  geom_spatvector_text(aes(label = VITB12_IN_W_99), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 5),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's Vitamin B12 intake (EAR = 2.0)", fill = "µg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Vitamin B12 intake is highest in the South West and South South zones. Vitamin B2 intake is below the EAR in the three northern zones.
+
+### Nuts and seeds (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_nut_seeds
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = nut_seeds)) +
+  geom_spatvector_text(aes(label = nut_seeds), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming nuts and seeds", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Leafy dark green vegetables (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_greens
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = greens)) +
+  geom_spatvector_text(aes(label = greens), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming dark green leafy vegetables", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Other vegetables (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_veg_oth
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = veg_oth)) +
+  geom_spatvector_text(aes(label = veg_oth), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming other vegetables", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Other fruits (GHS, 2024)
+
+```{r}
+#| label: GHS_WDD_fru_oth
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_GHS) +
+  geom_spatvector(aes(fill = fru_oth)) +
+  geom_spatvector_text(aes(label = fru_oth), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women consuming other fruits", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Conclusion
+
+Many different food products contribute to micro nutrient intake. The NFCMS highlights the three crops biofortified with Pro-Vitamin A: yellow cassava, orange flesh sweet potato and yellow maize.
+
+The section above shows the proportion of women in the GHS data from 2023/24 consuming non-staple food products, but which are often good sources of micro nutrients.
+
+These maps bolster the message from the minimum dietary diversify section above that show a lack of diversity of food groups, especially in the northern zones.
+
+
+# Inadequate intake of protein and micro-nutrients
+
+The NFCMS provides data on the intake of protein and micro-nutrients, and also gives information on the prevalence of deficient intake, measured as the percentage of respondents who had a usual intake below the Estimated Average Requirements (EAR).
+
+## Total Protein deficient intake
+
+```{r}
+#| label: NFCMS_PROT_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = PROT_DEF_W_46)) +
+  geom_spatvector_text(aes(label = PROT_DEF_W_46), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of protein intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Calcium deficient intake
+
+```{r}
+#| label: NFCMS_CALC_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = CALC_IN_DEF_W_68)) +
+  geom_spatvector_text(aes(label = CALC_IN_DEF_W_68), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Calcium intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Iron deficient intake
+
+```{r}
+#| label: NFCMS_IRON_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = IRON_IN_DEF_W_72)) +
+  geom_spatvector_text(aes(label = IRON_IN_DEF_W_72), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Iron intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Zinc deficient intake
+
+```{r}
+#| label: NFCMS_ZINC_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = ZINC_IN_DEF_W_76)) +
+  geom_spatvector_text(aes(label = ZINC_IN_DEF_W_76), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Zinc intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Vitamin A deficient intake
+
+```{r}
+#| label: NFCMS_VITA_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITA_IN_DEF_W_80)) +
+  geom_spatvector_text(aes(label = VITA_IN_DEF_W_80), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Vitamin A intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Vitamin C deficient intake
+
+```{r}
+#| label: NFCMS_VITC_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITC_IN_DEF_W_84)) +
+  geom_spatvector_text(aes(label = VITC_IN_DEF_W_84), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Vitamin C intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Vitamin B1 deficient intake
+
+```{r}
+#| label: NFCMS_VITB1_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB1_IN_DEF_W_88)) +
+  geom_spatvector_text(aes(label = VITB1_IN_DEF_W_88), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Vitamin B1 intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Vitamin B2 deficient intake
+
+```{r}
+#| label: NFCMS_VITB2_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB2_IN_DEF_W_92)) +
+  geom_spatvector_text(aes(label = VITB2_IN_DEF_W_92), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Vitamin B2 intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Vitamin B9 deficient intake
+
+```{r}
+#| label: NFCMS_VITB9_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB9_IN_DEF_W_96)) +
+  geom_spatvector_text(aes(label = VITB9_IN_DEF_W_96), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Vitamin B9 intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Vitamin B12 deficient intake
+
+```{r}
+#| label: NFCMS_VITB12_DEF_WRA
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_gpz_geo_NFCMS) +
+  geom_spatvector(aes(fill = VITB12_IN_DEF_W_100)) +
+  geom_spatvector_text(aes(label = VITB12_IN_DEF_W_100), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Women's prevalence of inadequacy of Vitamin B12 intakes", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+# Raw GHS data
+
+The raw data files are available for use if necessary, but the summaries per geopolitical zone are sufficient for the atlas.
+
+::: callout-note
+## Relevant Datasets in the GHS
+
+There are five GHS datasets that are relevant for the theme of food consumption:
+
+*sect6b_plantingw5.csv*\
+Data collected through Post-Planting Household Questionnaire Section 6B (Food Consumption). This section records household-food item level information on the quantity and value of food consumed within the household during the past 7 days, as well as the quantity and value of food purchased during the past 30 days.
+
+*sect6c_plantingw5.csv*\
+Data collected through Post-Planting Household Questionnaire Section 6C (Aggregate Food Consumption). This section records household-food item level information on the number of days the household consumed each food group item during the last 7 days.
+
+*sect5b_harvestw5.csv*\
+Data collected through Post- Harvest Household Questionnaire Section 5B (Food Consumption). This section records household-food item level information on the quantity and value of food consumed within the household during the past 7 days, as well as the quantity and value of food purchased during the past 30 days.
+
+*sect5c_harvestw5.csv*\
+Data collected through Post-Harvest Household Questionnaire Section 5C (Aggregate Food Consumption). This section records household-food item level information on the number of days the household consumed each food group item during the last 7 days.
+
+*sect3d_harvestw5.csv*\
+Data collected through Post-Harvest Household Questionnaire Section 3D (Women Dietary Diversity). This section records women-level information on women’s nutrition diet for the previous day.
+:::
+
+
+```{r}
+#| label: GHS_raw_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_sect6b_plantingw5 <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/LSMS-GHS 2023-2024/Post Planting Wave 5/Household/sect6b_plantingw5.csv")
+
+df_GHS_sect6b_plantingw5$zone <- as.factor(df_GHS_sect6b_plantingw5$zone) 
+
+cat(paste(levels(df_GHS_sect6b_plantingw5$zone), "; ")) # Check levels
+
+
+```
+
+This section records household-food item level information on the quantity and value of food consumed within the household during the past 7 days, as well as the quantity and value of food purchased during the past 30 days.
+
+The data unit for these data are food products per household. The response for each food product is either "1. Yes" or "2. No".
+
+There are over 100 different food products that can be recorded, consequently there are over half a million records for the post-planting dataset.
+
+To map each indicator the data will need to be filtered on the specific indicator, then recoded to a numeric response:
+
++---------+-------+
+| Before  | After |
++=========+=======+
+| 1.  Yes | 1     |
++---------+-------+
+| 2.  No  | 0     |
++---------+-------+
+
+Once recoded, the statistics for each zone can be computed. The mean value for each zone will show the percentage of households that consumed the particular product.
+
+When the summary statistics are calculated the resulting table can be joined to the zone spatial dataset.
