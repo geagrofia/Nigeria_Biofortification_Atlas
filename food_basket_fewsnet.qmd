@@ -1,0 +1,2066 @@
+---
+title: "Nigeria Food basket - FEWS NET 2018"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(NMdata)
+library(gglyph)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+library(patchwork)
+
+source("E:/repos/Biofort_Atlas_Nigeria/R/geom_tileglyph_function.R")
+
+```
+
+# Introduction
+
+In this document I identify the foods commonly consumed within specific geographies, and combine these foods to create a descriptive (rather than normative [e.g. @latinoSpatialVariationCost2024]) food basket for different types of households.
+
+The diversity of the food baskets are then mapped and the food basket displayed as a pictogram, allowing the identification of each food type.
+
+## Food baskets
+
+An important component of a livelihood is the main types of food which are consumed, and how those food types are obtained, for instance whether the food is produced by the household or bought at a market.
+
+The descriptive food basket is a way of understanding the foods that are available in different areas, and incorporates the local **availability** of food products.
+
+When food baskets are identified for different types of households [e.g. @bairagiStructuralShiftsFood2022] they also allow researchers to visualise the difference in **access** to available food products between, for instance, wealthier and poorer households.
+
+Descriptive food baskets can be seen as complementary to the snapshot of the 24hour dietary recall method of measuring food consumption.
+
+## Livelihood zones for Nigeria
+
+One of the geographies for which descriptive food basket data are available in Nigeria is called 'Livelihood zones'.
+
+The concept of zones were developed by Save the Children Fund-UK in the early 1990's within a food economy approach [@boudreauFoodEconomyApproach1998]. The zones were later broadened, renamed as Livelihood Zones, and adopted by other humanitarian organisations, notably United States Agency for International Development (USAID) Famine Early Warning System (FEWS NET).
+
+For FEWS NET a livelihood zone *"is a geographical area in which most households share the same ecology, natural resources and general economic environment and therefore the same patterns of production and the same possibilities for cash income (although cash income is realized according to the household assets, composition and status that determine relative wealth).* [@fewsnetRevisedLivelihoodsZone2018 pg. 7]
+
+The livelihood zone boundaries, as well as the description of each zone, are defined in a participatory workshop setting, similar to those used in the bean atlas of Africa [@farrowAtlasCommonBean2020].
+
+In 2018 FEWS NET updated their assessment of livelihood zones for Nigeria, and identified thirty five different zones [@fewsnetRevisedLivelihoodsZone2018]. The livelihood zones are distinct from administrative boundaries, but in Nigeria some effort was made to use the LGA boundaries where possible.
+
+The food types consumed in the 2018 livelihood zones are generally quite broad and comprise the crop or animal which is often the basis for other processed food products, e.g. "Maize", or "Poultry". The food types are not derived from a specific meal, but instead highlight the normal range of main staples, discriminating between 'better off' households and 'poor' households. Twenty two food types were identified:
+
+Maize, Millet, Rice, Sorghum, Wheat, Acha, Cassava, Potato, Plantain, Sweet Potato, Yam, Cocoyam, Vegetables, Beans, Cowpea, Groundnuts, Soybean, Dairy, Fish, Meat, Poultry, and Sheep/Goat.
+
+For both types of household the main sources of the food types were given:
+
+- Own Production
+- Market Purchase
+- In-kind payment
+- Gathering
+
+## Assessment of Livelihood Zone Food Baskets in Nigeria
+
+The major advantage of the livelihood zone food basket is that there are 35 zones in Nigeria, compared to the 6 geopolitical zones for which data from the NFCMS are representative.
+
+A limitation of the livelihood zone food basket is the difficulty in linking the foods to consumption quantities, and to nutritional content. A further disadvantage is that the workshops took place in 2018, so it is possible that some of the consumption and production patterns have changed in the intervening period.
+
+Nevertheless, the livelihood zone food basket maps and diagrams can be used as a useful narrative link between production statistics and market flows, and the consumption data in the National Food Consumption and Micronutrient Survey (NFCMS) [@federalgovernmentofnigeriafgonNationalFoodConsumption2024].
+
+# Methods
+
+There are two indicators for each combination of household type and food source:
+
+1.  the diversity of food types per zone
+
+2.  the composition of the food basket per zone
+
+The diversity is simply the number of different food types that are commonly accessed by the household, whereas the composition shows in a diagram which food types are in the basket.
+
+The food types were digitised from the report of the 2018 livelihood zones, with separate datasets for each household type and food source. The datasets are then linked to the spatial dataset of the zones.
+
+In addition to the two indicators above there are some descriptive statistical measures looking at the similarity of the food items from the two main sources (own production and market purchase). These are based on the jaccard similarity index, and calculate the shared proportion of all foods in either sources.
+
+For each zone:
+
+$$ J = \frac{A}{A+B+C} $$
+
+where:
+
+\(A\) = food items produced and purchased\
+(B) = food items produced but not purchased\
+(C) = food items purchased but not produced\
+
+So:
+
+0 = the two lists have no food items in common\
+0.25 = substantially different\
+0.75 = relatively similar\
+1 = the two lists are identical\
+
+This deliberately ignores food items that are absent from both lists, which is usually desirable. If there are, say, 25 possible food items but only 5 are relevant to a zone, counting the 20 absent-from-both items shouldn't make the two diets appear artificially similar.
+
+Produced at home
+
+- maize
+- beans
+- potatoes
+- cassava
+
+Purchased
+
+- maize
+- beans
+- yams
+- sweet potatoes
+
+Then:
+
+- common = maize, beans → (A=2)
+- home-only = potatoes, cassava → (B=2)
+- market-only = yams, sweet potatoes → (C=2)
+
+Therefore:
+
+$$ J = \frac{2}{2+2+2}=0.333 $$
+
+So the production and market food lists have a 33.3% similarity.
+
+# Load the Livelihood Zones
+
+The livelihood zones are loaded from disk (see @fig-lz_zones and @tbl-lz_zones_tables).
+
+```{r}
+#| label: fig-lz_zones
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2018 Livelihood Zones"
+
+lz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.topojson")
+lz_geo$LZCODE <- as.factor(lz_geo$LZCODE)
+
+
+col.par <- function(n) sample(seq(0.3, 1, length.out = 50), n)
+cols <- rainbow(35, s = col.par(35), v = col.par(35))[sample(1:35, 35)]
+
+ggplot(lz_geo) +
+  geom_spatvector(aes(fill = LZCODE)) +
+  scale_fill_manual(values = cols) +
+  geom_spatvector_text(aes(label = LZCODE), size = 3) +
+  labs(title = "FEWS NET 2018 Livelihood Zones") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+::: {#tbl-lz_zones_tables}
+```{r}
+#| label: lz_zones_tables
+#| message: false
+#| warning: false
+lz_geo |> as.data.frame() |> dplyr::select(LZCODE, LZNAMEEN) |> 
+  DT::datatable(
+    rownames = F,
+    #caption = "FEWS NET 2018 Livelihood Zones",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(0, 'asc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 35),
+      pageLength = 10
+    ))
+
+```
+
+FEWS NET 2018 Livelihood Zones
+:::
+
+# Load the food basket data
+
+```{r}
+#| label: food_basket
+#| message: false
+#| warning: false
+
+# lz_bo_op <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/LZ_BO_OP.csv")
+
+# 2. Path to your file
+path <- "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/LZ_Food_Basket.ods"
+
+# 3. Get the names of all sheets in the workbook
+sheet_names <- list_ods_sheets(path)
+
+# 4. Import all sheets into a list of data frames
+all_sheets <- lapply(sheet_names, function(x) read_ods(path, sheet = x))
+
+# 5. Name the list elements for easy access
+names(all_sheets) <- sheet_names
+
+# Now access a specific sheet like a data frame:
+# df <- all_sheets[["Sheet1"]]
+
+# Better-Off households
+
+lz_bo_op <- all_sheets[["LZ_BO_OP"]]
+lz_bo_op[is.na(lz_bo_op)] <- 0
+
+lz_bo_mp <- all_sheets[["LZ_BO_MP"]]
+lz_bo_mp[is.na(lz_bo_mp)] <- 0
+
+lz_bo_ik <- all_sheets[["LZ_BO_IK"]]
+lz_bo_ik[is.na(lz_bo_ik)] <- 0
+
+lz_bo_ga <- all_sheets[["LZ_BO_GA"]]
+lz_bo_ga[is.na(lz_bo_ga)] <- 0
+
+
+lz_bo_all <- all_sheets[["LZ_BO_ALL"]]
+lz_bo_all[is.na(lz_bo_all)] <- 0
+
+
+# Poor households
+
+lz_p_op <- all_sheets[["LZ_P_OP"]]
+lz_p_op[is.na(lz_p_op)] <- 0
+
+lz_p_mp <- all_sheets[["LZ_P_MP"]]
+lz_p_mp[is.na(lz_p_mp)] <- 0
+
+lz_p_ik <- all_sheets[["LZ_P_IK"]]
+lz_p_ik[is.na(lz_p_ik)] <- 0
+
+lz_p_ga <- all_sheets[["LZ_P_GA"]]
+lz_p_ga[is.na(lz_p_ga)] <- 0
+
+
+lz_p_all <- all_sheets[["LZ_P_ALL"]]
+lz_p_all[is.na(lz_p_all)] <- 0
+
+
+# All households
+
+lz_all_op <- all_sheets[["LZ_ALL_OP"]]
+lz_all_op[is.na(lz_all_op)] <- 0
+
+lz_all_mp <- all_sheets[["LZ_ALL_MP"]]
+lz_all_mp[is.na(lz_all_mp)] <- 0
+
+lz_all_ik <- all_sheets[["LZ_ALL_IK"]]
+lz_all_ik[is.na(lz_all_ik)] <- 0
+
+lz_all_ga <- all_sheets[["LZ_ALL_GA"]]
+lz_all_ga[is.na(lz_all_ga)] <- 0
+
+
+# All sources
+
+lz_all_all <- all_sheets[["LZ_ALL_ALL"]]
+lz_all_all[is.na(lz_all_all)] <- 0
+
+
+# calculate totals
+
+lz_bo_all[, -1] <- pmax(
+  as.matrix(lz_bo_op[, -1]),
+  as.matrix(lz_bo_mp[, -1]),
+  as.matrix(lz_bo_ik[, -1]),
+  as.matrix(lz_bo_ga[, -1]),
+  na.rm = TRUE
+)
+
+lz_p_all[, -1] <- pmax(
+  as.matrix(lz_p_op[, -1]),
+  as.matrix(lz_p_mp[, -1]),
+  as.matrix(lz_p_ik[, -1]),
+  as.matrix(lz_p_ga[, -1]),
+  na.rm = TRUE
+)
+
+lz_all_op[, -1] <- pmax(
+  as.matrix(lz_p_op[, -1]),
+  as.matrix(lz_bo_op[, -1]),
+  na.rm = TRUE
+)
+
+lz_all_mp[, -1] <- pmax(
+  as.matrix(lz_p_mp[, -1]),
+  as.matrix(lz_bo_mp[, -1]),
+  na.rm = TRUE
+)
+
+lz_all_ik[, -1] <- pmax(
+  as.matrix(lz_p_ik[, -1]),
+  as.matrix(lz_bo_ik[, -1]),
+  na.rm = TRUE
+)
+
+lz_all_ga[, -1] <- pmax(
+  as.matrix(lz_p_ga[, -1]),
+  as.matrix(lz_bo_ga[, -1]),
+  na.rm = TRUE
+)
+
+lz_all_all[, -1] <- pmax(
+  as.matrix(lz_p_all[, -1]),
+  as.matrix(lz_bo_all[, -1]),
+  na.rm = TRUE
+)
+
+```
+
+# Merge data and extract centroids
+
+```{r}
+#| label: merge
+#| message: false
+#| warning: false
+
+# Extract centroids as a SpatVector
+lz_centroids <- centroids(lz_geo, inside=T)
+
+# Get centroid coordinates as a data frame
+lz_coords <- as.data.frame(geom(lz_centroids)[, c("x", "y")])
+
+# Convert the SpatVector attributes to a data frame
+df_lz_geo <- as.data.frame(lz_geo)
+
+# Combine: add centroid x and y to the attribute data frame
+df_lz_geo$centroid_x <- lz_coords$x
+df_lz_geo$centroid_y <- lz_coords$y
+
+```
+
+# Food Basket Diagrams
+
+The diagram of the food baskets is based on a grid of squares, where each square represents a specific food type (@fig-glyph_legend).
+
+The grid squares are coloured differently for each food type (based on [@aravindGgmultiglyphMultivariateData2026]).
+
+The placing of the food types is broadly based on food or crop groups, e.g. grains, roots and tubers, legumes, animal products.
+
+```{r}
+#| label: fig-glyph_legend
+#| message: false
+#| warning: false
+#| fig-cap: Food Basket composition
+
+
+# ---- 1. Define the grid ----------------------------------------------
+# row 1 has 5 boxes, rows 2-4 have 6 boxes each (23 boxes total).
+# 'col' positions row 1's 5 boxes centred under the 6-box rows below.
+grid_data <- data.frame(
+  row = c(rep(1, 5), rep(2, 5), rep(3, 6), rep(4, 6)),
+  col = c(
+    1:5,                      # row 1 (left-aligned, since it only has 5 boxes)
+    1:5,                      # row 2
+    1:6,                      # row 3
+    1:6                       # row 4
+  ),
+
+
+fill = c( "#CC6A6F", "#EB7AA9", "#E086B5", "#BC8FA7", "#999999",     
+          "#FFC81D", "#FFF830", "#E1C62F", "#BF862B", "#AD5A36",       
+          "#629363", "#7E6E85", "#9C509B", "#C4625D", "#EB751F", "#FF9709",
+          "#E41A1C", "#A24057", "#606692", "#3A85A8", "#42977E", "#4AAA54"),    
+
+
+  label = c(
+    "Maize", "Millet", "Rice", "Sorghum", "Wheat",
+    "Acha",  "Cassava", "Potato", "Plantain", "S-Potato", 
+    "Yam", "Cocoyam", "Vegetables", "Beans", "Cowpea", "G-nuts",
+    "Soybean", "Dairy", "Fish", "Meat", "Poultry", "Shoat"
+  ),
+  stringsAsFactors = FALSE
+)
+
+# ---- 2. Plot ------------------------------------------------------------
+# scale_fill_identity() means the 'fill' column values are used AS the
+# actual colours (no colour scale/legend is generated).
+
+legend_glyph <- ggplot(grid_data, aes(x = col, y = -row, fill = fill, label = label)) +
+  geom_tile(colour = "black", linewidth = 1, width = 1 , height = 1) +
+  geom_text(colour = "black", fontface = "bold", size = 5) +
+  scale_fill_identity() +
+  coord_equal() +
+  theme_void()
+
+legend_glyph
+  
+  label = c(
+    "Maize", "Millet", "Rice", "Sorghum", "Wheat",
+    "Acha",  "Cassava", "Potato", "Plantain", "S-Potato", 
+    "Yam", "Cocoyam", "Vegetables", "Beans", "Cowpea", "G-nuts",
+    "Soybean", "Dairy", "Fish", "Meat", "Poultry", "Shoat"
+  )
+
+  
+glyph_palette <- get_palette_colors(length(label),  "Set1")
+
+names(glyph_palette) <- label
+
+glyph_palette
+       
+```
+
+Smaller versions of these diagrams are overlaid on the maps, with lines from the livelihood zones to avoid overlaps.
+
+If a food type is not commonly consumed then the grid square is left blank.
+
+# 'Better off' households
+
+## Data Preparation
+
+```{r}
+#| label: bo_data_prep
+#| message: false
+#| warning: false
+
+
+# Own production
+
+# Join food baskets to df
+df_lz_geo_bo_op  <- dplyr::left_join(df_lz_geo, lz_bo_op,  by = "LZCODE")
+df_lz_geo_bo_mp  <- dplyr::left_join(df_lz_geo, lz_bo_mp,  by = "LZCODE")
+df_lz_geo_bo_all <- dplyr::left_join(df_lz_geo, lz_bo_all, by = "LZCODE")
+
+
+# define columns for glyphs and for food stats
+bo_op_glyph_cols <- c(
+
+  "BO_OP_Soybean",
+  "BO_OP_Dairy",
+  "BO_OP_Fish",
+  "BO_OP_Meat",
+  "BO_OP_Poultry",
+  "BO_OP_Shoat",
+  
+  "BO_OP_Yam",
+  "BO_OP_Cocoyam",
+  "BO_OP_Vegetables",
+  "BO_OP_Beans",
+  "BO_OP_Cowpea",
+  "BO_OP_Gnuts",
+  
+  "BO_OP_Acha",  
+  "BO_OP_Cassava",
+  "BO_OP_Ipotato",
+  "BO_OP_Plantain",
+  "BO_OP_Spotato",  
+  
+  "BO_OP_Maize",
+  "BO_OP_Millet",
+  "BO_OP_Rice",
+  "BO_OP_Sorghum",
+  "BO_OP_Wheat"
+  )
+
+bo_mp_glyph_cols <- c(
+
+  "BO_MP_Soybean",
+  "BO_MP_Dairy",
+  "BO_MP_Fish",
+  "BO_MP_Meat",
+  "BO_MP_Poultry",
+  "BO_MP_Shoat",
+  
+  "BO_MP_Yam",
+  "BO_MP_Cocoyam",
+  "BO_MP_Vegetables",
+  "BO_MP_Beans",
+  "BO_MP_Cowpea",
+  "BO_MP_Gnuts",
+  
+  "BO_MP_Acha",  
+  "BO_MP_Cassava",
+  "BO_MP_Ipotato",
+  "BO_MP_Plantain",
+  "BO_MP_Spotato",  
+  
+  "BO_MP_Maize",
+  "BO_MP_Millet",
+  "BO_MP_Rice",
+  "BO_MP_Sorghum",
+  "BO_MP_Wheat"
+  )
+
+bo_all_glyph_cols <- c(
+
+  "BO_ALL_Soybean",
+  "BO_ALL_Dairy",
+  "BO_ALL_Fish",
+  "BO_ALL_Meat",
+  "BO_ALL_Poultry",
+  "BO_ALL_Shoat",
+  
+  "BO_ALL_Yam",
+  "BO_ALL_Cocoyam",
+  "BO_ALL_Vegetables",
+  "BO_ALL_Beans",
+  "BO_ALL_Cowpea",
+  "BO_ALL_Gnuts",
+  
+  "BO_ALL_Acha",  
+  "BO_ALL_Cassava",
+  "BO_ALL_Ipotato",
+  "BO_ALL_Plantain",
+  "BO_ALL_Spotato",  
+  
+  "BO_ALL_Maize",
+  "BO_ALL_Millet",
+  "BO_ALL_Rice",
+  "BO_ALL_Sorghum",
+  "BO_ALL_Wheat"
+  )
+
+```
+
+## Number of zones where food basket items consumed
+
+The most commonly own produced food type for better off households was maize (own production commonly consumed in 27 of the 35 livelihood zones), followed by rice.
+
+Rice is by far the most commonly purchased food type by better off households, and is a market purchase in 26 of the livelihood zones (@tbl-bo_food_stats). Although maize is commonly purchased, it is a market purchase in fewer zones than where it is produced.
+
+When all sources are combined rice is again by far the most commonly consumed food type by better off households, followed by maize and cowpeas.
+
+::: {#tbl-bo_food_stats}
+```{r}
+#| label: bo_food_stats
+#| message: false
+#| warning: false
+
+# summarise and remove prefixes to allow row binding
+
+df_sum_bo_op  <- df_lz_geo_bo_op  |>  summarise_at(bo_op_glyph_cols, sum, na.rm = TRUE) |> 
+  rename_with(~ sub("^BO_OP_", "", .x))
+df_sum_bo_mp  <- df_lz_geo_bo_mp  |>  summarise_at(bo_mp_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^BO_MP_", "", .x))
+df_sum_bo_all <- df_lz_geo_bo_all |>  summarise_at(bo_all_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^BO_ALL_", "", .x))
+
+df_sum_bo <- rbind(df_sum_bo_op, df_sum_bo_mp, df_sum_bo_all)
+source <- c("Own production", "Market purchase", "All sources")
+df_source <- data.frame(source)
+df_source_bo <- cbind(df_source, df_sum_bo)
+df_source_bo |> 
+  DT::datatable(
+    rownames = F,
+    #caption = "Number of Livelihood Zones where food basket items consumed per source",
+    extensions = 'FixedColumns',
+    filter = "none",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      pageLength = -1,
+      searching = FALSE,
+      dom = 't',
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 1)
+    ))
+
+```
+
+Number of Livelihood Zones where food basket items consumed per source for 'Better-Off' households
+:::
+
+Many food types are both produced and purchased in markets by better off households in the same livelihood zones. Food types, like dairy and vegetables, show a high overlap between production and market purchase - perhaps due to the perishability of those food types. The only food type where there is less overlap is rice, for which there are eight livelihood zones where rice is purchased and not produced - and vice versa.
+
+## Livelihood Zone Food Baskets
+
+```{r}
+#| label: fig-bo_zone_plots_a
+#| message: false
+#| warning: false
+#| out.width: "50%"
+#| fig.align: "center"
+#| fig.cap: "Food basket items"
+
+# prepare the diversity 
+df_lz_geo_bo_op  <- df_lz_geo_bo_op |>  rowwise() |>
+  mutate(bo_diversity_op = sum(c_across(all_of(bo_op_glyph_cols))))
+
+df_lz_geo_bo_mp  <- df_lz_geo_bo_mp |>  rowwise() |>
+  mutate(bo_diversity_mp = sum(c_across(all_of(bo_mp_glyph_cols))))
+
+df_lz_geo_bo_all <- df_lz_geo_bo_all |>  rowwise() |>
+  mutate(bo_diversity_all = sum(c_across(all_of(bo_all_glyph_cols))))
+
+
+# Join CSV to SpatVector
+lz_geo_bo_op  <- merge(lz_geo, df_lz_geo_bo_op, by = "LZCODE")
+lz_geo_bo_mp  <- merge(lz_geo, df_lz_geo_bo_mp, by = "LZCODE")
+lz_geo_bo_all <- merge(lz_geo, df_lz_geo_bo_all, by = "LZCODE")
+
+
+# create the glyphs and diversity plots
+
+basket_bo_op <- ggplot(df_lz_geo_bo_op) +
+  geom_spatvector(data = lz_geo_bo_op, aes(fill = bo_diversity_op), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = bo_op_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Better off' households - Own Production", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_bo_mp <- ggplot(df_lz_geo_bo_mp) +
+  geom_spatvector(data = lz_geo_bo_mp, aes(fill = bo_diversity_mp), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = bo_mp_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Better off' households - Market Purchase", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_bo_all <- ggplot(df_lz_geo_bo_all) +
+  geom_spatvector(data = lz_geo_bo_all, aes(fill = bo_diversity_all), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = bo_all_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Better off' households - All sources", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+legend_glyph
+```
+
+```{r}
+#| label: fig-bo_zone_plots_b
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Better off' households own production" 
+ 
+basket_bo_op
+```
+
+```{r}
+#| label: fig-bo_zone_plots_c
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Better off' households market purchase" 
+ 
+basket_bo_mp
+```
+
+```{r}
+#| label: fig-bo_zone_plots_d
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Better off' households all sources" 
+
+basket_bo_all
+```
+
+The zone with the highest diversity of home produced food types (@fig-bo_zone_plots_b) was the 'North-east cattle, small ruminants, and food crops with cross-border livestock trade', this stretches along the border with Cameroon across various agro-ecological zones, so has a wide diversity of food types available. Other zones with high diversity were located principally in central Nigeria.
+
+The zone with the most diverse range of purchased food types is 'South-east cassava, cereals, and oil palm with extensive off-farm work and trade'. Better off households in four zones, spread across Nigeria, only commonly purchased one food type in markets (@fig-bo_zone_plots_c).
+
+Better off households in general do not receive food as an in-kind payment for labour, nor is gathering a source of food.
+
+::: {#tbl-bo_compare_sources}
+```{r}
+#| label: bo_compare_sources
+#| message: false
+#| warning: false
+
+
+# Remove prefixes from food-item names
+bo_op <- lz_bo_op |> 
+  rename_with(~ sub("^BO_OP_", "", .x), -LZCODE)
+
+bo_mp <- lz_bo_mp |>
+  rename_with(~ sub("^BO_MP_", "", .x), -LZCODE)
+
+bo_compare <- bo_op %>%
+  inner_join(bo_mp, by = "LZCODE", suffix = c("_op", "_mp"))
+
+
+bo_food_items <- setdiff(names(bo_op), "LZCODE")
+
+df_bo_jaccard <- bo_compare |> 
+  rowwise() |> 
+  mutate(
+    bo_common = sum(
+      c_across(all_of(paste0(bo_food_items, "_op"))) == 1 &
+      c_across(all_of(paste0(bo_food_items, "_mp"))) == 1
+    ),
+    
+    bo_only_op = sum(
+      c_across(all_of(paste0(bo_food_items, "_op"))) == 1 &
+      c_across(all_of(paste0(bo_food_items, "_mp"))) == 0
+    ),
+    
+    bo_only_mp = sum(
+      c_across(all_of(paste0(bo_food_items, "_op"))) == 0 &
+      c_across(all_of(paste0(bo_food_items, "_mp"))) == 1
+    ),
+    
+    bo_food_source_similarity =
+bo_common / (bo_common + bo_only_op + bo_only_mp) ,
+    
+    bo_food_source_dissimilarity = 1 - bo_food_source_similarity
+  ) |> 
+  ungroup()
+
+
+df_bo_jaccard_long <- df_bo_jaccard |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_bo_op, LZCODE, LZNAMEEN, bo_diversity_op),
+    by = "LZCODE"
+  ) |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_bo_mp, LZNAMEEN, bo_diversity_mp),
+    by = "LZNAMEEN"
+  ) |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_bo_all, LZNAMEEN, bo_diversity_all),
+    by = "LZNAMEEN"
+  ) |>
+  dplyr::select(
+    LZCODE,
+    LZNAMEEN,
+    bo_food_source_similarity,
+    bo_diversity_op,
+    bo_diversity_mp,
+    bo_diversity_all
+  ) 
+
+df_bo_jaccard_long |>
+  DT::datatable(
+    rownames = F,
+    colnames = c(
+      "LZ CODE",
+      "LZ NAME",
+      "Source Similarity",
+      "OP Diversity",
+      "MP Diversity",
+      "All Diversity"
+    ),
+    #caption = "Similarity and Diversity of Sources of Food",
+    filter = "none",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      layout = list(
+        top = list(
+          "pageLength"
+        ),
+        bottom = list(
+          "paging"
+        )
+      ),
+      order = list(list(2, 'asc')),
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(8, 35),
+      pageLength = 8,
+      autoWidth = FALSE, # Mandatory: stops DT from auto-calculating widths
+      columnDefs = list(
+        list(width = '50px', targets = 0), # LZCODE (Short)
+        list(width = '200px', targets = 1), # LZNAMEEN (Long)
+        list(width = '50px', targets = 2), # food_source_similarity (Short)
+        list(width = '50px', targets = 3), # diversity_op (Short)
+        list(width = '50px', targets = 4), # diversity_mp (Short)
+        list(width = '50px', targets = 5) # diversity_all (Long)
+      )
+    )
+  ) |>
+    formatRound(columns = c("bo_food_source_similarity"), digits = 2)
+
+
+```
+
+Similarity and Diversity of Sources of Food for 'Better-Off' households
+:::
+
+The similarity of the food basket items in the two sources is compared statistically for each zone (@tbl-bo_compare_sources). Zones with a high similarity score imply that better-off households obtain specific food items equally from both sources. Zones with low similarity are where certain items are produced at home while different products are purchased. A good example is the 'Cross river cocoa with oil palm, tubers, rice, and plantain' zone, where three items are solely produced at home (Plantain and Yam), and three are solely purchased (Fish and Beans) but there is only one which is commonly produced and purchased (Rice).
+
+# 'Poor' households
+
+## Data Preparation
+
+```{r}
+#| label: p_data_prep
+#| message: false
+#| warning: false
+
+
+# Own production
+
+# Join food baskets to df
+df_lz_geo_p_op  <- dplyr::left_join(df_lz_geo, lz_p_op,  by = "LZCODE")
+df_lz_geo_p_mp  <- dplyr::left_join(df_lz_geo, lz_p_mp,  by = "LZCODE")
+df_lz_geo_p_ik  <- dplyr::left_join(df_lz_geo, lz_p_ik,  by = "LZCODE")
+df_lz_geo_p_ga  <- dplyr::left_join(df_lz_geo, lz_p_ga,  by = "LZCODE")
+df_lz_geo_p_all <- dplyr::left_join(df_lz_geo, lz_p_all, by = "LZCODE")
+
+
+# define columns for glyphs and for food stats
+p_op_glyph_cols <- c(
+
+  "P_OP_Soybean",
+  "P_OP_Dairy",
+  "P_OP_Fish",
+  "P_OP_Meat",
+  "P_OP_Poultry",
+  "P_OP_Shoat",
+  
+  "P_OP_Yam",
+  "P_OP_Cocoyam",
+  "P_OP_Vegetables",
+  "P_OP_Beans",
+  "P_OP_Cowpea",
+  "P_OP_Gnuts",
+  
+  "P_OP_Acha",  
+  "P_OP_Cassava",
+  "P_OP_Ipotato",
+  "P_OP_Plantain",
+  "P_OP_Spotato",  
+  
+  "P_OP_Maize",
+  "P_OP_Millet",
+  "P_OP_Rice",
+  "P_OP_Sorghum",
+  "P_OP_Wheat"
+  )
+
+p_mp_glyph_cols <- c(
+
+  "P_MP_Soybean",
+  "P_MP_Dairy",
+  "P_MP_Fish",
+  "P_MP_Meat",
+  "P_MP_Poultry",
+  "P_MP_Shoat",
+  
+  "P_MP_Yam",
+  "P_MP_Cocoyam",
+  "P_MP_Vegetables",
+  "P_MP_Beans",
+  "P_MP_Cowpea",
+  "P_MP_Gnuts",
+  
+  "P_MP_Acha",  
+  "P_MP_Cassava",
+  "P_MP_Ipotato",
+  "P_MP_Plantain",
+  "P_MP_Spotato",  
+  
+  "P_MP_Maize",
+  "P_MP_Millet",
+  "P_MP_Rice",
+  "P_MP_Sorghum",
+  "P_MP_Wheat"
+  )
+
+
+p_ik_glyph_cols <- c(
+
+  "P_IK_Soybean",
+  "P_IK_Dairy",
+  "P_IK_Fish",
+  "P_IK_Meat",
+  "P_IK_Poultry",
+  "P_IK_Shoat",
+  
+  "P_IK_Yam",
+  "P_IK_Cocoyam",
+  "P_IK_Vegetables",
+  "P_IK_Beans",
+  "P_IK_Cowpea",
+  "P_IK_Gnuts",
+  
+  "P_IK_Acha",  
+  "P_IK_Cassava",
+  "P_IK_Ipotato",
+  "P_IK_Plantain",
+  "P_IK_Spotato",  
+  
+  "P_IK_Maize",
+  "P_IK_Millet",
+  "P_IK_Rice",
+  "P_IK_Sorghum",
+  "P_IK_Wheat"
+  )
+
+p_ga_glyph_cols <- c(
+
+  "P_GA_Soybean",
+  "P_GA_Dairy",
+  "P_GA_Fish",
+  "P_GA_Meat",
+  "P_GA_Poultry",
+  "P_GA_Shoat",
+  
+  "P_GA_Yam",
+  "P_GA_Cocoyam",
+  "P_GA_Vegetables",
+  "P_GA_Beans",
+  "P_GA_Cowpea",
+  "P_GA_Gnuts",
+  
+  "P_GA_Acha",  
+  "P_GA_Cassava",
+  "P_GA_Ipotato",
+  "P_GA_Plantain",
+  "P_GA_Spotato",  
+  
+  "P_GA_Maize",
+  "P_GA_Millet",
+  "P_GA_Rice",
+  "P_GA_Sorghum",
+  "P_GA_Wheat"
+  )
+
+
+p_all_glyph_cols <- c(
+
+  "P_ALL_Soybean",
+  "P_ALL_Dairy",
+  "P_ALL_Fish",
+  "P_ALL_Meat",
+  "P_ALL_Poultry",
+  "P_ALL_Shoat",
+  
+  "P_ALL_Yam",
+  "P_ALL_Cocoyam",
+  "P_ALL_Vegetables",
+  "P_ALL_Beans",
+  "P_ALL_Cowpea",
+  "P_ALL_Gnuts",
+  
+  "P_ALL_Acha",  
+  "P_ALL_Cassava",
+  "P_ALL_Ipotato",
+  "P_ALL_Plantain",
+  "P_ALL_Spotato",  
+  
+  "P_ALL_Maize",
+  "P_ALL_Millet",
+  "P_ALL_Rice",
+  "P_ALL_Sorghum",
+  "P_ALL_Wheat"
+  )
+
+```
+
+## Number of zones where food basket items consumed
+
+The most commonly food type produced for their own consumption by poor households was maize (own production commonly consumed in 28 of the 35 livelihood zones), followed by sorghum and rice which are both produced and consumed in 18 zones (@tbl-p_food_stats).
+
+Rice is the most commonly purchased food type by poor households, and is a market purchase in 26 of the livelihood zones. Maize is also commonly purchased; it is a market purchase in almost as many zones (25) as where it is produced.
+
+In-kind payment is a source of food basket items for poor households; a moderate range of items were obtained in this manner, with millet being the most common.
+
+Gathering of food basket items was restricted to vegetables, and in only one zone.
+
+When all sources are combined maize is again by far the most commonly consumed food type by better off households, followed by rice and more distantly by sorghum.
+
+::: {#tbl-p_food_stats}
+```{r}
+#| label: p_food_stats
+#| message: false
+#| warning: false
+
+# summarise and remove prefixes to allow row binding
+
+df_sum_p_op  <- df_lz_geo_p_op  |>  summarise_at(p_op_glyph_cols, sum, na.rm = TRUE) |> 
+  rename_with(~ sub("^P_OP_", "", .x))
+df_sum_p_mp  <- df_lz_geo_p_mp  |>  summarise_at(p_mp_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^P_MP_", "", .x))
+df_sum_p_ik  <- df_lz_geo_p_ik  |>  summarise_at(p_ik_glyph_cols, sum, na.rm = TRUE) |> 
+  rename_with(~ sub("^P_IK_", "", .x))
+df_sum_p_ga  <- df_lz_geo_p_ga  |>  summarise_at(p_ga_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^P_GA_", "", .x))
+df_sum_p_all <- df_lz_geo_p_all |>  summarise_at(p_all_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^P_ALL_", "", .x))
+
+df_sum_p <- rbind(df_sum_p_op, df_sum_p_mp, df_sum_p_ik, df_sum_p_ga, df_sum_p_all)
+source <- c("Own production", "Market purchase", "In-Kind Payment", "Gathering", "All sources")
+df_source <- data.frame(source)
+df_source_p <- cbind(df_source, df_sum_p)
+df_source_p |> 
+  DT::datatable(
+    rownames = F,
+    #caption = "Number of Livelihood Zones where food basket items consumed per source",
+    extensions = 'FixedColumns',
+    filter = "none",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      pageLength = -1,
+      searching = FALSE,
+      dom = 't',
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 1)
+    ))
+
+```
+
+Number of Livelihood Zones where food basket items consumed per source for 'poor' households
+:::
+
+Animal products are far less likely to be consumed by poor households, apart from fish which is an important component of the food basket in eight zones.
+
+Many food types are both produced and purchased in markets by poor households in the same livelihood zones. Food types, like cassava and sweet potato, show a high overlap between production and market purchase - perhaps due to the perishability of those food types. The food type with the least overlap is rice, for which there are three livelihood zones where rice is purchased and not produced.
+
+## Livelihood Zone Food Baskets
+
+```{r}
+#| label: fig-p_zone_plots_a
+#| message: false
+#| warning: false
+#| out.width: "50%"
+#| fig.align: "center"
+#| fig.cap: "Food basket items"
+
+# prepare the diversity 
+df_lz_geo_p_op <- df_lz_geo_p_op |>  rowwise() |>
+  mutate(p_diversity_op = sum(c_across(all_of(p_op_glyph_cols))))
+
+df_lz_geo_p_mp <- df_lz_geo_p_mp |>  rowwise() |>
+  mutate(p_diversity_mp = sum(c_across(all_of(p_mp_glyph_cols))))
+
+df_lz_geo_p_ik <- df_lz_geo_p_ik |>  rowwise() |>
+  mutate(p_diversity_ik = sum(c_across(all_of(p_ik_glyph_cols))))
+
+df_lz_geo_p_ga <- df_lz_geo_p_ga |>  rowwise() |>
+  mutate(p_diversity_ga = sum(c_across(all_of(p_ga_glyph_cols))))
+
+df_lz_geo_p_all <- df_lz_geo_p_all |>  rowwise() |>
+  mutate(p_diversity_all = sum(c_across(all_of(p_all_glyph_cols))))
+
+
+# Join CSV to SpatVector
+lz_geo_p_op  <- merge(lz_geo, df_lz_geo_p_op, by = "LZCODE")
+lz_geo_p_mp  <- merge(lz_geo, df_lz_geo_p_mp, by = "LZCODE")
+lz_geo_p_ik  <- merge(lz_geo, df_lz_geo_p_ik, by = "LZCODE")
+lz_geo_p_ga  <- merge(lz_geo, df_lz_geo_p_ga, by = "LZCODE")
+lz_geo_p_all <- merge(lz_geo, df_lz_geo_p_all, by = "LZCODE")
+
+
+# create the glyphs and diversity plots
+
+basket_p_op <- ggplot(df_lz_geo_p_op) +
+  geom_spatvector(data = lz_geo_p_op, aes(fill = p_diversity_op), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = p_op_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Poor' households - Own Production", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_p_mp <- ggplot(df_lz_geo_p_mp) +
+  geom_spatvector(data = lz_geo_p_mp, aes(fill = p_diversity_mp), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = p_mp_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Poor' households - Market Purchase", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_p_ik <- ggplot(df_lz_geo_p_ik) +
+  geom_spatvector(data = lz_geo_p_ik, aes(fill = p_diversity_ik), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = p_ik_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Poor' households - In-Kind Payment", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_p_ga <- ggplot(df_lz_geo_p_ga) +
+  geom_spatvector(data = lz_geo_p_ga, aes(fill = p_diversity_ga), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = p_ga_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Poor' households - Gathering", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_p_all <- ggplot(df_lz_geo_p_all) +
+  geom_spatvector(data = lz_geo_p_all, aes(fill = p_diversity_all), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = p_all_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "'Poor' households - All sources", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+legend_glyph
+```
+
+```{r}
+#| label: fig-p_zone_plots_b
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Poor' households own production" 
+ 
+basket_p_op
+```
+
+```{r}
+#| label: fig-p_zone_plots_c
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Poor' households market purchase" 
+ 
+basket_p_mp
+```
+
+```{r}
+#| label: fig-p_zone_plots_d
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Poor' households in-kind payment" 
+ 
+basket_p_ik
+```
+
+```{r}
+#| label: fig-p_zone_plots_e
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Poor' households gathering" 
+ 
+basket_p_ga
+```
+
+```{r}
+#| label: fig-p_zone_plots_f
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "'Poor' households all sources" 
+
+basket_p_all
+```
+
+When the food baskets are mapped there are some notable difference between the zones, and also when compared to the more wealthy households.
+
+The livelihood zones in the centre of Nigeria tend to have the largest diversity of items in their food basket (@fig-p_zone_plots_f).
+
+As with the richer households the livelihood zone with the most diverse range of home produced items (@fig-p_zone_plots_b) was the 'North-east cattle, small ruminants, and food crops with cross-border livestock trade' zone. Both this and the 'South-east cassava, cereals, and oil palm with extensive off-farm work and trade' had the most diverse range of items purchased in the market by poorer households (@fig-p_zone_plots_c). In one zone - 'North-west sorghum, maize and cotton with cross-border trade' - poorer households were considered to obtain none of their main food items in the market.
+
+In-kind payment (@fig-p_zone_plots_d) was a significant source of food items in the 'South-west cocoa with oil palm, tubers, and cereals', where cowpeas, rice, yams and cassava were obtained in this manner. This zone was also the only zone (@fig-p_zone_plots_e) where gathering vegetables was commonly practiced.
+
+::: {#tbl-p_compare_sources}
+```{r}
+#| label: p_compare_sources
+#| message: false
+#| warning: false
+
+
+# Remove prefixes from food-item names
+p_op <- lz_p_op   |> 
+  rename_with(~ sub("^P_OP_", "", .x), -LZCODE)
+
+p_mp <- lz_p_mp   |>
+  rename_with(~ sub("^P_MP_", "", .x), -LZCODE)
+
+p_compare <- p_op |>
+  inner_join(p_mp, by = "LZCODE", suffix = c("_op", "_mp"))
+
+
+p_food_items <- setdiff(names(p_op), "LZCODE")
+
+df_p_jaccard <- p_compare |> 
+  rowwise() |> 
+  mutate(
+    p_common = sum(
+      c_across(all_of(paste0(p_food_items, "_op"))) == 1 &
+      c_across(all_of(paste0(p_food_items, "_mp"))) == 1
+    ),
+    
+    p_only_op = sum(
+      c_across(all_of(paste0(p_food_items, "_op"))) == 1 &
+      c_across(all_of(paste0(p_food_items, "_mp"))) == 0
+    ),
+    
+    p_only_mp = sum(
+      c_across(all_of(paste0(p_food_items, "_op"))) == 0 &
+      c_across(all_of(paste0(p_food_items, "_mp"))) == 1
+    ),
+    
+    p_food_source_similarity =
+p_common / (p_common + p_only_op + p_only_mp) ,
+    
+    p_food_source_dissimilarity = 1 - p_food_source_similarity
+  ) |> 
+  ungroup()
+
+df_p_jaccard_long <- df_p_jaccard |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_p_op, LZCODE, LZNAMEEN, p_diversity_op),
+    by = "LZCODE"
+  ) |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_p_mp, LZNAMEEN, p_diversity_mp),
+    by = "LZNAMEEN"
+  ) |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_p_all, LZNAMEEN, p_diversity_all),
+    by = "LZNAMEEN"
+  ) |>
+  dplyr::select(
+    LZCODE,
+    LZNAMEEN,
+    p_food_source_similarity,
+    p_diversity_op,
+    p_diversity_mp,
+    p_diversity_all
+  ) 
+
+df_p_jaccard_long |>
+  DT::datatable(
+    rownames = F,
+    colnames = c(
+      "LZ CODE",
+      "LZ NAME",
+      "Source Similarity",
+      "OP Diversity",
+      "MP Diversity",
+      "All Diversity"
+    ),
+    #caption = "Similarity and Diversity of Sources of Food",
+    filter = "none",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      layout = list(
+        top = list(
+          "pageLength"
+        ),
+        bottom = list(
+          "paging"
+        )
+      ),
+      order = list(list(2, 'asc')),
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(8, 35),
+      pageLength = 8,
+      autoWidth = FALSE, # Mandatory: stops DT from auto-calculating widths
+      columnDefs = list(
+        list(width = '50px', targets = 0), # LZCODE (Short)
+        list(width = '200px', targets = 1), # LZNAMEEN (Long)
+        list(width = '50px', targets = 2), # food_source_similarity (Short)
+        list(width = '50px', targets = 3), # diversity_op (Short)
+        list(width = '50px', targets = 4), # diversity_mp (Short)
+        list(width = '50px', targets = 5) # diversity_all (Long)
+      )
+    )
+  ) |>
+    formatRound(columns = c("p_food_source_similarity"), digits = 2)
+
+```
+
+Similarity and Diversity of Sources of Food for 'Poor' households
+:::
+
+An interesting example of a zone where own produced food basket items are dissimilar to market purchased items is the 'South-west cocoa with oil palm, tubers, and cereals' zone (@tbl-p_compare_sources). In this zone maize and cassava are produced by poor households, whereas vegetables and yams are bought at the market, not included in the statistics are in-kind payments which for this zone include cowpeas and rice.
+
+At the other extreme is a zone like 'Central sorghum, maize, groundnuts, cowpeas, and sesame', where six food items - millet, sorghum, sweet potato, maize, rice and dairy products - are both purchased and produced by poor households.
+
+# 'All' households
+
+## Data Preparation
+
+```{r}
+#| label: all_data_prep
+#| message: false
+#| warning: false
+
+
+# Join food baskets to df
+df_lz_geo_all_op  <- dplyr::left_join(df_lz_geo, lz_all_op,  by = "LZCODE")
+df_lz_geo_all_mp  <- dplyr::left_join(df_lz_geo, lz_all_mp,  by = "LZCODE")
+df_lz_geo_all_ik  <- dplyr::left_join(df_lz_geo, lz_all_ik,  by = "LZCODE")
+df_lz_geo_all_ga  <- dplyr::left_join(df_lz_geo, lz_all_ga,  by = "LZCODE")
+df_lz_geo_all_all <- dplyr::left_join(df_lz_geo, lz_all_all, by = "LZCODE")
+
+
+# define columns for glyphs and for food stats
+all_op_glyph_cols <- c(
+
+  "ALL_OP_Soybean",
+  "ALL_OP_Dairy",
+  "ALL_OP_Fish",
+  "ALL_OP_Meat",
+  "ALL_OP_Poultry",
+  "ALL_OP_Shoat",
+  
+  "ALL_OP_Yam",
+  "ALL_OP_Cocoyam",
+  "ALL_OP_Vegetables",
+  "ALL_OP_Beans",
+  "ALL_OP_Cowpea",
+  "ALL_OP_Gnuts",
+  
+  "ALL_OP_Acha",  
+  "ALL_OP_Cassava",
+  "ALL_OP_Ipotato",
+  "ALL_OP_Plantain",
+  "ALL_OP_Spotato",  
+  
+  "ALL_OP_Maize",
+  "ALL_OP_Millet",
+  "ALL_OP_Rice",
+  "ALL_OP_Sorghum",
+  "ALL_OP_Wheat"
+  )
+
+all_mp_glyph_cols <- c(
+
+  "ALL_MP_Soybean",
+  "ALL_MP_Dairy",
+  "ALL_MP_Fish",
+  "ALL_MP_Meat",
+  "ALL_MP_Poultry",
+  "ALL_MP_Shoat",
+  
+  "ALL_MP_Yam",
+  "ALL_MP_Cocoyam",
+  "ALL_MP_Vegetables",
+  "ALL_MP_Beans",
+  "ALL_MP_Cowpea",
+  "ALL_MP_Gnuts",
+  
+  "ALL_MP_Acha",  
+  "ALL_MP_Cassava",
+  "ALL_MP_Ipotato",
+  "ALL_MP_Plantain",
+  "ALL_MP_Spotato",  
+  
+  "ALL_MP_Maize",
+  "ALL_MP_Millet",
+  "ALL_MP_Rice",
+  "ALL_MP_Sorghum",
+  "ALL_MP_Wheat"
+  )
+
+all_ik_glyph_cols <- c(
+
+  "ALL_IK_Soybean",
+  "ALL_IK_Dairy",
+  "ALL_IK_Fish",
+  "ALL_IK_Meat",
+  "ALL_IK_Poultry",
+  "ALL_IK_Shoat",
+  
+  "ALL_IK_Yam",
+  "ALL_IK_Cocoyam",
+  "ALL_IK_Vegetables",
+  "ALL_IK_Beans",
+  "ALL_IK_Cowpea",
+  "ALL_IK_Gnuts",
+  
+  "ALL_IK_Acha",  
+  "ALL_IK_Cassava",
+  "ALL_IK_Ipotato",
+  "ALL_IK_Plantain",
+  "ALL_IK_Spotato",  
+  
+  "ALL_IK_Maize",
+  "ALL_IK_Millet",
+  "ALL_IK_Rice",
+  "ALL_IK_Sorghum",
+  "ALL_IK_Wheat"
+  )
+
+all_ga_glyph_cols <- c(
+
+  "ALL_GA_Soybean",
+  "ALL_GA_Dairy",
+  "ALL_GA_Fish",
+  "ALL_GA_Meat",
+  "ALL_GA_Poultry",
+  "ALL_GA_Shoat",
+  
+  "ALL_GA_Yam",
+  "ALL_GA_Cocoyam",
+  "ALL_GA_Vegetables",
+  "ALL_GA_Beans",
+  "ALL_GA_Cowpea",
+  "ALL_GA_Gnuts",
+  
+  "ALL_GA_Acha",  
+  "ALL_GA_Cassava",
+  "ALL_GA_Ipotato",
+  "ALL_GA_Plantain",
+  "ALL_GA_Spotato",  
+  
+  "ALL_GA_Maize",
+  "ALL_GA_Millet",
+  "ALL_GA_Rice",
+  "ALL_GA_Sorghum",
+  "ALL_GA_Wheat"
+  )
+
+all_all_glyph_cols <- c(
+
+  "ALL_ALL_Soybean",
+  "ALL_ALL_Dairy",
+  "ALL_ALL_Fish",
+  "ALL_ALL_Meat",
+  "ALL_ALL_Poultry",
+  "ALL_ALL_Shoat",
+  
+  "ALL_ALL_Yam",
+  "ALL_ALL_Cocoyam",
+  "ALL_ALL_Vegetables",
+  "ALL_ALL_Beans",
+  "ALL_ALL_Cowpea",
+  "ALL_ALL_Gnuts",
+  
+  "ALL_ALL_Acha",  
+  "ALL_ALL_Cassava",
+  "ALL_ALL_Ipotato",
+  "ALL_ALL_Plantain",
+  "ALL_ALL_Spotato",  
+  
+  "ALL_ALL_Maize",
+  "ALL_ALL_Millet",
+  "ALL_ALL_Rice",
+  "ALL_ALL_Sorghum",
+  "ALL_ALL_Wheat"
+  )
+
+```
+
+## Number of zones where food basket items consumed
+
+When all households are combined, the patterns seen above are more or less replicated, with rice being the most common food basket item, followed by maize and cowpea. Rice and cowpea were bought at market in more zones than own production, whereas maize was own produced in more zones (@tbl-all_food_stats).
+
+Regarding the other crops which have been biofortified. Cassava is in the food basket of only 13 of the 35 zones, and is obtained both by own production and in the market (as well as in-kind payment for poor households). Sorghum is in the food basket in 18 zones and, like cassava, the source is a mixture of both home production and market purchase. Sweet potato is less commonly in the food basket, and plantain has a very limited appeal.
+
+::: {#tbl-all_food_stats}
+```{r}
+#| label: all_food_stats
+#| message: false
+#| warning: false
+
+# summarise and remove prefixes to allow row binding
+
+df_sum_all_op  <- df_lz_geo_all_op  |>  summarise_at(all_op_glyph_cols, sum, na.rm = TRUE) |> 
+  rename_with(~ sub("^ALL_OP_", "", .x))
+df_sum_all_mp  <- df_lz_geo_all_mp  |>  summarise_at(all_mp_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^ALL_MP_", "", .x))
+df_sum_all_ik  <- df_lz_geo_all_ik  |>  summarise_at(all_ik_glyph_cols, sum, na.rm = TRUE) |> 
+  rename_with(~ sub("^ALL_IK_", "", .x))
+df_sum_all_ga  <- df_lz_geo_all_ga  |>  summarise_at(all_ga_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^ALL_GA_", "", .x))
+df_sum_all_all <- df_lz_geo_all_all |>  summarise_at(all_all_glyph_cols, sum, na.rm = TRUE) |>
+  rename_with(~ sub("^ALL_ALL_", "", .x))
+
+df_sum_all <- rbind(df_sum_all_op, df_sum_all_mp, df_sum_all_ik, df_sum_all_ga, df_sum_all_all)
+source <- c("Own production", "Market purchase", "In-Kind Payment", "Gathering", "All sources")
+df_source <- data.frame(source)
+df_source_all <- cbind(df_source, df_sum_all)
+df_source_all |> 
+  DT::datatable(
+    rownames = F,
+    #caption = "Number of Livelihood Zones where food basket items consumed per source",
+    extensions = 'FixedColumns',
+    filter = "none",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      pageLength = -1,
+      searching = FALSE,
+      dom = 't',
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 1)
+    ))
+
+```
+
+Number of Livelihood Zones where food basket items consumed per source for all households
+:::
+
+## Livelihood Zone Food Baskets
+
+```{r}
+#| label: fig-all_zone_plots_a
+#| message: false
+#| warning: false
+#| out.width: "50%"
+#| fig.align: "center"
+#| fig.cap: "Food basket items"
+ 
+
+# prepare the diversity 
+df_lz_geo_all_op <- df_lz_geo_all_op |>  rowwise() |>
+  mutate(all_diversity_op = sum(c_across(all_of(all_op_glyph_cols))))
+
+df_lz_geo_all_mp <- df_lz_geo_all_mp |>  rowwise() |>
+  mutate(all_diversity_mp = sum(c_across(all_of(all_mp_glyph_cols))))
+
+df_lz_geo_all_ik <- df_lz_geo_all_ik |>  rowwise() |>
+  mutate(all_diversity_ik = sum(c_across(all_of(all_ik_glyph_cols))))
+
+df_lz_geo_all_ga <- df_lz_geo_all_ga |>  rowwise() |>
+  mutate(all_diversity_ga = sum(c_across(all_of(all_ga_glyph_cols))))
+
+df_lz_geo_all_all <- df_lz_geo_all_all |>  rowwise() |>
+  mutate(all_diversity_all = sum(c_across(all_of(all_all_glyph_cols))))
+
+
+# Join CSV to SpatVector
+lz_geo_all_op  <- merge(lz_geo, df_lz_geo_all_op, by = "LZCODE")
+lz_geo_all_mp  <- merge(lz_geo, df_lz_geo_all_mp, by = "LZCODE")
+lz_geo_all_ik  <- merge(lz_geo, df_lz_geo_all_ik, by = "LZCODE")
+lz_geo_all_ga  <- merge(lz_geo, df_lz_geo_all_ga, by = "LZCODE")
+lz_geo_all_all <- merge(lz_geo, df_lz_geo_all_all, by = "LZCODE")
+
+
+# create the glyphs and diversity plots
+
+basket_all_op <- ggplot(df_lz_geo_all_op) +
+  geom_spatvector(data = lz_geo_all_op, aes(fill = all_diversity_op), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = all_op_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "All households - Own Production", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_all_mp <- ggplot(df_lz_geo_all_mp) +
+  geom_spatvector(data = lz_geo_all_mp, aes(fill = all_diversity_mp), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = all_mp_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "All households - Market Purchase", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_all_ik <- ggplot(df_lz_geo_all_ik) +
+  geom_spatvector(data = lz_geo_all_ik, aes(fill = all_diversity_ik), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = all_ik_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "All households - In-Kind Payment", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_all_ga <- ggplot(df_lz_geo_all_ga) +
+  geom_spatvector(data = lz_geo_all_ga, aes(fill = all_diversity_ga), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = all_ga_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "All households - Gathering", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+basket_all_all <- ggplot(df_lz_geo_all_all) +
+  geom_spatvector(data = lz_geo_all_all, aes(fill = all_diversity_all), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 22),
+        guide = "legend"
+      ) +
+  geom_point(aes(x = centroid_x, y = centroid_y),  colour = "darkgrey") +
+  geom_tileglyph_af(
+    aes(x = centroid_x, y = centroid_y),
+    cols = all_all_glyph_cols,
+    fill.method = "binary",
+    fill.zero = "white",
+    size = 1.5,
+    alpha =  1,
+    nrow = 4,
+    colour = "grey", 
+    repel = TRUE,
+    repel.control = gglyph.repel.control(seed = 1234),
+    seed = 1234,
+    point.size = 10
+  ) +
+    labs(title = "All households - All sources", fill = "Diversity") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+legend_glyph
+```
+
+```{r}
+#| label: fig-all_zone_plots_b
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "All households own production" 
+ 
+basket_all_op
+```
+
+```{r}
+#| label: fig-all_zone_plots_c
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "All households market purchase" 
+ 
+basket_all_mp
+```
+
+```{r}
+#| label: fig-all_zone_plots_d
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "All households in-kind payment" 
+ 
+basket_all_ik
+```
+
+```{r}
+#| label: fig-all_zone_plots_e
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "All households gathering" 
+ 
+basket_all_ga
+```
+
+```{r}
+#| label: fig-all_zone_plots_f
+#| message: false
+#| warning: false
+#| out.width: "100%"
+#| fig.align: "center"
+#| fig.cap: "All households all sources" 
+
+basket_all_all
+```
+
+A greater variety of grains from own production are found in the northern livelihood zones (@fig-all_zone_plots_b), while animal products are more common in the eastern zones. Southern zones tend to have a greater diversity of food basket items with a mixture of grains, roots and tubers. The most commonly produced legume for home consumption are cowpeas.
+
+Market purchases make up a smaller percentage of the food basket in certain northern and south western zones (@fig-all_zone_plots_c).
+
+The zone with the greatest overall diversity of food basket items (@fig-all_zone_plots_f) is the 'North-east cattle, small ruminants, and food crops with cross-border livestock trade' zone (@tbl-all_compare_sources), but, as mentioned before, this zone straddles the border with Cameroon and includes a wide range of agro ecological zones.
+
+::: {#tbl-all_compare_sources}
+```{r}
+#| label: all_compare_sources
+#| message: false
+#| warning: false
+
+# Remove prefixes from food-item names
+all_op <- lz_all_op   |> 
+  rename_with(~ sub("^ALL_OP_", "", .x), -LZCODE)
+
+all_mp <- lz_all_mp   |>
+  rename_with(~ sub("^ALL_MP_", "", .x), -LZCODE)
+
+all_compare <- all_op |>
+  inner_join(all_mp, by = "LZCODE", suffix = c("_op", "_mp"))
+
+
+all_food_items <- setdiff(names(all_op), "LZCODE")
+
+df_all_jaccard <- all_compare |> 
+  rowwise() |> 
+  mutate(
+    all_common = sum(
+      c_across(all_of(paste0(all_food_items, "_op"))) == 1 &
+      c_across(all_of(paste0(all_food_items, "_mp"))) == 1
+    ),
+    
+    all_only_op = sum(
+      c_across(all_of(paste0(all_food_items, "_op"))) == 1 &
+      c_across(all_of(paste0(all_food_items, "_mp"))) == 0
+    ),
+    
+    all_only_mp = sum(
+      c_across(all_of(paste0(all_food_items, "_op"))) == 0 &
+      c_across(all_of(paste0(all_food_items, "_mp"))) == 1
+    ),
+    
+    all_food_source_similarity =
+all_common / (all_common + all_only_op + all_only_mp) ,
+    
+    all_food_source_dissimilarity = 1 - all_food_source_similarity
+  ) |> 
+  ungroup()
+
+df_all_jaccard_long <- df_all_jaccard |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_all_op, LZCODE, LZNAMEEN, all_diversity_op),
+    by = "LZCODE"
+  ) |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_all_mp, LZNAMEEN, all_diversity_mp),
+    by = "LZNAMEEN"
+  ) |>
+  dplyr::left_join(
+    dplyr::select(df_lz_geo_all_all, LZNAMEEN, all_diversity_all),
+    by = "LZNAMEEN"
+  ) |>
+  dplyr::select(
+    LZCODE,
+    LZNAMEEN,
+    all_food_source_similarity,
+    all_diversity_op,
+    all_diversity_mp,
+    all_diversity_all
+  ) 
+
+df_all_jaccard_long |>
+  DT::datatable(
+    rownames = F,
+    colnames = c(
+      "LZ CODE",
+      "LZ NAME",
+      "Source Similarity",
+      "OP Diversity",
+      "MP Diversity",
+      "All Diversity"
+    ),
+    # caption = "Similarity and Diversity of Sources of Food",
+    filter = "none",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      layout = list(
+        top = list(
+          "pageLength"
+        ),
+        bottom = list(
+          "paging"
+        )
+      ),
+      order = list(list(2, 'asc')),
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(8, 35),
+      pageLength = 8,
+      autoWidth = FALSE, # Mandatory: stops DT from auto-calculating widths
+      columnDefs = list(
+        list(width = '50px', targets = 0), # LZCODE (Short)
+        list(width = '200px', targets = 1), # LZNAMEEN (Long)
+        list(width = '50px', targets = 2), # food_source_similarity (Short)
+        list(width = '50px', targets = 3), # diversity_op (Short)
+        list(width = '50px', targets = 4), # diversity_mp (Short)
+        list(width = '50px', targets = 5) # diversity_all (Long)
+      )
+    )
+  ) |>
+    formatRound(columns = c("all_food_source_similarity"), digits = 2)
+
+```
+
+Similarity and Diversity of Sources of Food for all households
+:::
+
+# References {#sec-ref}
