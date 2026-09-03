@@ -39,7 +39,7 @@ jobs:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
 
-            <title>Atlas of Biofortification for Nigeria - Outputs</title>
+            <title>Atlas of Biofortification for Nigeria - Spatial Database of basic maps</title>
 
             <style>
               body {
@@ -80,7 +80,7 @@ jobs:
 
           <body>
 
-          <h1>Reports</h1>
+          <h1>Atlas of Biofortification for Nigeria - Spatial Database of basic maps</h1>
 
           <ul>
           EOF
