@@ -17,19 +17,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Prepare Pages site
         run: |
           mkdir _site
 
-          # Copy all HTML files from the repository root
+          # Copy all HTML files to the Pages site
           for file in *.html; do
             if [ -f "$file" ]; then
               cp "$file" _site/
             fi
           done
 
-          # Start the index page
+          # Start index.html
           cat > _site/index.html <<'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -37,7 +39,7 @@ jobs:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
 
-            <title>Reports</title>
+            <title>Atlas of Biofortification for Nigeria - Outputs</title>
 
             <style>
               body {
@@ -57,15 +59,21 @@ jobs:
               }
 
               li {
-                margin: 10px 0;
+                margin: 15px 0;
               }
 
               a {
                 text-decoration: none;
+                font-size: 1.05em;
               }
 
               a:hover {
                 text-decoration: underline;
+              }
+
+              .date {
+                color: #666;
+                font-size: 0.9em;
               }
             </style>
           </head>
@@ -77,27 +85,49 @@ jobs:
           <ul>
           EOF
 
-          # Add one entry for each HTML file
+          # Create a temporary file containing:
+          # filename | title | last commit date
+          temp_file=$(mktemp)
+
           for file in *.html; do
 
             if [ -f "$file" ] && [ "$file" != "index.html" ]; then
 
-              # Extract the page title from the HTML <title> element
+              # Get the HTML <title>
               title=$(grep -oi '<title[^>]*>[^<]*</title>' "$file" \
                 | head -1 \
                 | sed -E 's/<\/?title[^>]*>//Ig')
 
-              # If no title was found, use the filename
+              # Fallback if no <title> is found
               if [ -z "$title" ]; then
                 title="${file%.html}"
                 title="${title//_/ }"
               fi
 
-              # Add the link to the index
-              printf '    <li><a href="%s">%s</a></li>\n' \
-                "$file" "$title" >> _site/index.html
+              # Get the date of the most recent commit affecting this file
+              commit_date=$(git log -1 \
+                --format="%cd" \
+                --date=format:"%d %B %Y" \
+                -- "$file")
+
+              # Fallback if Git cannot find a commit
+              if [ -z "$commit_date" ]; then
+                commit_date="Unknown"
+              fi
+
+              # Store the information for sorting
+              printf '%s\t%s\t%s\n' \
+                "$title" "$file" "$commit_date" >> "$temp_file"
 
             fi
+
+          done
+
+          # Sort alphabetically by report title
+          sort -f "$temp_file" | while IFS=$'\t' read -r title file commit_date; do
+
+            printf '    <li><a href="%s">%s</a><br><span class="date">Last updated: %s</span></li>\n' \
+              "$file" "$title" "$commit_date" >> _site/index.html
 
           done
 
@@ -108,6 +138,8 @@ jobs:
           </body>
           </html>
           EOF
+
+          rm "$temp_file"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
