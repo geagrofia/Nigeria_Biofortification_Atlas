@@ -1,0 +1,1206 @@
+---
+title: "Nigeria Markets and Flows - FEWS NET 2008"
+format:
+  html:
+    toc: true
+    toc-depth: 1
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(NMdata)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+library(patchwork)
+
+source("E:/repos/Biofort_Atlas_Nigeria/R/make_bezier.R")
+
+```
+
+# Introduction
+
+An analysis of markets and flows of food products helps to determine both the demand for crop products as well an indication the current sources of crops for specific markets or regions.
+
+The market flows can be used in conjunction with the sub national biofortification indices [e.g. @herringtonSubnationalPrioritizationBiofortification2018] to show if intervention and impact zones are being connected by existing market flows.
+
+The flow maps are a useful graphical tool to help support the marketing networks for biofortified crops, and to identify any gaps in the marketing system that might be undermining the market for biofortified products. The market flow maps can identify which physical markets could be a surveyed for information on demand for biofortified crops, and/or for interventions which seek to promote biofortified crops.
+
+In 2008 FEWS NET obtained information on major markets for five crops to map the flows of harvested products within Nigeria, noting states which had a surplus of production (often the source) and those that had a deficit of production.
+
+Maps were produced for five crops:
+
+1.  Cassava [@fewsnetProductionTradeFlow2008]
+
+2.  Cowpea [@fewsnetProductionTradeFlow2008a]
+
+3.  Maize [@fewsnetProductionTradeFlow2008b]
+
+4.  Millet [@fewsnetProductionTradeFlow2008c]
+
+5.  Sorghum [@fewsnetProductionTradeFlow2008d]
+
+## Markets in Nigeria
+
+The markets across the five crops were consistent, but the type or function of the market sometimes changed, according to the crop.
+
+Three types of markets were identified:
+
+- Assembly market - where smaller quantities of a commodity are accumulated or aggregated usually from different farmers and small scale traders. Assembly markets facilitate marketing and the movement of commodities as well as reduce the costs of marketing. They can also enable sellers of smaller surpluses from more remote locations to reach distant buyers [@fewsnetMarketsTradeGlossary2009].
+
+- Retail market - where commodities are largely sold to end users, especially consumers. Per transaction volumes tend to be smaller, for example per kg or small bowl [@fewsnetMarketsTradeGlossary2009].
+
+- Wholesale - where generally traders sell to traders. Per transaction volumes tend to be larger, e.g., multiple 50 kg bags and even metric tons [@fewsnetMarketsTradeGlossary2009]
+
+- Unknown - Some of the maps do not give information on the market function or type
+
+There are also some locations that combine functions:
+
+- Retail and Wholesale
+
+- Assembly and Wholesale
+
+- Assembly, Retail and Wholesale
+
+## Market flows in Nigeria
+
+The flows indicate movement of crop products from areas of production that tend to have a surplus, to those areas where there is a no production but demand, or areas where there is insufficient production to meet the demand.
+
+The original FEWS NET maps show major flows and minor flows, but do not indicate the actual volumes of the flows.
+
+# Methods
+
+The market locations were identified in GoogleEarth and saved as a csv file.
+
+The market flows were constructed using a Bezier curve with 2, 3, or 4 control points, to replicate as closely as possible the flows in the original FEWS NET market flow maps.
+
+# Data Preparation
+
+## Load the market points
+
+```{r}
+#| label: load_market_points
+#| message: false
+#| warning: false
+
+df_markets_geo <- read.csv("tab_data/markets nigeria.csv")
+vect_markets_geo <- vect(df_markets_geo)
+vect_markets_labels_geo <- vect(df_markets_geo, geom = c("Label_long",	"Label_lat"))
+crs(vect_markets_labels_geo) <- "epsg:4326"
+
+vect_markets_geo$Name_2 <- as.factor(vect_markets_geo$Name_2)
+
+cat(paste("Market Names: ", levels(vect_markets_geo$Name_2), "; ")) # Check levels
+
+
+```
+
+## Load the states
+
+```{r}
+#| label: load_states
+#| message: false
+#| warning: false
+
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+crs(vect_state_geo) <- "epsg:4326"
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+
+cat(paste("State Codes: ",levels(vect_state_geo$adm1_pcode), "; ")) # Check levels
+```
+
+## Plot the market points
+
+```{r}
+#| label: fig-market_points
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2008 Market Locations"
+
+
+ggplot(vect_state_geo) +
+  geom_spatvector() +
+  geom_spatvector(data = vect_markets_geo, size = 2) +
+  geom_spatvector_text(
+    data = vect_markets_labels_geo,
+    aes(
+      label = Name_2,
+      hjust = case_when(
+        Name_2 == "Danja" ~ 0.5,
+        Name_2 == "Dawanau" ~ 1,
+        Name_2 == "Dan Dume" ~ 1,
+        Name_2 == "Funtua" ~ 1,
+        TRUE                 ~ 0   # Default fallback (left)
+      )
+    ),
+    size = 3,
+    check_overlap = F
+  ) +
+  labs(title = "FEWS NET 2008 Market Locations") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+## Load and create the market flows
+
+### Cassava market flows
+
+```{r}
+#| label: fig-create_flow_cassava
+#| message: false
+#| warning: false
+#| fig-cap: "Cassava Market Flows"
+#| fig-subcap: 
+#|   - "Control points and smooth flows"
+#|   - "Final flows"
+
+
+# Read CSV
+
+df_cassava_flow_points <- read.csv("tab_data/market_flows_cassava.csv")
+
+
+# Create point SpatVector in EPSG:4326
+
+vect_cassava_flow_points <- terra::vect(
+  df_cassava_flow_points,
+  geom = c("long", "lat"),
+  crs = "EPSG:4326"
+)
+
+
+# Project points for curve calculation
+
+curve_crs <- "EPSG:32632"
+
+vect_cassava_flow_points_projected <- terra::project(
+  vect_cassava_flow_points,
+  curve_crs
+)
+
+df_flow_cassava <- as.data.frame(
+  vect_cassava_flow_points_projected,
+  geom = "XY"
+)
+
+
+# df_flow_cassava |>
+#   arrange(flow_id, sequence)
+
+
+# Generate curves
+
+df_smooth_flows_cassava <- df_flow_cassava |>
+
+  arrange(flow_id, sequence) |>
+
+  group_by(flow_id, flow) |>
+
+  group_modify(
+    ~ {
+      make_bezier(
+        x = .x$x,
+        y = .x$y,
+        n = 100
+      )
+    }
+  ) |>
+
+  ungroup()
+
+
+# check smooth_flows
+
+ggplot() +
+  geom_path(
+    data = df_smooth_flows_cassava,
+    aes(
+      x = x,
+      y = y,
+      group = flow_id,
+      linewidth = flow
+    ), colour = "darkgrey"
+  ) +
+  scale_linewidth(
+    range = c(0.5, 1)
+  ) +
+  geom_spatvector_label(
+    data = vect_cassava_flow_points_projected,
+    aes(label = paste(flow_id,"-", sequence)),
+    size = 2
+  )
+
+
+#create a list where each element corresponds explicitly to a flow_id
+
+flow_ids <- unique(df_smooth_flows_cassava$flow_id)
+
+geometries <- lapply(
+  flow_ids,
+  function(id) {
+    d <- df_smooth_flows_cassava |>
+      filter(flow_id == id)
+
+    cbind(
+      d$x,
+      d$y
+    )
+  }
+)
+
+
+#create the attribute table using the same flow_ids order
+
+df_flow_attributes_cassava <- df_smooth_flows_cassava |>
+  distinct(flow_id, flow) |>
+  arrange(match(flow_id, flow_ids))
+
+
+# Check that the orders match
+
+flow_ids
+df_flow_attributes_cassava$flow_id
+
+
+# Create the SpatVector
+
+vect_smooth_flows_cassava <- terra::vect(
+  geometries,
+  type = "lines",
+  crs = curve_crs
+)
+
+
+# attach the attributes
+
+values(vect_smooth_flows_cassava) <- df_flow_attributes_cassava
+
+
+# check
+
+vect_smooth_flows_cassava
+plot(vect_smooth_flows_cassava)
+
+
+# Transform back to EPSG:4326
+
+vect_smooth_flows_cassava <- terra::project(
+  vect_smooth_flows_cassava,
+  "EPSG:4326"
+)
+
+crs(vect_smooth_flows_cassava)
+
+```
+
+### Cowpea market flows
+
+```{r}
+#| label: fig-create_flow_cowpea
+#| message: false
+#| warning: false
+#| fig-cap: "Cowpea Market Flows"
+#| fig-subcap: 
+#|   - "Control points and smooth flows"
+#|   - "Final flows"
+
+
+# Read CSV
+
+df_cowpea_flow_points <- read.csv("tab_data/market_flows_cowpea.csv")
+
+
+# Create point SpatVector in EPSG:4326
+
+vect_cowpea_flow_points <- terra::vect(
+  df_cowpea_flow_points,
+  geom = c("long", "lat"),
+  crs = "EPSG:4326"
+)
+
+
+# Project points for curve calculation
+
+curve_crs <- "EPSG:32632"
+
+vect_cowpea_flow_points_projected <- terra::project(
+  vect_cowpea_flow_points,
+  curve_crs
+)
+
+df_flow_cowpea <- as.data.frame(
+  vect_cowpea_flow_points_projected,
+  geom = "XY"
+)
+
+
+# df_flow_cowpea |>
+#   arrange(flow_id, sequence)
+
+
+# Generate curves
+
+df_smooth_flows_cowpea <- df_flow_cowpea |>
+
+  arrange(flow_id, sequence) |>
+
+  group_by(flow_id, flow) |>
+
+  group_modify(
+    ~ {
+      make_bezier(
+        x = .x$x,
+        y = .x$y,
+        n = 100
+      )
+    }
+  ) |>
+
+  ungroup()
+
+
+# check smooth_flows
+
+ggplot() +
+  geom_path(
+    data = df_smooth_flows_cowpea,
+    aes(
+      x = x,
+      y = y,
+      group = flow_id,
+      linewidth = flow
+    ), colour = "darkgrey"
+  ) +
+  scale_linewidth(
+    range = c(0.5, 1)
+  ) +
+  geom_spatvector_label(
+    data = vect_cowpea_flow_points_projected,
+    aes(label = paste(flow_id,"-", sequence)),
+    size = 2
+  )
+
+
+#create a list where each element corresponds explicitly to a flow_id
+
+flow_ids <- unique(df_smooth_flows_cowpea$flow_id)
+
+geometries <- lapply(
+  flow_ids,
+  function(id) {
+    d <- df_smooth_flows_cowpea |>
+      filter(flow_id == id)
+
+    cbind(
+      d$x,
+      d$y
+    )
+  }
+)
+
+
+#create the attribute table using the same flow_ids order
+
+df_flow_attributes_cowpea <- df_smooth_flows_cowpea |>
+  distinct(flow_id, flow) |>
+  arrange(match(flow_id, flow_ids))
+
+
+# Check that the orders match
+
+flow_ids
+df_flow_attributes_cowpea$flow_id
+
+
+# Create the SpatVector
+
+vect_smooth_flows_cowpea <- terra::vect(
+  geometries,
+  type = "lines",
+  crs = curve_crs
+)
+
+
+# attach the attributes
+
+values(vect_smooth_flows_cowpea) <- df_flow_attributes_cowpea
+
+
+# check
+
+vect_smooth_flows_cowpea
+plot(vect_smooth_flows_cowpea)
+
+
+# Transform back to EPSG:4326
+
+vect_smooth_flows_cowpea <- terra::project(
+  vect_smooth_flows_cowpea,
+  "EPSG:4326"
+)
+
+crs(vect_smooth_flows_cowpea)
+
+```
+
+### Maize market flows
+
+```{r}
+#| label: fig-create_flow_maize
+#| message: false
+#| warning: false
+#| fig-cap: "Maize Market Flows"
+#| fig-subcap: 
+#|   - "Control points and smooth flows"
+#|   - "Final flows"
+
+
+# Read CSV
+
+df_maize_flow_points <- read.csv("tab_data/market_flows_maize.csv")
+
+
+# Create point SpatVector in EPSG:4326
+
+vect_maize_flow_points <- terra::vect(
+  df_maize_flow_points,
+  geom = c("long", "lat"),
+  crs = "EPSG:4326"
+)
+
+
+# Project points for curve calculation
+
+curve_crs <- "EPSG:32632"
+
+vect_maize_flow_points_projected <- terra::project(
+  vect_maize_flow_points,
+  curve_crs
+)
+
+df_flow_maize <- as.data.frame(
+  vect_maize_flow_points_projected,
+  geom = "XY"
+)
+
+
+# df_flow_maize |>
+#   arrange(flow_id, sequence)
+
+
+# Generate curves
+
+df_smooth_flows_maize <- df_flow_maize |>
+
+  arrange(flow_id, sequence) |>
+
+  group_by(flow_id, flow) |>
+
+  group_modify(
+    ~ {
+      make_bezier(
+        x = .x$x,
+        y = .x$y,
+        n = 100
+      )
+    }
+  ) |>
+
+  ungroup()
+
+
+# check smooth_flows
+
+ggplot() +
+  geom_path(
+    data = df_smooth_flows_maize,
+    aes(
+      x = x,
+      y = y,
+      group = flow_id,
+      linewidth = flow
+    ), colour = "darkgrey"
+  ) +
+  scale_linewidth(
+    range = c(0.5, 1)
+  ) +
+  geom_spatvector_label(
+    data = vect_maize_flow_points_projected,
+    aes(label = paste(flow_id,"-", sequence)),
+    size = 2
+  )
+
+
+#create a list where each element corresponds explicitly to a flow_id
+
+flow_ids <- unique(df_smooth_flows_maize$flow_id)
+
+geometries <- lapply(
+  flow_ids,
+  function(id) {
+    d <- df_smooth_flows_maize |>
+      filter(flow_id == id)
+
+    cbind(
+      d$x,
+      d$y
+    )
+  }
+)
+
+
+#create the attribute table using the same flow_ids order
+
+df_flow_attributes_maize <- df_smooth_flows_maize |>
+  distinct(flow_id, flow) |>
+  arrange(match(flow_id, flow_ids))
+
+
+# Check that the orders match
+
+flow_ids
+df_flow_attributes_maize$flow_id
+
+
+# Create the SpatVector
+
+vect_smooth_flows_maize <- terra::vect(
+  geometries,
+  type = "lines",
+  crs = curve_crs
+)
+
+
+# attach the attributes
+
+values(vect_smooth_flows_maize) <- df_flow_attributes_maize
+
+
+# check
+
+vect_smooth_flows_maize
+plot(vect_smooth_flows_maize)
+
+
+# Transform back to EPSG:4326
+
+vect_smooth_flows_maize <- terra::project(
+  vect_smooth_flows_maize,
+  "EPSG:4326"
+)
+
+crs(vect_smooth_flows_maize)
+
+```
+
+### Millet market flows
+
+```{r}
+#| label: fig-create_flow_millet
+#| message: false
+#| warning: false
+#| fig-cap: "Millet Market Flows"
+#| fig-subcap: 
+#|   - "Control points and smooth flows"
+#|   - "Final flows"
+
+
+# Read CSV
+
+df_millet_flow_points <- read.csv("tab_data/market_flows_millet.csv")
+
+
+# Create point SpatVector in EPSG:4326
+
+vect_millet_flow_points <- terra::vect(
+  df_millet_flow_points,
+  geom = c("long", "lat"),
+  crs = "EPSG:4326"
+)
+
+
+# Project points for curve calculation
+
+curve_crs <- "EPSG:32632"
+
+vect_millet_flow_points_projected <- terra::project(
+  vect_millet_flow_points,
+  curve_crs
+)
+
+df_flow_millet <- as.data.frame(
+  vect_millet_flow_points_projected,
+  geom = "XY"
+)
+
+
+# df_flow_millet |>
+#   arrange(flow_id, sequence)
+
+
+# Generate curves
+
+df_smooth_flows_millet <- df_flow_millet |>
+
+  arrange(flow_id, sequence) |>
+
+  group_by(flow_id, flow) |>
+
+  group_modify(
+    ~ {
+      make_bezier(
+        x = .x$x,
+        y = .x$y,
+        n = 100
+      )
+    }
+  ) |>
+
+  ungroup()
+
+
+# check smooth_flows
+
+ggplot() +
+  geom_path(
+    data = df_smooth_flows_millet,
+    aes(
+      x = x,
+      y = y,
+      group = flow_id,
+      linewidth = flow
+    ), colour = "darkgrey"
+  ) +
+  scale_linewidth(
+    range = c(0.5, 1)
+  ) +
+  geom_spatvector_label(
+    data = vect_millet_flow_points_projected,
+    aes(label = paste(flow_id,"-", sequence)),
+    size = 2
+  )
+
+
+#create a list where each element corresponds explicitly to a flow_id
+
+flow_ids <- unique(df_smooth_flows_millet$flow_id)
+
+geometries <- lapply(
+  flow_ids,
+  function(id) {
+    d <- df_smooth_flows_millet |>
+      filter(flow_id == id)
+
+    cbind(
+      d$x,
+      d$y
+    )
+  }
+)
+
+
+#create the attribute table using the same flow_ids order
+
+df_flow_attributes_millet <- df_smooth_flows_millet |>
+  distinct(flow_id, flow) |>
+  arrange(match(flow_id, flow_ids))
+
+
+# Check that the orders match
+
+flow_ids
+df_flow_attributes_millet$flow_id
+
+
+# Create the SpatVector
+
+vect_smooth_flows_millet <- terra::vect(
+  geometries,
+  type = "lines",
+  crs = curve_crs
+)
+
+
+# attach the attributes
+
+values(vect_smooth_flows_millet) <- df_flow_attributes_millet
+
+
+# check
+
+vect_smooth_flows_millet
+plot(vect_smooth_flows_millet)
+
+
+# Transform back to EPSG:4326
+
+vect_smooth_flows_millet <- terra::project(
+  vect_smooth_flows_millet,
+  "EPSG:4326"
+)
+
+crs(vect_smooth_flows_millet)
+
+```
+
+### Sorghum market flows
+
+```{r}
+#| label: fig-create_flow_sorghum
+#| message: false
+#| warning: false
+#| fig-cap: "Sorghum Market Flows"
+#| fig-subcap: 
+#|   - "Control points and smooth flows"
+#|   - "Final flows"
+
+
+# Read CSV
+
+df_sorghum_flow_points <- read.csv("tab_data/market_flows_sorghum.csv")
+
+
+# Create point SpatVector in EPSG:4326
+
+vect_sorghum_flow_points <- terra::vect(
+  df_sorghum_flow_points,
+  geom = c("long", "lat"),
+  crs = "EPSG:4326"
+)
+
+
+# Project points for curve calculation
+
+curve_crs <- "EPSG:32632"
+
+vect_sorghum_flow_points_projected <- terra::project(
+  vect_sorghum_flow_points,
+  curve_crs
+)
+
+df_flow_sorghum <- as.data.frame(
+  vect_sorghum_flow_points_projected,
+  geom = "XY"
+)
+
+
+# df_flow_sorghum |>
+#   arrange(flow_id, sequence)
+
+
+# Generate curves
+
+df_smooth_flows_sorghum <- df_flow_sorghum |>
+
+  arrange(flow_id, sequence) |>
+
+  group_by(flow_id, flow) |>
+
+  group_modify(
+    ~ {
+      make_bezier(
+        x = .x$x,
+        y = .x$y,
+        n = 100
+      )
+    }
+  ) |>
+
+  ungroup()
+
+
+# check smooth_flows
+
+ggplot() +
+  geom_path(
+    data = df_smooth_flows_sorghum,
+    aes(
+      x = x,
+      y = y,
+      group = flow_id,
+      linewidth = flow
+    ), colour = "darkgrey"
+  ) +
+  scale_linewidth(
+    range = c(0.5, 1)
+  ) +
+  geom_spatvector_label(
+    data = vect_sorghum_flow_points_projected,
+    aes(label = paste(flow_id,"-", sequence)),
+    size = 2
+  )
+
+
+#create a list where each element corresponds explicitly to a flow_id
+
+flow_ids <- unique(df_smooth_flows_sorghum$flow_id)
+
+geometries <- lapply(
+  flow_ids,
+  function(id) {
+    d <- df_smooth_flows_sorghum |>
+      filter(flow_id == id)
+
+    cbind(
+      d$x,
+      d$y
+    )
+  }
+)
+
+
+#create the attribute table using the same flow_ids order
+
+df_flow_attributes_sorghum <- df_smooth_flows_sorghum |>
+  distinct(flow_id, flow) |>
+  arrange(match(flow_id, flow_ids))
+
+
+# Check that the orders match
+
+flow_ids
+df_flow_attributes_sorghum$flow_id
+
+
+# Create the SpatVector
+
+vect_smooth_flows_sorghum <- terra::vect(
+  geometries,
+  type = "lines",
+  crs = curve_crs
+)
+
+
+# attach the attributes
+
+values(vect_smooth_flows_sorghum) <- df_flow_attributes_sorghum
+
+
+# check
+
+vect_smooth_flows_sorghum
+plot(vect_smooth_flows_sorghum)
+
+
+# Transform back to EPSG:4326
+
+vect_smooth_flows_sorghum <- terra::project(
+  vect_smooth_flows_sorghum,
+  "EPSG:4326"
+)
+
+crs(vect_smooth_flows_sorghum)
+
+```
+
+# Cassava Markets
+
+```{r}
+#| label: fig-market_cassava
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2008 Cassava Markets"
+
+Cassava = c("A", "A_R_W", "A_W", "R", "R_W", "W", "?")
+m_shape  = c(2, 11, 15, 1, 7, 0, 63)
+m_label  = c("Assembly", "Assembly, Retail and Wholesale", "Assembly and Wholesale", "Retail", "Retail and Wholesale", "Wholesale", "Unknown")
+
+
+df_markets_shapes <- data.frame(Cassava = Cassava, m_shape = m_shape, m_label = m_label)
+
+vect_markets_shapes <- tidyterra::left_join(vect_markets_geo, df_markets_shapes, by = c("Cassava") )
+
+vect_smooth_flows_cassava$flow <- factor(vect_smooth_flows_cassava$flow, labels = c("Minor Flow", "Major Flow"))
+
+linewidth_map <- c(
+  "Minor Flow" = 0.5,     
+  "Major Flow" = 1.5 )
+
+ggplot(vect_state_geo) +
+  geom_spatvector() +
+  geom_spatvector(
+    data = vect_smooth_flows_cassava, aes(linewidth = factor(flow)),
+    colour = "red",
+    arrow = arrow(angle = 15, length = unit(0.25, "cm"),type = "open")
+  ) +  
+  scale_linewidth_manual(
+    name = "Flow",  # Legend title
+    values = linewidth_map  # Map factor levels to linewidths
+  ) +
+  geom_spatvector(
+    data = vect_markets_shapes,
+    aes(shape = Cassava)
+  ) +
+  scale_shape_manual(
+    values = setNames(
+      df_markets_shapes$m_shape,
+      df_markets_shapes$Cassava)
+    ,
+    breaks = df_markets_shapes$Cassava,
+    labels = df_markets_shapes$m_label
+  ) +
+  labs(title = "FEWS NET 2008 Market Locations", shape = "Cassava Market Types") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+# Cowpea Markets
+
+```{r}
+#| label: fig-market_cowpea
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2008 Cowpea Markets"
+
+Cowpea = c("A", "A_R_W", "A_W", "R", "R_W", "W", "?")
+m_shape  = c(2, 11, 15, 1, 7, 0, 63)
+m_label  = c("Assembly", "Assembly, Retail and Wholesale", "Assembly and Wholesale", "Retail", "Retail and Wholesale", "Wholesale", "Unknown")
+
+
+df_markets_shapes <- data.frame(Cowpea = Cowpea, m_shape = m_shape, m_label = m_label)
+
+vect_markets_shapes <- tidyterra::left_join(vect_markets_geo, df_markets_shapes, by = c("Cowpea") )
+
+vect_smooth_flows_cowpea$flow <- factor(vect_smooth_flows_cowpea$flow, labels = c("Minor Flow", "Major Flow"))
+
+linewidth_map <- c(
+  "Minor Flow" = 0.5,     
+  "Major Flow" = 1.5 )
+
+ggplot(vect_state_geo) +
+  geom_spatvector() +
+    geom_spatvector(
+    data = vect_smooth_flows_cowpea, aes(linewidth = flow),
+    colour = "red",
+    arrow = arrow(angle = 10, length = unit(0.25, "cm"),type = "open")
+  ) +
+  scale_linewidth_manual(
+    name = "Flow",  # Legend title
+    values = linewidth_map  # Map factor levels to linewidths
+  ) +
+  geom_spatvector(
+    data = vect_markets_shapes,
+    aes(shape = Cowpea)
+  ) +
+  scale_shape_manual(
+    values = setNames(
+      df_markets_shapes$m_shape,
+      df_markets_shapes$Cowpea)
+    ,
+    breaks = df_markets_shapes$Cowpea,
+    labels = df_markets_shapes$m_label
+  ) +
+  labs(title = "FEWS NET 2008 Market Locations", shape = "Cowpea Market Types") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+# Maize Markets
+
+```{r}
+#| label: fig-market_maize
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2008 Maize Markets"
+
+Maize = c("A", "A_R_W", "A_W", "R", "R_W", "W", "?")
+m_shape  = c(2, 11, 15, 1, 7, 0, 63)
+m_label  = c("Assembly", "Assembly, Retail and Wholesale", "Assembly and Wholesale", "Retail", "Retail and Wholesale", "Wholesale", "Unknown")
+
+
+df_markets_shapes <- data.frame(Maize = Maize, m_shape = m_shape, m_label = m_label)
+
+vect_markets_shapes <- tidyterra::left_join(vect_markets_geo, df_markets_shapes, by = c("Maize") )
+
+vect_smooth_flows_maize$flow <- factor(vect_smooth_flows_maize$flow, labels = c("Minor Flow", "Major Flow"))
+
+
+linewidth_map <- c(
+  "Minor Flow" = 0.5,     
+  "Major Flow" = 1.5 )
+
+
+ggplot(vect_state_geo) +
+  geom_spatvector() +
+  geom_spatvector(
+    data = vect_smooth_flows_maize, aes(linewidth = flow),
+    colour = "red",
+    arrow = arrow(angle = 10, length = unit(0.25, "cm"),type = "open")
+  ) +
+  scale_linewidth_manual(
+    name = "Flow",  # Legend title
+    values = linewidth_map  # Map factor levels to linewidths
+  ) +
+  geom_spatvector(
+    data = vect_markets_shapes,
+    aes(shape = Maize)
+  ) +
+  scale_shape_manual(
+    values = setNames(
+      df_markets_shapes$m_shape,
+      df_markets_shapes$Maize)
+    ,
+    breaks = df_markets_shapes$Maize,
+    labels = df_markets_shapes$m_label
+  ) +
+  labs(title = "FEWS NET 2008 Market Locations", shape = "Maize Market Types") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+# Millet Markets
+
+```{r}
+#| label: fig-market_millet
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2008 Millet Markets"
+
+Millet = c("A", "A_R_W", "A_W", "R", "R_W", "W", "?")
+m_shape  = c(2, 11, 15, 1, 7, 0, 63)
+m_label  = c("Assembly", "Assembly, Retail and Wholesale", "Assembly and Wholesale", "Retail", "Retail and Wholesale", "Wholesale", "Unknown")
+
+
+df_markets_shapes <- data.frame(Millet = Millet, m_shape = m_shape, m_label = m_label)
+
+vect_markets_shapes <- tidyterra::left_join(vect_markets_geo, df_markets_shapes, by = c("Millet") )
+
+vect_smooth_flows_millet$flow <- factor(vect_smooth_flows_millet$flow, labels = c("Minor Flow", "Major Flow"))
+
+
+linewidth_map <- c(
+  "Minor Flow" = 0.5,     
+  "Major Flow" = 1.5 )
+
+
+ggplot(vect_state_geo) +
+  geom_spatvector() +
+  geom_spatvector(
+    data = vect_smooth_flows_millet, aes(linewidth = flow),
+    colour = "red",
+    arrow = arrow(angle = 10, length = unit(0.25, "cm"),type = "open")
+  ) +
+  scale_linewidth_manual(
+    name = "Flow",  # Legend title
+    values = linewidth_map  # Map factor levels to linewidths
+  ) +
+  geom_spatvector(
+    data = vect_markets_shapes,
+    aes(shape = Millet)
+  ) +
+  scale_shape_manual(
+    values = setNames(
+      df_markets_shapes$m_shape,
+      df_markets_shapes$Millet)
+    ,
+    breaks = df_markets_shapes$Millet,
+    labels = df_markets_shapes$m_label
+  ) +
+  labs(title = "FEWS NET 2008 Market Locations", shape = "Millet Market Types") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+# Sorghum Markets
+
+```{r}
+#| label: fig-market_sorghum
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2008 Sorghum Markets"
+
+Sorghum = c("A", "A_R_W", "A_W", "R", "R_W", "W", "?")
+m_shape  = c(2, 11, 15, 1, 7, 0, 63)
+m_label  = c("Assembly", "Assembly, Retail and Wholesale", "Assembly and Wholesale", "Retail", "Retail and Wholesale", "Wholesale", "Unknown")
+
+
+df_markets_shapes <- data.frame(Sorghum = Sorghum, m_shape = m_shape, m_label = m_label)
+
+vect_markets_shapes <- tidyterra::left_join(vect_markets_geo, df_markets_shapes, by = c("Sorghum") )
+
+vect_smooth_flows_sorghum$flow <- factor(vect_smooth_flows_sorghum$flow, labels = c("Minor Flow", "Major Flow"))
+
+
+linewidth_map <- c(
+  "Minor Flow" = 0.5,     
+  "Major Flow" = 1.5 )
+
+
+ggplot(vect_state_geo) +
+  geom_spatvector() +
+  geom_spatvector(
+    data = vect_smooth_flows_sorghum, aes(linewidth = flow),
+    colour = "red",
+    arrow = arrow(angle = 10, length = unit(0.25, "cm"),type = "open")
+  ) +
+  scale_linewidth_manual(
+    name = "Flow",  # Legend title
+    values = linewidth_map  # Map factor levels to linewidths
+  ) +
+  geom_spatvector(
+    data = vect_markets_shapes,
+    aes(shape = Sorghum)
+  ) +
+  scale_shape_manual(
+    values = setNames(
+      df_markets_shapes$m_shape,
+      df_markets_shapes$Sorghum)
+    ,
+    breaks = df_markets_shapes$Sorghum,
+    labels = df_markets_shapes$m_label
+  ) +
+  labs(title = "FEWS NET 2008 Market Locations", shape = "Sorghum Market Types") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+# Conclusions
+
+The 2008 FEWS NET markets and market flows are now quite old, but there are very few other sources that combine all of the market information in one source [cf. @OspinaUnderstandingLinkageUrban2015]. Given that the market flow maps will be mainly used for illustrative purposes they are still useful, and provide an incentive to update the maps by other organisations.
+
+The flow maps need to be linked or compared to the consumption and production maps in order to complete the narrative.
+
+# References {#sec-ref}
