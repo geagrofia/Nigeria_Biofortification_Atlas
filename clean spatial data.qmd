@@ -1,0 +1,823 @@
+---
+title: "Preparing clean spatial data"
+format: html
+---
+
+# Introduction
+
+The spatial data will be loaded and saved as topoJSON files. These files include topology.
+
+The data will need to be cleaned before saving. This involves identifying gaps between polygons and sliver polygons, and then rectifying the polygons to ensure no gaps and no sliver polygons.
+
+The spatial data to be cleaned include the Nigerian state boundaries (which are an important reference layer for Nigeria) and the livelihood zones.
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(NMdata)
+library(rmapshaper)
+library(geojsonio)
+```
+
+
+
+# Loading the data
+
+## Load the Livelihood Zones
+
+```{r}
+#| label: lz_zones
+#| message: false
+#| warning: false
+
+vect_lz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.shp")
+vect_lz_geo <- makeValid(vect_lz_geo)
+vect_lz_geo$LZCODE <- as.factor(vect_lz_geo$LZCODE)
+levels(vect_lz_geo$LZCODE) # Check levels
+plot(vect_lz_geo, main = "FEWS NET 2018 Livelihood Zones", levels=TRUE)
+
+```
+
+## Load the States
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1.geojson")
+vect_state_geo <- makeValid(vect_state_geo)
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+levels(vect_state_geo$adm1_pcode) # Check levels
+plot(vect_state_geo, main = "Nigeria administrative level 1 boundaries (COD-AB)", levels=TRUE)
+
+```
+
+## Create Geo-political zone
+
+```{r}
+
+adm1_pcode <- c("NG001", "NG002", "NG003", "NG004", "NG005", "NG006", "NG007", "NG008", "NG009", "NG010", "NG011", "NG012", "NG013", "NG014", "NG015", "NG016", "NG017", "NG018", "NG019", "NG020", "NG021", "NG022", "NG023", "NG024", "NG025", "NG026", "NG027", "NG028", "NG029", "NG030", "NG031", "NG032", "NG033", "NG034", "NG035", "NG036", "NG037")
+
+geopolitical_zone<- c("South East", "North East", "South South", "South East", "North East", "South South", "North Central", "North East", "South South", "South South", "South East", "South South", "South West", "South East", "North Central", "North East", "South East", "North West", "North West", "North West", "North West", "North West", "North Central", "North Central", "South West", "North Central", "North Central", "South West", "South West", "South West", "South West", "North Central", "South South", "North West", "North East", "North East", "North West")
+
+df_gpz <- tibble(adm1_pcode, geopolitical_zone)
+
+vect_gpz_geo <- dplyr::left_join(vect_state_geo, df_gpz, by = c("adm1_pcode")) |> terra::aggregate(by = "geopolitical_zone")
+
+vect_gpz_geo <- makeValid(vect_gpz_geo)
+vect_gpz_geo$geopolitical_zone <- as.factor(vect_gpz_geo$geopolitical_zone)
+levels(vect_gpz_geo$geopolitical_zone) # Check levels
+plot(vect_gpz_geo, main = "Nigeria administrative geopolitical zone boundaries (COD-AB)", levels=TRUE)
+
+```
+
+
+## Load the Agro-ecological zones
+
+
+```{r}
+#| label: aez
+#| message: false
+#| warning: false
+
+vect_aez_geo <- vect("spatial_data/IITA_AEZ_LGP_2020_SRTM_RCL_NGA.geojson")
+vect_aez_geo <- makeValid(vect_aez_geo)
+vect_aez_geo$AEZ <- as.factor(vect_aez_geo$AEZ)
+levels(vect_aez_geo$AEZ) # Check levels
+plot(vect_aez_geo, main = "Nigeria Agro-ecological zones based on 2020 LGP and elevation", levels=TRUE)
+
+```
+
+
+# Defining a CRS for Nigeria
+
+For a single CRS covering all of Nigeria, in metres, commonly used for modern GIS analysis, the best choice is:
+WGS 84 / UTM Zone 32N (EPSG:32632)
+This is the most widely used option because:
+
+Nigeria falls mostly within UTM Zone 32N (roughly 6°E–12°E longitude)
+It uses metres as the unit
+It is based on WGS 84, making it compatible with GPS and modern datasets
+False easting ensures that all coordinates are positive.
+
+```{r}
+#| label: wkt_nig_utm
+#| message: false
+#| warning: false
+
+
+wkt_nig_utm <- paste0("PROJCS[\"WGS 84 / UTM zone 32N\",
+    GEOGCS[\"WGS 84\",
+        DATUM[\"WGS_1984\",
+            SPHEROID[\"WGS 84\",6378137,298.257223563,
+                AUTHORITY[\"EPSG\",\"7030\"]],
+            AUTHORITY[\"EPSG\",\"6326\"]],
+        PRIMEM[\"Greenwich\",0,
+            AUTHORITY[\"EPSG\",\"8901\"]],
+        UNIT[\"degree\",0.0174532925199433,
+            AUTHORITY[\"EPSG\",\"9122\"]],
+        AUTHORITY[\"EPSG\",\"4326\"]],
+    PROJECTION[\"Transverse_Mercator\"],
+    PARAMETER[\"latitude_of_origin\",0],
+    PARAMETER[\"central_meridian\",9],
+    PARAMETER[\"scale_factor\",0.9996],
+    PARAMETER[\"false_easting\",1000000],
+    PARAMETER[\"false_northing\",0],
+    UNIT[\"metre\",1,
+        AUTHORITY[\"EPSG\",\"9001\"]],
+    AXIS[\"Easting\",EAST],
+    AXIS[\"Northing\",NORTH]]")
+
+
+```
+
+
+# Changing CRS for cleaning
+
+```{r}
+#| label: project
+#| message: false
+#| warning: false
+#| 
+# project the livelihood zones to wkt_nig_utm
+
+vect_lz_utm <-  project(vect_lz_geo, wkt_nig_utm)
+plot(vect_lz_utm, main = "FEWS NET 2018 Livelihood Zones UTM", levels=TRUE)
+
+# project the states to wkt_nig_utm
+
+vect_state_utm <-  project(vect_state_geo, wkt_nig_utm)
+plot(vect_state_utm, main = "Nigeria administrative level 1 boundaries (COD-AB) UTM", levels=TRUE)
+
+# project the gpz to wkt_nig_utm
+
+vect_gpz_utm <-  project(vect_gpz_geo, wkt_nig_utm)
+plot(vect_gpz_utm, main = "Nigeria administrative geopolitical zones boundaries (COD-AB) UTM", levels=TRUE)
+
+# project the aez to wkt_nig_utm
+
+vect_aez_utm <-  project(vect_aez_geo, wkt_nig_utm)
+plot(vect_aez_utm, main = "Nigeria Agro-ecological zones based on 2020 LGP and elevation UTM", levels=TRUE)
+
+
+```
+
+
+# Check for slivers (high perimeter-to-area ratio)
+
+```{r}
+#| label: lz_slivers
+#| message: false
+#| warning: false
+
+
+areas_lz  <- expanse(vect_lz_utm) # area in m² 
+
+perims_lz <- perim(vect_lz_utm)                 # perimeter in m
+
+ratios_lz <- perims_lz^2 / areas_lz
+
+slivers_lz <- vect_lz_utm[ratios_lz > 1000, ]     # tune threshold to taste
+crs(slivers_lz, describe = TRUE)
+
+print(paste("Number of sliver polygons (lz):", nrow(slivers_lz)))
+
+print(slivers_lz)
+
+if (nrow(slivers_lz) > 0) {
+ggplot(slivers_lz) +
+  geom_spatvector(aes(fill= LZCODE), colour = "grey") +
+  geom_spatvector_text(aes(label = LZCODE), size = 3) +
+  coord_sf(crs = sf::st_crs(wkt_nig_utm), datum = sf::st_crs(wkt_nig_utm))
+}    
+
+```
+
+```{r}
+#| label: state_slivers
+#| message: false
+#| warning: false
+
+
+areas_state  <- expanse(vect_state_utm) # area in m² 
+
+perims_state <- perim(vect_state_utm)                 # perimeter in m
+
+ratios_state <- perims_state^2 / areas_state
+
+slivers_state <- vect_state_utm[ratios_state > 1000, ]     # tune threshold to taste
+crs(slivers_state, describe = TRUE)
+
+print(paste("Number of sliver polygons (state):", nrow(slivers_state)))
+
+print(slivers_state)
+
+if (nrow(slivers_state) > 0) {
+  ggplot(slivers_state) +
+    geom_spatvector(aes(fill = adm1_pcode), colour = "grey") +
+    geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+    coord_sf(crs = sf::st_crs(wkt_nig_utm),
+             datum = sf::st_crs(wkt_nig_utm))
+}  
+
+```
+
+```{r}
+#| label: aez_slivers
+#| message: false
+#| warning: false
+
+
+areas_aez  <- expanse(vect_aez_utm) # area in m² 
+
+perims_aez <- perim(vect_aez_utm)                 # perimeter in m
+
+ratios_aez <- perims_aez^2 / areas_aez
+
+slivers_aez <- vect_aez_utm[ratios_aez > 1000, ]     # tune threshold to taste
+crs(slivers_aez, describe = TRUE)
+
+print(paste("Number of sliver polygons (aez):", nrow(slivers_aez)))
+
+print(slivers_aez)
+
+if (nrow(slivers_aez) > 0) {
+  ggplot(slivers_aez) +
+    geom_spatvector(aes(fill = AEZ), colour = "grey") +
+    geom_spatvector_text(aes(label = AEZ), size = 3) +
+    coord_sf(crs = sf::st_crs(wkt_nig_utm),
+             datum = sf::st_crs(wkt_nig_utm))
+}  
+
+```
+
+# Check for gaps by comparing union to convex hull
+
+```{r}
+#| label: lz_gaps
+#| message: false
+#| warning: false
+
+
+unioned_lz <- aggregate(vect_lz_utm)     # dissolves all to single polygon
+# Fill all holes to get a "solid" version
+filled_lz <- fillHoles(unioned_lz)
+# Gaps are what's in the filled version but not in the union
+gaps_lz <- erase(filled_lz, unioned_lz)
+gaps_lz <- gaps_lz[expanse(gaps_lz) > 10, ]  # filter gaps smaller than 10m²
+print(gaps_lz)
+
+ext_gaps_lz <- ext(gaps_lz)
+print(ext_gaps_lz)
+ext_vect_lz_utm <- ext(vect_lz_utm)
+print(ext_vect_lz_utm)
+
+# Number of rows (features)
+nrow(gaps_lz)
+
+# Number of actual geometric parts
+nrow(geom(gaps_lz))
+
+# Check which rows have valid geometries
+is_valid_lz <- is.valid(gaps_lz)
+is_empty_lz <- is.empty(gaps_lz)
+
+print(is_valid_lz)
+print(is_empty_lz)
+
+if (!is_empty_lz) {
+  # Check number of parts per row
+  parts_per_row_lz <- sapply(seq_len(nrow(gaps_lz)), function(i)
+    nrow(geom(gaps_lz[i, ])))
+  print(parts_per_row_lz)
+  
+  g_lz <- geom(gaps_lz)
+  head(g_lz, 40)
+  
+  
+  n_parts_lz <- max(g_lz[, "part"])
+  
+  # Reconstruct each part as its own SpatVector and combine
+  parts_list_lz <- lapply(seq_len(n_parts_lz), function(i) {
+    part_coords_lz <- g_lz[g_lz[, "part"] == i, ]
+    vect(part_coords_lz, type = "polygons", crs = crs(gaps_lz))
+  })
+  
+  gaps_single_lz <- do.call(rbind, parts_list_lz)
+  nrow(gaps_single_lz)
+  gaps_single_lz <- gaps_single_lz[expanse(gaps_single_lz) > 10, ]  # filter gaps smaller than 10m²
+  
+  
+  
+  for (i in seq_len(nrow(gaps_single_lz))) {
+    # Define your zoom extent explicitly
+    xmin_lz <- ext(gaps_single_lz[i, ])[1]
+    xmax_lz <- ext(gaps_single_lz[i, ])[2]
+    ymin_lz <- ext(gaps_single_lz[i, ])[3]
+    ymax_lz <- ext(gaps_single_lz[i, ])[4]
+    
+    # Crop the background polygons to the visible extent
+    # This ensures only polygons (or parts of polygons) in view are labeled
+    zoom_ext_lz <- ext(xmin_lz, xmax_lz, ymin_lz, ymax_lz)
+    background_cropped_lz <- crop(vect_lz_utm, zoom_ext_lz)
+    
+    # Get vertices as a dataframe
+    bg_vertices_lz <- as.data.frame(geom(background_cropped_lz))
+    fg_vertices_lz <- as.data.frame(geom(gaps_single_lz[i, ]))
+    
+    # geom() returns columns: geom, part, x, y, hole
+    print(paste("Gap poly:", i))
+    print(fg_vertices_lz)
+    print(paste("Background polys:", i))
+    print(bg_vertices_lz)
+    
+    
+    p_lz <- ggplot() +
+      geom_spatvector(data = background_cropped_lz,
+                      fill = "lightgrey",
+                      colour = "grey") +
+      geom_spatvector_text(
+        data = background_cropped_lz,
+        aes(label = LZCODE),
+        size = 3,
+        color = "black"
+      ) +
+      geom_spatvector(data = gaps_single_lz[i, ],
+                      fill = "red",
+                      colour = "darkred") +
+      xlim(xmin_lz, xmax_lz) +
+      ylim(ymin_lz, ymax_lz) +
+      coord_sf(crs = sf::st_crs(wkt_nig_utm),
+               datum = sf::st_crs(wkt_nig_utm)) +
+      labs(title = paste("Polygon", i, "Gap = ", expanse(gaps_single_lz[i, ]), "m2"))
+    
+    print(p_lz)
+  }
+} else {
+  print(paste("No gaps in lz dataset"))
+}
+
+```
+
+
+```{r}
+#| label: state_gaps
+#| message: false
+#| warning: false
+
+
+unioned_state <- aggregate(vect_state_utm)     # dissolves all to single polygon
+# Fill all holes to get a "solid" version
+filled_state <- fillHoles(unioned_state)
+# Gaps are what's in the filled version but not in the union
+gaps_state <- erase(filled_state, unioned_state)
+gaps_state <- gaps_state[expanse(gaps_state) > 10, ]  # filter gaps smaller than 10m²
+print(gaps_state)
+
+ext_gaps_state <- ext(gaps_state)
+print(ext_gaps_state)
+ext_vect_state_utm <- ext(vect_state_utm)
+print(ext_vect_state_utm)
+
+# Number of rows (features)
+nrow(gaps_state)
+
+# Number of actual geometric parts
+nrow(geom(gaps_state))
+
+# Check which rows have valid geometries
+is_valid_state <- is.valid(gaps_state)
+is_empty_state <- is.empty(gaps_state)
+
+print(is_valid_state)
+print(is_empty_state)
+
+
+if (!is_empty_state) {
+  # Check number of parts per row
+  parts_per_row_state <- sapply(seq_len(nrow(gaps_state)), function(i)
+    nrow(geom(gaps_state[i, ])))
+  print(parts_per_row_state)
+  
+  g_state <- geom(gaps_state)
+  head(g_state, 40)
+  
+  
+  n_parts_state <- max(g_state[, "part"])
+  
+  # Reconstruct each part as its own SpatVector and combine
+  parts_list_state <- lapply(seq_len(n_parts_state), function(i) {
+    part_coords_state <- g_state[g_state[, "part"] == i, ]
+    vect(part_coords_state,
+         type = "polygons",
+         crs = crs(gaps_state))
+  })
+  
+  gaps_single_state <- do.call(rbind, parts_list_state)
+  nrow(gaps_single_state)
+  gaps_single_state <- gaps_single_state[expanse(gaps_single_state) > 10, ]  # filter gaps smaller than 10m²
+  
+  
+  
+  for (i in seq_len(nrow(gaps_single_state))) {
+    # Define your zoom extent explicitly
+    xmin_state <- ext(gaps_single_state[i, ])[1]
+    xmax_state <- ext(gaps_single_state[i, ])[2]
+    ymin_state <- ext(gaps_single_state[i, ])[3]
+    ymax_state <- ext(gaps_single_state[i, ])[4]
+    
+    # Crop the background polygons to the visible extent
+    # This ensures only polygons (or parts of polygons) in view are labeled
+    zoom_ext_state <- ext(xmin_state, xmax_state, ymin_state, ymax_state)
+    background_cropped_state <- crop(vect_state_utm, zoom_ext_state)
+    
+    # Get vertices as a dataframe
+    bg_vertices_state <- as.data.frame(geom(background_cropped_state))
+    fg_vertices_state <- as.data.frame(geom(gaps_single_state[i, ]))
+    
+    # geom() returns columns: geom, part, x, y, hole
+    print(paste("Gap poly:", i))
+    print(fg_vertices_state)
+    print(paste("Background polys:", i))
+    print(bg_vertices_state)
+    
+    
+    p_state <- ggplot() +
+      geom_spatvector(data = background_cropped_state,
+                      fill = "lightgrey",
+                      colour = "grey") +
+      geom_spatvector_text(
+        data = background_cropped_state,
+        aes(label = adm1_pcode),
+        size = 3,
+        color = "black"
+      ) +
+      geom_spatvector(data = gaps_single_state[i, ],
+                      fill = "red",
+                      colour = "darkred") +
+      xlim(xmin_state, xmax_state) +
+      ylim(ymin_state, ymax_state) +
+      coord_sf(crs = sf::st_crs(wkt_nig_utm),
+               datum = sf::st_crs(wkt_nig_utm)) +
+      labs(title = paste("Polygon", i, "Gap = ", expanse(gaps_single_state[i, ]), "m2"))
+    
+    print(p_state)
+  }
+} else {print(paste("No gaps in state dataset")) }
+
+
+```
+
+```{r}
+#| label: aez_gaps
+#| message: false
+#| warning: false
+
+
+unioned_aez <- aggregate(vect_aez_utm)     # dissolves all to single polygon
+# Fill all holes to get a "solid" version
+filled_aez <- fillHoles(unioned_aez)
+# Gaps are what's in the filled version but not in the union
+gaps_aez <- erase(filled_aez, unioned_aez)
+gaps_aez <- gaps_aez[expanse(gaps_aez) > 10, ]  # filter gaps smaller than 10m²
+print(gaps_aez)
+
+ext_gaps_aez <- ext(gaps_aez)
+print(ext_gaps_aez)
+ext_vect_aez_utm <- ext(vect_aez_utm)
+print(ext_vect_aez_utm)
+
+# Number of rows (features)
+nrow(gaps_aez)
+
+# Number of actual geometric parts
+nrow(geom(gaps_aez))
+
+# Check which rows have valid geometries
+is_valid_aez <- is.valid(gaps_aez)
+is_empty_aez <- is.empty(gaps_aez)
+
+print(is_valid_aez)
+print(is_empty_aez)
+
+
+if (!is_empty_aez) {
+  # Check number of parts per row
+  parts_per_row_aez <- sapply(seq_len(nrow(gaps_aez)), function(i)
+    nrow(geom(gaps_aez[i, ])))
+  print(parts_per_row_aez)
+  
+  g_aez <- geom(gaps_aez)
+  head(g_aez, 40)
+  
+  
+  n_parts_aez <- max(g_aez[, "part"])
+  
+  # Reconstruct each part as its own SpatVector and combine
+  parts_list_aez <- lapply(seq_len(n_parts_aez), function(i) {
+    part_coords_aez <- g_aez[g_aez[, "part"] == i, ]
+    vect(part_coords_aez,
+         type = "polygons",
+         crs = crs(gaps_aez))
+  })
+  
+  gaps_single_aez <- do.call(rbind, parts_list_aez)
+  nrow(gaps_single_aez)
+  gaps_single_aez <- gaps_single_aez[expanse(gaps_single_aez) > 10, ]  # filter gaps smaller than 10m²
+  
+  
+  
+  for (i in seq_len(nrow(gaps_single_aez))) {
+    # Define your zoom extent explicitly
+    xmin_aez <- ext(gaps_single_aez[i, ])[1]
+    xmax_aez <- ext(gaps_single_aez[i, ])[2]
+    ymin_aez <- ext(gaps_single_aez[i, ])[3]
+    ymax_aez <- ext(gaps_single_aez[i, ])[4]
+    
+    # Crop the background polygons to the visible extent
+    # This ensures only polygons (or parts of polygons) in view are labeled
+    zoom_ext_aez <- ext(xmin_aez, xmax_aez, ymin_aez, ymax_aez)
+    background_cropped_aez <- crop(vect_aez_utm, zoom_ext_aez)
+    
+    # Get vertices as a dataframe
+    bg_vertices_aez <- as.data.frame(geom(background_cropped_aez))
+    fg_vertices_aez <- as.data.frame(geom(gaps_single_aez[i, ]))
+    
+    # geom() returns columns: geom, part, x, y, hole
+    print(paste("Gap poly:", i))
+    print(fg_vertices_aez)
+    print(paste("Background polys:", i))
+    print(bg_vertices_aez)
+    
+    
+    p_aez <- ggplot() +
+      geom_spatvector(data = background_cropped_aez,
+                      fill = "lightgrey",
+                      colour = "grey") +
+      geom_spatvector_text(
+        data = background_cropped_aez,
+        aes(label = AEZ),
+        size = 3,
+        color = "black"
+      ) +
+      geom_spatvector(data = gaps_single_aez[i, ],
+                      fill = "red",
+                      colour = "darkred") +
+      xlim(xmin_aez, xmax_aez) +
+      ylim(ymin_aez, ymax_aez) +
+      coord_sf(crs = sf::st_crs(wkt_nig_utm),
+               datum = sf::st_crs(wkt_nig_utm)) +
+      labs(title = paste("Polygon", i, "Gap = ", expanse(gaps_single_aez[i, ]), "m2"))
+    
+    print(p_aez)
+  }
+} else {print(paste("No gaps in aez dataset")) }
+
+
+```
+
+# Check for overlaps
+
+```{r}
+#| label: lz_overlaps
+#| message: false
+#| warning: false
+
+
+# Check for overlaps between polygon pairs
+overlaps_lz <- relate(vect_lz_utm, relation = "overlaps")  # returns a matrix
+any(overlaps_lz)
+
+if (any(overlaps_lz)) {
+# Get the actual overlap geometries
+overlap_pairs_lz <- which(overlaps_lz, arr.ind = TRUE)
+overlap_pairs_lz <- overlap_pairs_lz[overlap_pairs_lz[,1] < overlap_pairs_lz[,2], ]  # remove duplicates
+
+overlap_geoms_lz <- do.call(rbind, lapply(1:nrow(overlap_pairs_lz), function(i) {
+  intersect(vect_lz_utm[overlap_pairs_lz[i,1]], vect_lz_utm[overlap_pairs_lz[i,2]])
+}))
+
+
+p_lz <- ggplot() +
+    geom_spatvector(data = vect_lz_utm, fill = "lightgrey", colour = "grey") +
+    geom_spatvector_text(data = vect_lz_utm, aes(label = LZCODE), size = 3,
+    color = "black") +
+    geom_spatvector(data = overlap_geoms_lz, fill = "red", colour = "darkred") +
+    coord_sf(crs = sf::st_crs(wkt_nig_utm), datum = sf::st_crs(wkt_nig_utm))
+  
+  print(p_lz)
+} else {print(paste("No overlaps in lz dataset")) }
+```
+
+
+```{r}
+#| label: state_overlaps
+#| message: false
+#| warning: false
+
+
+# Check for overlaps between polygon pairs
+overlaps_state <- relate(vect_state_utm, relation = "overlaps")  # returns a matrix
+
+if (any(overlaps_state)) {
+  # Get the actual overlap geometries
+  overlap_pairs_state <- which(overlaps_state, arr.ind = TRUE)
+  overlap_pairs_state <- overlap_pairs_state[overlap_pairs_state[, 1] < overlap_pairs_state[, 2], ]  # remove duplicates
+  
+  overlap_geoms_state <- do.call(rbind, lapply(1:nrow(overlap_pairs_state), function(i) {
+    intersect(vect_state_utm[overlap_pairs_state[i, 1]], vect_state_utm[overlap_pairs_state[i, 2]])
+  }))
+  
+  
+  p_state <- ggplot() +
+    geom_spatvector(data = vect_state_utm,
+                    fill = "lightgrey",
+                    colour = "grey") +
+    geom_spatvector_text(
+      data = vect_state_utm,
+      aes(label = adm1_pcode),
+      size = 3,
+      color = "black"
+    ) +
+    geom_spatvector(data = overlap_geoms_state,
+                    fill = "red",
+                    colour = "darkred") +
+    coord_sf(crs = sf::st_crs(wkt_nig_utm),
+             datum = sf::st_crs(wkt_nig_utm))
+  
+  print(p_state)
+  
+} else {print(paste("No overlaps in state dataset")) }
+
+```
+
+
+```{r}
+#| label: aez_overlaps
+#| message: false
+#| warning: false
+
+
+# Check for overlaps between polygon pairs
+overlaps_aez <- relate(vect_aez_utm, relation = "overlaps")  # returns a matrix
+
+if (any(overlaps_aez)) {
+  # Get the actual overlap geometries
+  overlap_pairs_aez <- which(overlaps_aez, arr.ind = TRUE)
+  overlap_pairs_aez <- overlap_pairs_aez[overlap_pairs_aez[, 1] < overlap_pairs_aez[, 2], ]  # remove duplicates
+  
+  overlap_geoms_aez <- do.call(rbind, lapply(1:nrow(overlap_pairs_aez), function(i) {
+    intersect(vect_aez_utm[overlap_pairs_aez[i, 1]], vect_aez_utm[overlap_pairs_aez[i, 2]])
+  }))
+  
+  
+  p_aez <- ggplot() +
+    geom_spatvector(data = vect_aez_utm,
+                    fill = "lightgrey",
+                    colour = "grey") +
+    geom_spatvector_text(
+      data = vect_aez_utm,
+      aes(label = AEZ),
+      size = 3,
+      color = "black"
+    ) +
+    geom_spatvector(data = overlap_geoms_aez,
+                    fill = "red",
+                    colour = "darkred") +
+    coord_sf(crs = sf::st_crs(wkt_nig_utm),
+             datum = sf::st_crs(wkt_nig_utm))
+  
+  print(p_aez)
+  
+} else {print(paste("No overlaps in aez dataset")) }
+
+```
+
+# Clean and Convert to topojson
+
+```{r}
+#| label: lz_convert
+#| message: false
+#| warning: false
+
+
+# 1. Fix validity
+vect_lz_utm <- makeValid(vect_lz_utm)
+
+# 2. Convert to sf for snap, rmapshaper, clean, convert back
+
+sf_lz_utm    <- sf::st_as_sf(vect_lz_utm)
+sf_lz_utm_snap <- sf::st_snap(sf_lz_utm, sf_lz_utm, tolerance = 0.1)  # tune tolerance in metres
+
+sf_lz_utm_snap_clean <- sf::st_make_valid(sf_lz_utm_snap)  # re-validate after snapping
+
+# 3. (Optional) Simplify topology-aware
+sf_lz_utm_snap_clean_simple <- ms_simplify(sf_lz_utm_snap_clean, keep = 0.5, keep_shapes = TRUE)
+
+# 4. Convert back to lat/long
+vect_lz_utm_snap_clean_simple <- vect(sf_lz_utm_snap_clean_simple)
+vect_lz_geo_snap_clean_simple <-  project(vect_lz_utm_snap_clean_simple, "epsg:4326")
+
+sf_lz_geo_snap_clean_simple    <- sf::st_as_sf(vect_lz_geo_snap_clean_simple)
+
+# 5. Write to TopoJSON
+topojson_write(geojson_list(sf_lz_geo_snap_clean_simple), file =
+                 "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.topojson", overwrite = TRUE, geometry = "polygon", object_name = "NG_LHZ_2018")
+
+```
+
+```{r}
+#| label: state_convert
+#| message: false
+#| warning: false
+
+
+# 1. Fix validity
+vect_state_utm <- makeValid(vect_state_utm)
+
+# 2. Convert to sf for snap, rmapshaper, clean, convert back
+
+sf_state_utm    <- sf::st_as_sf(vect_state_utm)
+sf_state_utm_snap <- sf::st_snap(sf_state_utm, sf_state_utm, tolerance = 0.1)  # tune tolerance in metres
+
+sf_state_utm_snap_clean <- sf::st_make_valid(sf_state_utm_snap)  # re-validate after snapping
+
+# 3. (Optional) Simplify topology-aware
+sf_state_utm_snap_clean_simple <- ms_simplify(sf_state_utm_snap_clean, keep = 1, keep_shapes = TRUE)
+
+# 4. Convert back to lat/long
+vect_state_utm_snap_clean_simple <- vect(sf_state_utm_snap_clean_simple)
+vect_state_geo_snap_clean_simple <-  project(vect_state_utm_snap_clean_simple, "epsg:4326")
+
+sf_state_geo_snap_clean_simple    <- sf::st_as_sf(vect_state_geo_snap_clean_simple)
+
+# 5. Write to TopoJSON
+topojson_write(geojson_list(sf_state_geo_snap_clean_simple), file =                  "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson", overwrite = TRUE, geometry = "polygon", object_name = "NG_ADMIN1_2019_25")
+
+```
+
+
+```{r}
+#| label: gpz_convert
+#| message: false
+#| warning: false
+
+# 1. Fix validity
+vect_gpz_utm <- makeValid(vect_gpz_utm)
+
+# 2. Convert to sf for snap, rmapshaper, clean, convert back
+
+sf_gpz_utm    <- sf::st_as_sf(vect_gpz_utm)
+sf_gpz_utm_snap <- sf::st_snap(sf_gpz_utm, sf_gpz_utm, tolerance = 0.1)  # tune tolerance in metres
+
+sf_gpz_utm_snap_clean <- sf::st_make_valid(sf_gpz_utm_snap)  # re-validate after snapping
+
+# 3. (Optional) Simplify topology-aware
+sf_gpz_utm_snap_clean_simple <- ms_simplify(sf_gpz_utm_snap_clean, keep = 1, keep_shapes = TRUE)
+
+# 4. Convert back to lat/long
+vect_gpz_utm_snap_clean_simple <- vect(sf_gpz_utm_snap_clean_simple)
+vect_gpz_geo_snap_clean_simple <-  project(vect_gpz_utm_snap_clean_simple, "epsg:4326")
+
+sf_gpz_geo_snap_clean_simple    <- sf::st_as_sf(vect_gpz_geo_snap_clean_simple)
+
+# 5. Write to TopoJSON
+topojson_write(geojson_list(sf_gpz_geo_snap_clean_simple), file =                  "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_gpz_topo.topojson", overwrite = TRUE, geometry = "polygon", object_name = "NG_GPZ_2019_25")
+
+
+```
+
+```{r}
+#| label: aez_convert
+#| message: false
+#| warning: false
+
+
+# 1. Fix validity
+vect_aez_utm <- makeValid(vect_aez_utm)
+
+# 2. Convert to sf for snap, rmapshaper, clean, convert back
+
+sf_aez_utm    <- sf::st_as_sf(vect_aez_utm)
+sf_aez_utm_snap <- sf::st_snap(sf_aez_utm, sf_aez_utm, tolerance = 0.1)  # tune tolerance in metres
+
+sf_aez_utm_snap_clean <- sf::st_make_valid(sf_aez_utm_snap)  # re-validate after snapping
+
+# 3. (Optional) Simplify topology-aware
+sf_aez_utm_snap_clean_simple <- ms_simplify(sf_aez_utm_snap_clean, keep = 1, keep_shapes = TRUE)
+
+# 4. Convert back to lat/long
+vect_aez_utm_snap_clean_simple <- vect(sf_aez_utm_snap_clean_simple)
+vect_aez_geo_snap_clean_simple <-  project(vect_aez_utm_snap_clean_simple, "epsg:4326")
+
+sf_aez_geo_snap_clean_simple    <- sf::st_as_sf(vect_aez_geo_snap_clean_simple)
+
+# 5. Write to TopoJSON
+topojson_write(geojson_list(sf_aez_geo_snap_clean_simple), file =                  "spatial_data/IITA_AEZ_LGP_2020_SRTM_RCL_NGA_topo.topojson", overwrite = TRUE, geometry = "polygon", object_name = "AEZ")
+
+```
