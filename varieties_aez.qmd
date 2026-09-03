@@ -30,7 +30,7 @@ library(tidyr)
 
 # Introduction
 
-The interventions associated with crop biofortification vary depending on the stage of the genetic innovation pipeline [@lungaho2025], from design to delivery.
+The interventions associated with crop biofortification vary depending on the stage of the genetic innovation pipeline [@lungahoFrameworkEmbeddingNutrition2025], from design to delivery.
 
 The spatial components of those interventions are most visible in the product development phase, during the testing of materials, and the delivery phase, where new Varieties, are released and are multiplied within the seed system.
 
@@ -40,7 +40,7 @@ Information on testing locations is generally sparse, but the testing regime pro
 
 ## Extracting released variety information
 
-Variety adaptation is one of the pieces of information contained in the Nigerian Seed Portal Initiative [@nigerianseedportalinitiative2026].
+Variety adaptation is one of the pieces of information contained in the Nigerian Seed Portal Initiative [@nigerianseedportalinitiativeNigerianSeedPortal2026].
 
 The seed portal contains information about released seed Varieties, or other improved planting material. The portal has information on improved varieties of over 30 crops ( @tbl-cropvar).
 
@@ -261,27 +261,27 @@ The HarvestChoice dataset only has five zones for Nigeria:
 
 - Tropic - warm / arid
 
-The agro-ecological zones used in Nigeria do not map exactly onto the harvest choice zones, but they do use similar criteria [@akinwumiju2020a].
+The agro-ecological zones used in Nigeria do not map exactly onto the harvest choice zones, but they do use similar criteria [@akinwumijuAgroClimatoEdaphicZonationNigeria2020].
 
 For this analysis I use the following criteria and thresholds
 
-+----------------------------+-------------------+---------------------------------+
-| AEZ Name                   | LGP (2020) (days) | Elevation (masl)[@reuter2007a]  |
-+============================+===================+=================================+
-| Sahel Savanna              | \<= 90            | \< 800                          |
-+----------------------------+-------------------+---------------------------------+
-| Sudan Savanna              | 90 - 150          | \< 800                          |
-+----------------------------+-------------------+---------------------------------+
-| Northern Guinea Savanna    | 150 - 181         | \< 800                          |
-+----------------------------+-------------------+---------------------------------+
-| Southern Guinea Savanna    | 181 - 211         | \< 800                          |
-+----------------------------+-------------------+---------------------------------+
-| Derived/Transition Savanna | 211 - 270         | \< 800                          |
-+----------------------------+-------------------+---------------------------------+
-| Forest                     | \> 270            | \< 800                          |
-+----------------------------+-------------------+---------------------------------+
-| Mid-Altitude zones         |                   | \> 800                          |
-+----------------------------+-------------------+---------------------------------+
++----------------------------+-------------------+------------------------------------------------------------------+
+| AEZ Name                   | LGP (2020) (days) | Elevation (masl)[@reuterEvaluationVoidfillingInterpolation2007]  |
++============================+===================+==================================================================+
+| Sahel Savanna              | \<= 90            | \< 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
+| Sudan Savanna              | 90 - 150          | \< 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
+| Northern Guinea Savanna    | 150 - 181         | \< 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
+| Southern Guinea Savanna    | 181 - 211         | \< 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
+| Derived/Transition Savanna | 211 - 270         | \< 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
+| Forest                     | \> 270            | \< 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
+| Mid-Altitude zones         |                   | \> 800                                                           |
++----------------------------+-------------------+------------------------------------------------------------------+
 
 # Load the Agro-Ecological Zones
 
