@@ -366,7 +366,7 @@ df_spotato_2006 <- as.data.frame(vect_spotato_2006) |> rename(spotato_2006 = val
 
 ## MapSpam 2020 
 
-The MapSpam 2020 data are provided as GeoTiff raster images,
+The MapSpam 2020 [@youGeneratingGlobalCrop2014] data are provided as GeoTiff raster images,
 
 ::: callout-note
 ### Total area per grid cell

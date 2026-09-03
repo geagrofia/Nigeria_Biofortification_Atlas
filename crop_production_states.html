@@ -5130,7 +5130,7 @@ b&&(b.preventDefault(),b.stopPropagation())}else(l.isFocused||"single"===l.setti
 
 
 
-<link rel="stylesheet" href="/css/style.css">
+<style type="text/css">.showopt {background-color: #004c93;color: #FFFFFF; width: 100px;height: 20px;text-align: center;vertical-align: middle !important;float: right;font-family: sans-serif;border-radius: 8px;}.showopt:hover {background-color: #dfe4f2;color: #004c93;}pre.plot {background-color: white !important;}</style>
 </head>
 
 <body class="quarto-light">
@@ -5140,10 +5140,26 @@ b&&(b.preventDefault(),b.stopPropagation())}else(l.isFocused||"single"===l.setti
   <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
     <h2 id="toc-title">Table of contents</h2>
    
-  <ul>
+  <ul class="collapse">
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a></li>
-  <li><a href="#compare-data-sources" id="toc-compare-data-sources" class="nav-link" data-scroll-target="#compare-data-sources">Compare data sources</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#load-the-states" id="toc-load-the-states" class="nav-link" data-scroll-target="#load-the-states">Load the States</a></li>
+  <li><a href="#naerlsfmafs-crop-database" id="toc-naerlsfmafs-crop-database" class="nav-link" data-scroll-target="#naerlsfmafs-crop-database">NAERLS/FMAFS crop database</a></li>
+  <li><a href="#harveststat" id="toc-harveststat" class="nav-link" data-scroll-target="#harveststat">HarvestStat</a></li>
+  <li><a href="#mapspam-2020" id="toc-mapspam-2020" class="nav-link" data-scroll-target="#mapspam-2020">MapSpam 2020</a></li>
+  <li><a href="#mapspam-2020---total-area-per-state" id="toc-mapspam-2020---total-area-per-state" class="nav-link" data-scroll-target="#mapspam-2020---total-area-per-state">MapSpam 2020 - Total area per state</a></li>
+  </ul></li>
+  <li><a href="#compare-data-sources" id="toc-compare-data-sources" class="nav-link" data-scroll-target="#compare-data-sources">Compare data sources</a>
+  <ul class="collapse">
+  <li><a href="#banana-plantain" id="toc-banana-plantain" class="nav-link" data-scroll-target="#banana-plantain">Banana &amp; Plantain</a></li>
+  <li><a href="#cassava" id="toc-cassava" class="nav-link" data-scroll-target="#cassava">Cassava</a></li>
+  <li><a href="#cowpea" id="toc-cowpea" class="nav-link" data-scroll-target="#cowpea">Cowpea</a></li>
+  <li><a href="#maize" id="toc-maize" class="nav-link" data-scroll-target="#maize">Maize</a></li>
+  <li><a href="#rice" id="toc-rice" class="nav-link" data-scroll-target="#rice">Rice</a></li>
+  <li><a href="#sorghum" id="toc-sorghum" class="nav-link" data-scroll-target="#sorghum">Sorghum</a></li>
+  <li><a href="#sweet-potato" id="toc-sweet-potato" class="nav-link" data-scroll-target="#sweet-potato">Sweet Potato</a></li>
+  </ul></li>
   <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a></li>
   </ul>
 </nav>
@@ -5500,7 +5516,7 @@ Table 1: Crop Production data sources for Nigeria
 </section>
 <section id="mapspam-2020" class="level2">
 <h2 class="anchored" data-anchor-id="mapspam-2020">MapSpam 2020</h2>
-<p>The MapSpam 2020 data are provided as GeoTiff raster images,</p>
+<p>The MapSpam 2020 <span class="citation" data-cites="youGeneratingGlobalCrop2014">(<a href="#ref-youGeneratingGlobalCrop2014" role="doc-biblioref">You et al. 2014</a>)</span> data are provided as GeoTiff raster images,</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -6867,6 +6883,9 @@ Lee, D., W. Anderson, X. Chen, et al. 2025. <span>“<span>HarvestStat Africa</s
 </div>
 <div id="ref-naerls/fmafs2024WetSeason2024" class="csl-entry" role="listitem">
 NAERLS/FMAFS. 2024. <em>2024 <span>Wet Season Agricultural Performance</span> in <span>Nigeria</span>: <span>National Report</span></em>. <span>National Agricultural Extension and Research Liaison Services, Ahmadu Bello University and Federal Ministry of Agriculture and Food Security</span>.
+</div>
+<div id="ref-youGeneratingGlobalCrop2014" class="csl-entry" role="listitem">
+You, L., S. Wood, U. Wood-Sichra, and W. Wu. 2014. <span>“Generating Global Crop Distribution Maps: <span>From</span> Census to Grid.”</span> <em>Agricultural Systems</em> 127: 53–60. <a href="https://doi.org/10.1016/j.agsy.2014.01.002">https://doi.org/10.1016/j.agsy.2014.01.002</a>.
 </div>
 </div></section></div></main>
 <!-- /main column -->
