@@ -1,0 +1,75 @@
+population_group_id,population_group_name,measure_id,measure_name,location_id,location_name,sex_id,sex_name,age_id,age_name,cause_id,cause_name,metric_id,metric_name,year,val,upper,lower
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25344,Niger,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,34.55101117513575,56.03523852356257,19.194900873932912
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25344,Niger,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,752.615015409867,1401.46467534805,297.63085488840494
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25333,Gombe,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,877.9186719867099,1582.4046285388283,385.8931673219196
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25353,Yobe,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,59.79176956177256,94.9656421753463,35.02598663006065
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25353,Yobe,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,832.3808469912586,1400.195609473046,440.7517398938949
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25343,Nasarawa,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,21.268449366157785,35.964643800424746,11.566005189692634
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25343,Nasarawa,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,774.9082692771749,1435.8715162290816,326.0243964884682
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25318,Abia,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,9.365435250370682,15.18016231010012,5.2206885667012655
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25318,Abia,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,652.2269313350246,1266.593643288358,276.61146037558854
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25354,Zamfara,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,91.04127182669038,138.53260595831202,56.961845373980246
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25354,Zamfara,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,1268.6229970461459,1962.7667795078692,715.1558220901952
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25346,Ondo,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,14.128229329835799,22.40281909051427,8.122084850857307
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25346,Ondo,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,562.3327106590858,1084.3310543619878,216.7863593602568
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25325,Borno,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,32.40307928718522,52.15617133229066,18.49792031142818
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25325,Borno,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,679.7334032544011,1280.0242721862667,290.64822309832147
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25327,Delta,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,9.785625685011583,16.551429467599494,5.452041219861881
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25327,Delta,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,865.3944129578186,1543.0904433849898,417.05014975252226
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25352,Taraba,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,36.79381238186202,61.88996924078322,20.84366108554185
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25352,Taraba,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,646.5371962414094,1381.1124978429766,216.4603047047708
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25329,Edo,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,10.291062388870385,17.57172003977113,5.815660187375567
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25329,Edo,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,600.0862589917258,1221.9153313673778,199.96580963010717
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25330,Ekiti,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,12.324941011541268,20.83513718624986,7.06319447915967
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25330,Ekiti,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,594.2166403501028,1208.6057488126148,205.46208709398246
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25331,Enugu,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,10.190928231875878,16.54685535462583,5.620734490605154
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25331,Enugu,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,499.4679667847829,1020.8491245648696,183.2895680294609
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25345,Ogun,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,12.612701847418146,19.68760292888349,7.449222135566703
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25345,Ogun,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,492.2391508674063,1052.2702689771104,148.31406874545308
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25333,Gombe,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,46.47352834206525,77.25058468078213,26.956525663769373
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25332,FCT (Abuja),3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,10.211014655726999,16.868064950458276,5.801779177730009
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25332,FCT (Abuja),3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,663.278774886046,1262.9049633534717,244.883856859057
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25319,Adamawa,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,25.266869519222215,41.45346548906369,14.177842777057462
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25319,Adamawa,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,443.31789767387875,997.6874607043725,144.90294625782423
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25338,Katsina,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,71.57685092424744,110.11525288205765,42.40798873713697
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25338,Katsina,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,959.8853167853274,1706.22601241854,433.7942206829735
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25341,Kwara,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,18.14441601154744,30.474036098112187,10.290118890683676
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25341,Kwara,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,711.7187347531851,1372.5245812806595,234.44666926650896
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25320,Akwa Ibom,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,14.746623823399593,23.704200337682845,8.846531821645245
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25320,Akwa Ibom,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,810.3169472960518,1486.0470404478976,343.8396327250649
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25321,Anambra,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,9.29811225938836,15.752635791846224,5.176643728205688
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25321,Anambra,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,750.7115464142825,1390.198305411142,291.8401015504659
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25340,Kogi,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,13.75200073681139,22.845760678966524,7.646554078387471
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25340,Kogi,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,600.0422020431791,1168.2649726610016,229.73819249754905
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25339,Kebbi,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,86.18817930900533,134.49799833395528,49.267458963841406
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25339,Kebbi,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,841.7903727638472,1481.04045978474,338.4215626050133
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25323,Bayelsa,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,14.648901078635662,23.925444062659565,8.36342603166804
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25323,Bayelsa,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,822.796538465113,1477.720006844542,357.51123513876706
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25342,Lagos,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,5.312465432494317,8.284831681253083,3.230546484857907
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25342,Lagos,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,351.4794055160295,826.9987937896858,90.2771816990519
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25348,Oyo,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,15.015867273034889,23.67209559636952,8.851708513885761
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25348,Oyo,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,611.4943534893403,1308.4938210971818,210.56488407050549
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25335,Jigawa,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,132.66020394362994,233.68612504504597,67.1259033969804
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25335,Jigawa,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,1100.3111332266474,1785.975228616467,516.5715924949116
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25350,Rivers,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,8.878269393207189,14.45159922953369,5.220433628905103
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25350,Rivers,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,830.6750794598074,1464.9383965845655,435.94540939698305
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25349,Plateau,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,21.4755504747079,34.28179099248588,12.367687987592001
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25349,Plateau,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,677.1536294801303,1331.201537189626,253.01205349616507
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25351,Sokoto,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,91.44852257623843,137.6872224768225,55.56620416939782
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25351,Sokoto,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,931.6947086425641,1567.4325854660615,433.25839220085805
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25334,Imo,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,8.280002242293303,13.598938449056705,4.735976732152327
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25334,Imo,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,567.4528439699619,1164.8388493978464,215.80400801936716
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25347,Osun,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,15.799205235979949,23.411291681746864,9.2662015687361
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25347,Osun,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,630.2698786911119,1248.6907146460885,252.86841317849218
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25337,Kano,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,46.0372381473559,69.0348769961971,27.563571299240355
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25337,Kano,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,843.7469760551081,1504.6329492524649,361.82697439011366
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25324,Benue,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,20.05591252438046,32.74501079797584,11.382443206444043
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25324,Benue,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,446.6736422365938,896.4166940240525,166.3233494821098
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25322,Bauchi,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,78.2294216690257,119.80827013704186,46.64704593752701
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25322,Bauchi,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,967.5227469042206,1690.2556492303356,398.1240527767542
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25336,Kaduna,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,33.507604819570396,53.18921401855012,18.731997377790208
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25336,Kaduna,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,650.7480603517124,1333.7586842714584,229.01492719759383
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25326,Cross River,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,16.476690470603206,27.045474033971075,9.295019559945047
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25326,Cross River,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,602.4340460085472,1169.7954605043549,194.68535464400478
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25328,Ebonyi,3,Both,27,Age-standardized,389,Vitamin A deficiency,3,Rate,2023,20.545837515887865,35.23146260220497,11.453526850457472
+1,All Population,2,DALYs (Disability-Adjusted Life Years),25328,Ebonyi,3,Both,27,Age-standardized,390,Dietary iron deficiency,3,Rate,2023,990.6559988972122,1608.8250902409666,528.2608572078389
