@@ -86,6 +86,14 @@ different dates, and differing number of deficiencies and populations (
 |              |              |            |                |             |
 |              |              |            | - iron         |             |
 +--------------+--------------+------------+----------------+-------------+
+| IHME - Global| State        | 2023       |Age standardised| - population| 
+| Burden of    |              |            | DALYs:         |             |
+| Disease (GBD)|              |            | - Vitamin A    |             |
+|              |              |            |   deficiency   |             |
+|              |              |            | - Dietary iron |             |
+|              |              |            |   deficiency   |             |
+|              |              |            |                |             |
++--------------+--------------+------------+----------------+-------------+
 
 :Micro-nutrient deficiency data sources for Nigeria {#tbl-MNSources} 
 
@@ -115,7 +123,7 @@ saved as a topojson format.
 #| label: states
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
@@ -178,7 +186,7 @@ The zones are created by joining the states.
 #| label: create_zones
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 adm1_pcode <- c("NG001", "NG002", "NG003", "NG004", "NG005", "NG006",
@@ -226,10 +234,10 @@ zones:
 #| label: NFCMS_deficiency_data
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
-df_NFCMS <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NFCMS_deficiencies.csv")
+df_NFCMS <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/NFCMS_deficiencies.csv")
 
 df_NFCMS$geopolitical_zone <- as.factor(df_NFCMS$geopolitical_zone) 
 
@@ -248,7 +256,7 @@ zone - and checking that all zones have data.
 #| label: NFCMS_join
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 vect_gpz_geo_NFCMS <- dplyr::left_join(vect_gpz_geo, df_NFCMS, by = c("geopolitical_zone"))
@@ -282,10 +290,10 @@ following states:
 #| label: NDHS_state_deficiency_data
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
-df_NDHS_state <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NDHS_state_deficiencies.csv")
+df_NDHS_state <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/NDHS_state_deficiencies.csv")
 # change name to match states dataset
 df_NDHS_state['State'][df_NDHS_state['State'] == "FCT-Abuja"] <- "Federal Capital Territory"
 
@@ -302,10 +310,10 @@ following zones:
 #| label: NDHS_zone_deficiency_data
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
-df_NDHS_zone <- read.csv("E:/repos/Biofort_Atlas_Nigeria/tab_data/NDHS_zone_deficiencies.csv")
+df_NDHS_zone <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/NDHS_zone_deficiencies.csv")
 
 df_NDHS_zone$Zone <- as.factor(df_NDHS_zone$Zone) 
 
@@ -323,7 +331,7 @@ state - and checking that all states have data.
 #| label: NDHS_state_join
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 vect_state_geo_NDHS <- dplyr::left_join(vect_state_geo, df_NDHS_state, by = c("adm1_ref_name"  = "State"))
@@ -356,7 +364,7 @@ zone - and checking that all zones have data.
 #| label: NDHS_zone_join
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 vect_zone_gpz_NDHS <- dplyr::left_join(vect_gpz_geo, df_NDHS_zone, by = c("geopolitical_zone"  = "Zone"))
@@ -386,6 +394,62 @@ Firstly the data are now quite old and the other sources are more
 recent. Secondly, the deficiency values are imputed from dietary intake
 rather than from biomarkers.
 
+# Institute for Health Metrics and Evaluation (IHME) Global Burden of Disease (GBD) - 2023
+
+## Load the database
+
+The IHME data are loaded and there are data available for the following
+zones:
+
+```{r}
+#| label: IHME_deficiency_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_IHME <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/IHME-GBD_2023.csv")
+
+df_IHME$location_name <- as.factor(df_IHME$location_name) 
+
+cat(paste(levels(df_IHME$location_name), "; ")) # Check levels
+
+
+```
+
+## Join the IHME database to the state dataset
+
+The IHME dataset does not contain codes for the states - only names.
+Therefore we need to join the two data frames using the name of the
+state - and checking that all states have data.
+
+```{r}
+#| label: IHME_state_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_IHME <- dplyr::left_join(vect_state_geo, df_IHME, by = c("adm1_ref_name"  = "location_name"))
+vect_state_geo_IHME |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+```
+
 # Compare data sources
 
 To help select the best data source it is necessary to compare the
@@ -406,7 +470,7 @@ There are data for women of reproductive age and children between 6 and
 #| label: NFCMS_vit_A_deficiency_WRA
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_gpz_geo_NFCMS) +
@@ -440,7 +504,7 @@ women with a deficiency.
 #| label: NFCMS_vit_A_deficiency_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_gpz_geo_NFCMS) +
@@ -469,6 +533,44 @@ greater than in North East - the zone with next highest value. The
 lowest values were again in South East with 6.1% of children with a
 vitamin A deficiency.
 
+
+### Age standardised DALYs Vitamin A Deficiency (IHME, 2023)
+
+```{r}
+#| label: IHME_vit_A_DALYs
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_IHME, cause_name == "Vitamin A deficiency")) +
+  geom_spatvector(aes(fill = val)) +
+  geom_spatvector_text(aes(label = round(val)), colour = "blue", size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Age standardised Vitamin A Deficiency rates", fill = "DALYs") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+The GBD estimates include Vitamin A deficiency as a risk/outcome category and DALYs attributable to VAD, with subnational estimates for Nigeria.
+
+There is also an important methodological point: GBD's VAD DALYs are connected to the health consequences attributed to VAD, rather than simply being a transformation of serum-retinol prevalence. For example, GBD estimates for Nigeria included VAD-related DALYs alongside the VAD prevalence and attributable fractions for measles and diarrhoeal disease.
+
+There are large differences in the country, with the highest values in the North West of Nigeria. In contrast the burden of Vitamin A deficiency is very low in the South South and South East zones.
+
+
 ## Iron deficiency
 
 ### Iron deficiency in women of reproductive age (NFCMS, 2021)
@@ -480,7 +582,7 @@ corrected for inflammation.
 #| label: NFCMS_iron_deficiency
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_gpz_geo_NFCMS) +
@@ -507,6 +609,81 @@ Iron deficiency in women of reproductive age is highest in North East
 geopolitical zone, followed by South South and South East - all three
 had values higher than 10%. The zone with lowest value was South West.
 
+### Age standardised DALYs Dietary iron Deficiency (IHME, 2023)
+
+Dietary iron deficiency is a measure that seeks to isolate inadequate nutritional intake from other clinical causes of iron deficiency (like blood loss or parasites).
+
+::: {.callout-note title="Calculating the dietary iron deficiency"}
+The IHME framework relies on a specialised, multi-step statistical workflow called the GBD Anaemia Causal Attribution framework to calculate dietary iron deficiency [@safiriBurdenTrendsDietary2024]. 
+
+#### Step 1: Modeling Total Anaemia Prevalence
+
+Before estimating the dietary deficiency itself, IHME models the total envelope of anaemia across the globe [@youngChallengeDefiningGlobal2023].
+
+* Data Input: IHME extracts individual-level haemoglobin concentration data from major surveys (such as Demographic and Health Surveys) and international databases like the WHO Micronutrient Database. 
+* ST-GPR Modeling: They run a statistical engine called Spatiotemporal Gaussian Process Regression (ST-GPR). This mathematical model blends sparse local data with predictive covariates (like the Socio-demographic Index, or SDI) to estimate mean haemoglobin distribution profiles across different age, sex, geography, and time cohorts  [@youngChallengeDefiningGlobal2023]. 
+* Severity Thresholds: They map these curves against clinical cutoffs to divide the population into categories: mild, moderate, or severe anaemia [@safiriBurdenTrendsDietary2024]. 
+
+#### Step 2: The Counterfactual and Residual Attribution
+
+The core mathematical distinction of IHME's calculation is that it treats dietary iron deficiency as a residual cause  [@youngChallengeDefiningGlobal2023; @safiriBurdenTrendsDietary2024]. 
+$${Dietary\ Iron\ Deficiency\ Burden}=\text{Total\ Anemia\ Envelope}-\sum (\text{Explicitly\ Attributed\ Causes})$$
+
+* Explicit Cause Modelling: The model first subtracts the exact proportion of anaemia cases linked directly to specific conditions modelled within the Global Burden of Disease (GBD) framework. These explicit causes include
+  + Infectious diseases (e.g., malaria, HIV/AIDS)
+  + Neglected tropical diseases (e.g., hookworm, schistosomiasis)
+  + Haemoglobinopathies (e.g., sickle cell disorders, thalassemias)
+  + Chronic conditions (e.g., chronic kidney disease, endocrine disorders)
+* The "Residual" Mathematics: Any remaining anaemia cases that cannot be mathematically explained by these specific infections or genetic traits are automatically distributed into the residual pool. Under this framework, dietary iron deficiency is designated as the primary bucket for this remaining health gap [@safiriBurdenTrendsDietary2024]. 
+
+#### Step 3: Quantifying the Health Loss (YLDs and DALYs)
+
+Once the proportion of anaemia attributed exclusively to dietary iron deficiency is isolated, IHME converts it into standard health metrics: 
+
+1. Calculate YLDs (Years Lived with Disability):
+
+$${YLD}=\text{Prevalence}\times \text{Disability\ Weight\ (DW)}$$
+The model uses distinct disability weights evaluated by global panels to reflect the severity of cognitive and physical impairment:
+
+   i) Mild Anaemia  DW: 0.004
+   ii) Moderate Anaemia DW: 0.052
+   iii) Severe Anaemia  DW: 0.149
+
+2. Calculate DALYs (Disability-Adjusted Life Years):
+Because dietary iron deficiency rarely causes direct mortality on its own, its DALY total is heavily weighted by YLDs [@huangGlobalBurdenDiseases2025].
+
+#### Important Methodological Discrepancy
+
+Because IHME calculates dietary iron deficiency mathematically as a residual framework of anaemia, its final estimations often yield higher prevalence numbers than traditional localized nutrition surveys. Nutrition surveys typically measure objective biomarkers directly (like serum ferritin or soluble transferrin receptor levels), whereas the GBD model absorbs undefined structural anaemias directly into the dietary iron category [@youngChallengeDefiningGlobal2023; @safiriBurdenTrendsDietary2024].
+:::
+
+```{r}
+#| label: IHME_iron_DALYs
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_IHME, cause_name == "Dietary iron deficiency")) +
+  geom_spatvector(aes(fill = val)) +
+  geom_spatvector_text(aes(label = round(val)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Age standardised Dietary Iron Deficiency", fill = "DALYs") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
 ### Anaemia in women of reproductive age (NFCMS, 2021)
 
 Iron deficiency anaemia defined as serum ferritin concentration \<15
@@ -518,7 +695,7 @@ non-response.
 #| label: NFCMS_anaemia
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_gpz_geo_NFCMS) +
@@ -558,7 +735,7 @@ anaemia.
 #| label: NDHS_zone_anaemia_any
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -589,7 +766,7 @@ and 50%. The zone with the lowest levels was North Central.
 #| label: NDHS_anaemia_any
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -628,7 +805,7 @@ values.
 #| label: NDHS_zone_anaemia_mild
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -659,7 +836,7 @@ between 20% and 30%. The zone with the lowest levels was North West
 #| label: NDHS_anaemia_mild
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -694,7 +871,7 @@ states.
 #| label: NDHS_zone_anaemia_mod
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -725,7 +902,7 @@ again South East, with over 25% of women. The other zones varied between
 #| label: NDHS_anaemia_mod
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -761,7 +938,7 @@ Kebbi.
 #| label: NDHS_zone_anaemia_sev
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -793,7 +970,7 @@ with the lowest levels was South West.
 #| label: NDHS_anaemia_sev
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -840,7 +1017,7 @@ corrected for inflammation.
 #| label: NFCMS_iron_deficiency_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_gpz_geo_NFCMS) +
@@ -874,7 +1051,7 @@ that for women of reproductive age.
 #| label: NFCMS_anaemia_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_gpz_geo_NFCMS) +
@@ -913,7 +1090,7 @@ anaemia.
 #| label: NDHS_zone_anaemia_any_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -944,7 +1121,7 @@ South East with 63.7%, while the lowest is in South West with 45.5%.
 #| label: NDHS_anaemia_any_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -979,7 +1156,7 @@ The state with the lowest value is Delta state with 33.4%.
 #| label: NDHS_zone_anaemia_mild_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -1010,7 +1187,7 @@ between 26% and 32%. The zone with the lowest levels was South West.
 #| label: NDHS_anaemia_mild_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -1043,7 +1220,7 @@ in Ondo (South West).
 #| label: NDHS_zone_anaemia_mod_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -1075,7 +1252,7 @@ with the lowest levels was South West.
 #| label: NDHS_anaemia_mod_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -1110,7 +1287,7 @@ These are patterns which were masked in the zone map.
 #| label: NDHS_zone_anaemia_sev_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_zone_gpz_NDHS) +
@@ -1143,7 +1320,7 @@ pattern to the values for women of reproductive age.
 #| label: NDHS_anaemia_sev_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 ggplot(vect_state_geo_NDHS) +
@@ -1173,6 +1350,9 @@ value for any state with 4.6% but neighbouring Borno has a value of
 states in South West zone have consistently low vales for severe
 anaemia.
 
+
+
+
 ### Compare sources
 
 The only micro nutrient for which there are data in different sources is
@@ -1191,7 +1371,7 @@ anaemia indicators to use.
 #| label: NFCMS_zinc_deficiency_WRA
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 
@@ -1226,7 +1406,7 @@ over 60% of women are deficient in zinc.
 #| label: NFCMS_zinc_deficiency_CH
 #| message: false
 #| warning: false
-#| cache: true
+#| cache: false
 #| results: asis
 
 
