@@ -1,0 +1,851 @@
+---
+title: "Population Spatial Data for targeting Biofortification interventions"
+format:
+  html:
+    toc: true
+    toc-depth: 1
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: /css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(NMdata)
+library(scales)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+library(patchwork)
+
+```
+
+# Introduction
+
+The distribution of the population determines the amount of people who can potentially benefit from an intervention in a particular geography. Consequently, the population in each area is often used as a weighting factor in the spatial targeting of interventions, helping to determine in which areas to intervene, and the type of intervention [@bigman2000; @farrow2011] .
+
+At the global scale, @asare-marfo2013 used population as a factor for weighting the biofortification prioritisation index (BPI) to compare countries. Specifically, they used the share of the target population (children age 6–59 months and women of childbearing age) in the global target population. @herringtonSubnationalPrioritizationBiofortification2018 also considered the same HarvestPlus’ target groups in their population weighted sub national BPI in Nigeria. Their analysis was constrained, however, as no state-level data on the target groups (women of child-bearing age, and children under five years of age, living in rural areas was available. Therefore, the national percentage of these two groups was applied to each state’s population and the weighting was influenced by overall population differences among the states in Nigeria. The authors obtained these data from the United Nations Division of Economic and Social Affairs’ World Population Prospects: The 2017 Revision for 2014 [@unitednations2017] to maintain the same reference year throughout analyses.
+
+A similar process is likely to be required for the current situation in Nigeria, and for projections towards 2030.
+
+# Methods
+
+There are a number of sources of spatial data for population, but not all will be equally appropriate for the purposes of weighting other indices. Spatially explicit maps showing the population distribution are often derived from a mixture of proxies of population like land use (urban areas or buildings [@varshney2015]) or light emissions [@ebenerWealthHealthModelling2005; @ghoshUsingNighttimeSatellite2013]. This evidence of human activity is then used as an input in a model as well as existing statistics (like censuses or surveys). These spatially explicit maps are very useful for many purposes, and clearly highlight urban areas and also those parts of a country where there are very few people, like protected areas, forests or wetlands. They will be an important addition to the Atlas of Biofortification for Nigeria, but to be used as a weighting actor they need to be aggregated for the geographies of interest - whether geopolitical zones or states. Further, they need to be disaggregated to extract the groups within the overall population whoa re the intended beneficiaries of crop biofortification - rural women of child-bearing age and rural children below 5 years of age.
+
+The data displayed in this report will commence with the most general information available and progress if possible towards the more specific. The most general map is the overall population distribution in Nigeria. This can be used by itself as an aid to visualisation, as well as to derive statistics for a zone or state for the 'current' or 2025 date.
+
+These population data then need to be disaggregated by rural and urban population. This can be done using a spatial overlay of urban areas, or more commonly by relying on estimates based on household surveys and censuses.
+
+The next step would be to disaggregate further, to obtain estimates of the numbers of women of reproductive age, and of children. The final step is to project all of these population groups to 2030.
+
+The objective is to produce the following maps:
+
+1.  2025 total population distribution
+
+2.  2025 population per state
+
+3.  2025 rural/urban split
+
+4.  2025 women of reproductive age
+
+5.  2025 children under 5 years
+
+6.  2025 rural women of reproductive age
+
+7.  2025 rural children under 5 years
+
+8.  2030 population per state
+
+9.  2030 rural/urban split
+
+10. 2030 women of reproductive age
+
+11. 2030 children under 5 years
+
+12. 2030 rural women of reproductive age
+
+13. 2030 rural children under 5 years
+
+## Data
+
+There is no single authoritative public dataset that provides Nigeria's 36 states and the Federal Capital Territory broken out by **both** sex and age for 2025 and 2030.
+
+Nigeria's last full census was in 2006 (the 2023 census exercise has not produced accepted, published results), so everything since is a projection built off 2006 base figures and assumed growth rates.
+
+The UN World Population Prospects (the standard source for detailed age/sex pyramids) only publishes at the **national** level for Nigeria — not by state.
+
+Nigeria's National Bureau of Statistics (NBS) publishes state-level population **totals** (projected forward from the 2006 census [@nationalbureauofstatisticsnigeria]), but its published bulletins generally do not break these down by age and sex at the state level — that granularity mostly stops at the national level.
+
+The most rigorous sub-national, age/sex-structured data comes from @worldpop2025, which produces gridded/modelled population estimates by age and sex at the state level using satellite, survey, and census covariate modelling — but their projections are typically built out to around 2020-2025 in a given release, not routinely all the way to 2030 with full age/sex detail.
+
+The only real (non-constructed) sub-national population series for Nigeria comes from the **National Population Commission (NPC) / National Bureau of Statistics (NBS)**, who project forward from the **2006 census** (the last completed one) using consistent state-specific growth assumptions. NPC/NBS haven't publicly released a table that goes all the way out to 2025 or 2030 by state. So the numbers for **2025 and 2030 are an extrapolation.**
+
+I take each state's actual government-published 2006→2016 compound annual growth rate and project it forward. This preserves real state-specific differences (Kano and Oyo grow much faster than Abia or Edo, for instance) rather than just splitting a national total evenly.
+
+Neverthless, there is an important discrepancy: the NPC/NBS-rate-based approach yields a national total of **\~260M in 2025** and **\~307M in 2030**. That's significantly higher than the UN World Population Prospects-based estimate [@unitednationsWorldPopulationProspects2024] most international sources cite (\~237–238M for 2025). Both are "official" in some sense — NPC/NBS uses its own fertility/mortality assumptions; the UN uses a different, more conservative model. State governments' own claimed figures (e.g., Kano's official self-estimate of \~20M) run higher still. There is no consensus figure — this is a genuine, unresolved data gap in Nigeria pending a completed census.
+
+The data have four tabs:
+
+1.  **State Projections** — the main table: state, 2006/2016 official base data, implied growth rate, projected 2025/2030 populations, and — most relevant — a **Weight column** for each year (each state's share of the national total)
+
+2.  **Alternative Method (UN-scaled)** — a sensitivity check that instead holds each state's 2016 share fixed and scales it against the more conservative UN population totals. If your weights come out similar on both tabs, that's a good sign they're stable regardless of which growth story you trust.
+
+3.  **Methodology & Caveats** — full write-up of the formulae and, a flag on **Federal Capital Territory**: its 2006–16 growth rate was an anomalous capital-city migration boom (\~9.8%/yr), and compounding that to 2030 overstates its weight.
+
+4.  **Women 15-49 & Under-5 (Rural)** - Real state-level shares of women 15–49 and children under 5 from the 2021 Nigeria MICS — a survey specifically designed to be state-representative, so these aren't modelled or extrapolated. Also includes the 2025/2030 state population totals from the first tab. National MICS-derived ratios (28% of population is women 15–49; 14.7% is under-5). Uses the MICS real per-state urban/rural split instead of the flat national rate
+
+Since we're using population as a **weighting factor**, the relative ranking between states is far more reliable than the absolute population numbers — both sheets give similar relative weights even though their national totals differ by \~20M+
+
+Information on the women of child-bearing age (15-49 years), and children under five years of age, living in rural areas per state are more difficult to find. However, some data sources can help, specifically Nigeria's 2021 Multiple Indicator Cluster Survey (MICS) [@nationalbureauofstatisticsnbsMultipleIndicatorCluster2022], a NBS/UNICEF household survey specifically designed to be representative at the state level.
+
+Table SD.6 of the full MICS report shows population projections for mid-point of MICS data collection by state, urban and rural strata, estimated proportion of urban population by state, and household weight adjustment factors for the urban and rural population of each state. This is used to recalculate estimates of the rural proportion of each state. The values are as expected (e.g., Abia, at only 19% urban, now shows \~81% of its women/children as rural; FCT Abuja, at 65% urban, correctly shows only \~35% rural — a real, meaningful difference that would be masked by a flat national rate.
+
+The "Women 15-49 & Under-5 (Rural)" tab now uses your real per-state urban/rural split instead of the flat national rate. A few things worth noting since you're using this for weighting:
+
+Observations
+
+- The spread or urban/rural proportions among the states is large — Lagos is 97.2% urban (only \~2.8% rural), while Akwa Ibom is 92.8% rural. A flat 57.5% would have badly misweighted both.
+
+- Rural shares are held constant at their 2021 level for both 2025 and 2030, since MICS only measured urban/rural once. Nigeria is urbanising, so by 2030 actual rural shares are probably a bit lower everywhere, especially in states already mid-transition (Kaduna, Kano, Ogun).
+
+- In Borno MICS only covered 7 of 27 LGAs there due to insecurity, so both its population share and its urban/rural split are likely off for the state as a whole.
+
+# Data preparation
+
+## Load the Population data
+
+### 2023 population density model
+
+```{r}
+#| label: popdn_2023
+#| message: false
+#| warning: false
+#| cache: false
+
+rast_pop_lscan <- rast("D:/DatosProyecto/SpatialData/Global/Socioeconomico/Pop/LandScan2023/landscan-global-2023.tif")
+
+```
+
+### 2025 and 2030 state population estimates
+
+```{r}
+#| label: pop_2030
+#| message: false
+#| warning: false
+
+
+df_pop_nbs <- read.csv("tab_data/nigeria_state_population_weights_2025_2030_csv.csv")
+
+df_pop_nbs$pop_est_urb_2025 <- df_pop_nbs$weight_urban_2021 * df_pop_nbs$pop_est_2025
+
+df_pop_nbs$pop_est_rur_2025 <- df_pop_nbs$weight_rural_2021 * df_pop_nbs$pop_est_2025
+
+df_pop_nbs$pop_est_urb_2030 <- df_pop_nbs$weight_urban_2021 * df_pop_nbs$pop_est_2030
+
+df_pop_nbs$pop_est_rur_2030 <- df_pop_nbs$weight_rural_2021 * df_pop_nbs$pop_est_2030
+
+
+
+
+```
+
+## Load the Nigeria boundary and convert to raster as mask
+
+```{r}
+#| label: extent
+#| message: false
+#| warning: false
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+vect_nig_geo <- vect_state_geo |> aggregate(by = "adm0_pcode")
+#plot(vect_nig_geo)
+
+rast_nig_geo <- rasterize(vect_nig_geo, rast_pop_lscan, values = 1) |> crop(vect_nig_geo) 
+#plot(rast_nig_geo)
+#rast_nig_geo
+
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+#levels(vect_state_geo$adm1_pcode) # Check levels
+crs(vect_state_geo) <- c("epsg:4326")
+
+#vect_state_geo
+
+
+
+```
+
+## Mask the population density raster
+
+```{r}
+#| label: fig-mask
+#| message: false
+#| warning: false
+#| cache: false
+#| fig-cap: "LandScan 2023 Population - masked to Nigeria"
+
+rast_pop_lscan_nig <-  rast_pop_lscan |> crop(vect_nig_geo)  |> mask(rast_nig_geo )
+rast_pop_lscan_nig
+
+# Define breaks and colors
+breaks <- c(0, 10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000)
+
+colors <- c("#FFFFFF", "#FFFFBF", "#FFFF00", "#FFE500", "#FFCC00",
+            "#FF9900", "#FF6600", "#FF0000", "#CC0000", "#990000",
+            "#660000", "#330000", "#000000")
+
+# Plot
+ggplot() +
+  geom_spatraster(data = rast_pop_lscan_nig) +
+  geom_spatvector(data = vect_state_geo, col = "darkgrey", fill = NA) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 250000),
+    labels = scales::comma,
+    na.value = "transparent",
+    guide = guide_colorsteps(
+      # title = "Value",
+      barwidth = 1.5,
+      barheight = 15,
+      show.limits = TRUE
+    )
+  ) +
+  labs(title = "LandScan 2023 Population", fill = "persons/km<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Extract population for each geopolitical zone
+
+Use zonal statistics to calculate total population within each geopolitical zone.
+
+```{r}
+#| label: fig-population_zone
+#| message: false
+#| warning: false
+#| cache: false
+#| fig-cap: "Geopolitical Zones of Nigeria"
+#| fig-subcap: 
+#|   - "Boundaries"
+#|   - "LandScan 2023 estimates of population"
+
+
+vect_gpz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_gpz_topo.topojson")
+
+crs(vect_gpz_geo) <- c("epsg:4326")
+
+#vect_gpz_geo
+
+ggplot(vect_gpz_geo)+
+  geom_spatvector(aes(fill = geopolitical_zone)) +
+  geom_spatvector_text(aes(label = geopolitical_zone), size = 3) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+vect_pop_lscan_nig_gpz <- zonal(rast_pop_lscan_nig, vect_gpz_geo, fun="sum", na.rm=TRUE, as.polygons = TRUE)
+
+df_pop_lscan_nig_gpz <- as.data.frame(dplyr::select(vect_pop_lscan_nig_gpz, geopolitical_zone, `landscan-global-2023`))
+
+df_pop_lscan_nig_gpz
+
+
+ggplot() +
+  geom_spatvector(data = vect_pop_lscan_nig_gpz, aes(fill = `landscan-global-2023`), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        labels = label_comma(),
+        direction = 1,
+        limits = c(0, 60000000),
+        guide = "legend"
+      ) +
+  geom_spatvector_label(data = vect_pop_lscan_nig_gpz, aes(label = `landscan-global-2023`)) +
+  labs(title = "Population per geopolitical zone", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Extract population for each state
+
+The source of the states data is from OSGOF-Ehealth-UNCS. These have previously been cleaned to remove sliver polygons and gaps, and were saved as a topojson format.
+
+```{r}
+
+vect_state_geo_nbs <- tidyterra::left_join(vect_state_geo, df_pop_nbs, by = c( "adm1_ref_name" = "state_name")) 
+
+```
+
+## Total Population - LandScan 2023 estimates
+
+Use zonal statistics to calculate total population within each state.
+
+```{r}
+#| label: fig-population_states_ls
+#| message: false
+#| warning: false
+#| cache: false
+#| fig-cap: "States of Nigeria"
+#| fig-subcap: 
+#|   - "Boundaries"
+#|   - "LandScan 2023 estimates of population"
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+crs(vect_state_geo) <- "epsg:4326"
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+
+# levels(vect_state_geo$adm1_pcode) # Check levels
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  labs(
+    title = "Nigeria States",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+df_state <- as.data.frame(vect_state_geo)
+
+vect_pop_lscan_nig_state <- zonal(rast_pop_lscan_nig, vect_state_geo, fun="sum", na.rm=TRUE, as.polygons = TRUE)
+
+df_pop_lscan_nig_state <- as.data.frame(dplyr::select(vect_pop_lscan_nig_state, adm1_pcode, `landscan-global-2023`))
+
+df_pop_lscan_nig_state
+
+ggplot() +
+  geom_spatvector(data = vect_pop_lscan_nig_state, aes(fill = `landscan-global-2023`), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 25000000),
+        labels = label_comma(),
+        guide = "legend"
+      ) +
+  labs(title = "Population per state", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Population estimates for 2025
+
+Use data extrapolated from NBS 2016 estimates, using local growth rates.
+
+## Total Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-population_states_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "NBS 2025 estimates of population per state"
+# 
+# vect_state_geo_nbs <- tidyterra::left_join(vect_state_geo, df_pop_nbs, by = c( "adm1_ref_name" = "state_name"))
+
+ggplot() +
+  geom_spatvector(data = vect_state_geo_nbs, aes(fill = pop_est_2025), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 25000000),
+        labels = label_comma(),
+        guide = "legend"
+      ) +
+  labs(title = "Population per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Urban Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-urb_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of urban population per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_urb_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Reds",
+    direction = 1,
+    limits = c(0, 15000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector_text(
+    data = vect_state_geo_nbs,
+    aes(label = paste0(round(weight_urban_2021 * 100), "%")),
+    size = 3
+  ) +
+  labs(title = "Urban population per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Rural Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-rur_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of rural population per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_rur_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Greens",
+    direction = 1,
+    limits = c(0, 15000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector_text(
+    data = vect_state_geo_nbs,
+    aes(label = paste0(round(weight_rural_2021 * 100), "%")),
+    size = 3
+  ) +
+  labs(title = "Rural population per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of women of childbearing age- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-wom_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of women of childbearing age per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_women_15_49_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(0, 10000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of women of childbearing age per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of children 0-5 years- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-chil_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of children 0-5 years per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_children_0_5_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Oranges",
+    direction = 1,
+    limits = c(0, 5000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of children 0-5 years per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of rural women of childbearing age- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-rur_wom_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of population of rural women of childbearing age per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_rural_women_15_49_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(0, 5000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of rural women of childbearing age per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of rural children 0-5 years- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-rur_chil_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of population of rural children 0-5 years per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_rural_children_0_5_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Oranges",
+    direction = 1,
+    limits = c(0, 5000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of rural children 0-5 years per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Population estimates for 2030
+
+Use data extrapolated from NBS 2016 estimates, using local growth rates.
+
+## Total Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-population_states_nbs_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "NBS 2030 estimates of population per state"
+# 
+# vect_state_geo_nbs <- tidyterra::left_join(vect_state_geo, df_pop_nbs, by = c( "adm1_ref_name" = "state_name"))
+
+ggplot() +
+  geom_spatvector(data = vect_state_geo_nbs, aes(fill = pop_est_2030), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 25000000),
+        labels = label_comma(),
+        guide = "legend"
+      ) +
+  labs(title = "Population per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Urban Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-urb_population_states_nbs_2030 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2030 estimates of urban population per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_urb_2030),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Reds",
+    direction = 1,
+    limits = c(0, 20000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector_text(
+    data = vect_state_geo_nbs,
+    aes(label = paste0(round(weight_urban_2021 * 100), "%")),
+    size = 3
+  ) +
+  labs(title = "Urban population per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Rural Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-rur_population_states_nbs_2030 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2030 estimates of rural population per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_rur_2030),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Greens",
+    direction = 1,
+    limits = c(0, 20000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector_text(
+    data = vect_state_geo_nbs,
+    aes(label = paste0(round(weight_rural_2021 * 100), "%")),
+    size = 3
+  ) +
+  labs(title = "Rural population per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of women of childbearing age- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-wom_population_states_nbs_2030 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2030 estimates of women of childbearing age per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_women_15_49_2030),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(0, 10000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of women of childbearing age per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of children 0-5 years- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-chil_population_states_nbs_2030 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2030 estimates of children 0-5 years per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_children_0_5_2030),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Oranges",
+    direction = 1,
+    limits = c(0, 5000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of children 0-5 years per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of rural women of childbearing age- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-rur_wom_population_states_nbs_2030 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2030 estimates of population of rural women of childbearing age per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_rural_women_15_49_2030),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(0, 5000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of rural women of childbearing age per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Population of rural children 0-5 years- Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-rur_chil_population_states_nbs_2030 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2030 estimates of population of rural children 0-5 years per state"  
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_rural_children_0_5_2030),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Oranges",
+    direction = 1,
+    limits = c(0, 5000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of rural children 0-5 years per state (2030 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
