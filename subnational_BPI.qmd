@@ -1,0 +1,151 @@
+---
+title: "Nigeria Subnational BPI 2024"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(kableExtra)
+library(DT)
+library(geojsonsf)
+
+```
+
+# Introduction
+
+The Biofortification Priority Indices (BPI) have been used by HarvestPlus for targeting at the country level for many years [@asare-marfoPrioritizingCountriesBiofortifcation2013], and has a well developed portal <https://bpi.harvestplus.org/>. But as @lividiniIdentificationOptimalInvestments2017 recognise, the national level BPIs can hide important differences within countries. As a result, a number of efforts have been made to develop sub-national biofortification priority indices [e.g. @funesSpatialPerspectiveIntroducing2015], including for Nigeria [@herringtonSubnationalPrioritizationBiofortification2018].
+
+The Biofortification Atlas cannot afford to ignore the work already carried out and with new data available there is the opportunity to update the sub national BPI for Nigeria, and to analyse the changes since 2018. Re-creating the BPIs from 2018 would involve a considerable time effort, in addition the authors were unable to obtain indicators for zinc.
+
+The specific activities will be:
+
+- Review 2018 biofortification priority indices, for instance assessing how well the consumption data relate to food baskets and diets for target populations. 
+- Smooth 2021 consumption and deficiency data to state level (following method in Herrington et al., 2018) 
+- Create updated BPIs weighted by land-area and population 
+- Compare state level Target Area Classification for each crop
+
+# Review 2018 Subnational Prioritisation for Biofortification Interventions in Nigeria
+
+The objectives of this short review are to:
+
+(1) identify and assess the data sources used in the 2018 study
+(2) seek more recent equivalent data, or data for alternative indicators
+(3) assess how well the consumption data relate to food baskets and diets of the target populations
+
+## Identify and assess the data sources used in the 2018 study
+
+The 2018 study constructs and analyses a subnational version of the Biofortification Priority Index (BPI) [@asare-marfoPrioritizingCountriesBiofortifcation2013]. The basic components of the BPI are: (i) the intensity of supply of a specific crop, (ii) the intensity of demand for that crop or its food products, and (iii) the deficiency levels for the micronutrient with which the crop can be enriched, all in a given geographical unit.
+
+The indicators for these components will differ depending on the scale of the analysis and the data available. The Global BPI uses country-level data that are standardised across countries, while the challenge for subnational indices is to find the same or similar variables for which there are spatial data varying within a single country.
+
+
+### Production Index
+
+The global BPI uses three variables in the production index (@tbl-global_prod_index). These consider the percentage of the harvested area that is dedicated to the crop, the harvested area weighted by population, and the share of production which is exported.
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|------------------|------------------------------------|------------------|
+| Share of area harvested (%) | Total area harvested of a specific crop (ha)/total agricultural land of a country (ha) | FAO 2010 |
+| Per-capita area harvested (ha) | Total area harvested of a specific crop (ha)/total population in the country | FAO 2010 |
+| Export share (%) | If Production greater than 0: Export share =Exports/(Production+Imports); otherwise export share is 0 % | FAO 2010 |
+
+: Variables Used for the Calculation of the Production Index of the Global BPIs {#tbl-global_prod_index}
+
+::: {.callout-note title="Rescaling"}
+All variables are rescaled to a range between 0 and 1 by applying the following formula in @eq-rescale
+
+$$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale} Where: - $V_r$ is the rescaled value - $V_a$ is the actual value - $V_{min}$ is the minimum value - $V_{max}$ is the maximum value
+:::
+
+At the subnational level (@tbl-national_prod_index), the export share is not considered explicitly in the index as a separate variable - instead, states exporting a large percentage of production can be targeted with interventions that focus on the market incentives to produce biofortified crops (e.g. agronomic practices, marketing or processing linkages).
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|------------------|------------------------------------|------------------|
+| Share of area harvested (%) | Total area harvested of a specific crop (ha) / total agricultural land of a state (ha) | (NAERLS and FDAE, 2014);(HarvestChoice, 2014); (FAOSTAT 2014) |
+| Per-capita area harvested (ha) | Total area harvested of a specific crop (ha) / total population in the state | FAO 2010 |
+
+: Variables Used for the Calculation of the Production Index of the Subnational BPIs {#tbl-national_prod_index}
+
+### Consumption Index
+
+The consumption index consists of two variables (@tbl-global_cons_index) in the global BPI, and a single variable in the subnational BPI (@tbl-national_cons_index).
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|------------------|------------------------------------|------------------|
+| Per-capita food consumption | Per-capita food consumption (kg/year) | FAO 2010 |
+| Import Dependency Ratio=Import Share (%) | If Production greater than 0: Import share =Imports/(Production+Imports-Exports); otherwise, import share is 10 % | FAO 2010 |
+
+: Variables Used for the Calculation of the Consumption Index of the Global BPIs {#tbl-global_cons_index}
+
+The import dependency ratio is not collected for states in Nigeria. Instead states importing a large proportion of the volumes of food products consumed can be targeted with different interventions.
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|----|----|----|
+| Per-capita food consumption | Per-capita food consumption (kg/year) | World Bank Living Standards Measurement Studies – General Household Surveys. Specifically Wave 3 data, 2015-2016 |
+
+: Variables Used for the Calculation of the Consumption Index of the Subnational BPIs {#tbl-national_cons_index}
+
+### Micronutrient Deficiency Index
+
+Global BPI (@tbl-global_def_index) uses two variables each for Vitamin A, Zinc and Iron deficiencies.
+These variables are available for individual nations from the WHO Global Databases on
+Vitamin A Deficiency and Anaemia, as well as other sources. @asare-marfoPrioritizingCountriesBiofortifcation2013 recognise that there is correlation between the variables for each micronutrient, but prefer to use two indicators to account for a lack of reliability in either one of the variables.
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|------------------|------------------------------------|------------------|
+| SerumRetinol07 | Proportion of preschool-age children with retinol \< 0.70 umol/l | WHO 2009 |
+| DALYs Vitamin A Deficiency (VAD) | Age-standardised DALYs lost per 100,000 inhabitants to VAD | WHO 2009 |
+| InadequateZinc | Percentage of population at risk of inadequate intake of zinc | Hotz and Brown 2004 |
+| Stunting | Prevalence of stunting among children age 6-59 months | WHO 2008 |
+| DALYs Iron Deficiency Anaemia (IDA | Age-standardized DALYs lost per 100,000 inhabitants to IDA | WHO 2002 |
+| HbLess110 | Proportion of preschool-age children with Hb \< 110 g/l | ICF International 2012; WHO 2008 |
+
+: Variables Used for the Calculation of the Micronutrient Deficiency Index of the Global BPIs {#tbl-global_def_index}
+
+For their subnational BPIs @herringtonSubnationalPrioritizationBiofortification2018, do not include any variables for zinc deficiency. Their indicators for vitamin A and iron are also slightly different to those for the Global BPIs. Proxies were used for some indicators - notably  women's prevalence of aneamia - leading to a lack of representation for a portion of the HarvestPlus target population (women of reproductive age who are not pregnant or who have not been pregnant). 
+
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|------------------|------------------------------------|------------------|
+| VitARich | Children consuming foods rich in vitamin A |  2013 (DHS) 2015 (MIS) |
+| VitASupl | Children given vitamin A supplements | 2013 (DHS) 2015 (MIS) |
+| DiarhChil | Children with diarrhea | 2013 (DHS) 2015 (MIS) |
+| IronSupl | Women iron syrup supplements during pregnancy| 2013 (DHS) 2015 (MIS) |
+| IDAChil | Children with anemia | 2013 (DHS) 2015 (MIS) |
+| IronRich | Children consuming foods rich in iron | 2013 (DHS) 2015 (MIS) |
+
+
+: Variables Used for the Calculation of the Micronutrient Deficiency Index of the Subnational BPIs {#tbl-national_def_index}
+
+## Seek more recent equivalent data, or data for alternative indicators
+
+- Serum retinol (vitamin A) for women of reproductive age and children between 6 and 59 months is available from 2021 (this was not available for 2018 study) 
+
+- Age standardised DALYs Vitamin A Deficiency (VAD) available at subnational level for 2023 (but data disputed)
+
+- Percentage of population at risk of inadequate intake of zinc. This is now available at the subnational level from the 2021 NFCMS as *womens's prevalence of inadequacy of zinc intakes*. A further indicator is also available:  *prevalence of women of reproductive age with zinc deficiency* and *prevalence of children with zinc deficiency*
+These are only available at the geopolitical zone level in Nigeria, but are potentially an improvement on both the global and 2018 subnational indicators
+
+- Prevalence of stunting among children age 6-59 months
+
+
+## Assess relationship between consumption data and food baskets 
