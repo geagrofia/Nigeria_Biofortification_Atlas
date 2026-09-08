@@ -75,6 +75,10 @@ different dates, and differing number of deficiencies and populations (
 | (NDHS)       |              |            |                | - women     |
 | 2023-24      |              |            |                |   15–49     |
 +--------------+--------------+------------+----------------+-------------+
+| NDHS         | State        | 2023-24    | - Stunting     | - children  |
+| 2023-24      |              |            |                |   6–59      |
+|              |              |            |                |   months    |
++--------------+--------------+------------+----------------+-------------+
 | Modelled     | LGA          | 2018-19    | Apparent       | - household |
 | Data from    |              |            | micro-nutrient |             |
 | 2018/19 Food |              |            | intake         |             |
@@ -303,6 +307,22 @@ cat(paste(levels(df_NDHS_state$State), "; ")) # Check levels
 
 ```
 
+```{r}
+#| label: NDHS_state_stunting
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NDHS_stunting_state <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/Nigeria_NDHS2024_stunting_GBD_join.csv")
+
+
+df_NDHS_stunting_state$state <- as.factor(df_NDHS_stunting_state$state) 
+
+cat(paste(levels(df_NDHS_stunting_state$state), "; ")) # Check levels
+
+```
+
 The NDHS zone data are loaded and there are data available for the
 following zones:
 
@@ -336,6 +356,35 @@ state - and checking that all states have data.
 
 vect_state_geo_NDHS <- dplyr::left_join(vect_state_geo, df_NDHS_state, by = c("adm1_ref_name"  = "State"))
 vect_state_geo_NDHS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+```
+
+
+
+```{r}
+#| label: NDHS_stunting_state_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NDHS_stunting <- dplyr::left_join(vect_state_geo, df_NDHS_stunting_state, by = c("adm1_ref_name"  = "state"))
+vect_state_geo_NDHS_stunting |> as.data.frame() |> 
   DT::datatable(
     rownames = F,
     filter = "bottom",
@@ -1434,3 +1483,50 @@ The patterns of zinc deficiency for children are almost exactly the same
 for children. The zone with the lowest values is again South East, with
 11.8%, whereas in North West over 55% of young children are zinc
 deficient.
+
+### Stunting in children
+
+Stunting is an indicator of zinc deficiency in children.
+Data at subnational level in Nigeria are available from a number of sources:
+
+|Source|	Year|	Geography| Type |
+|------|------|----------|------|
+|NDHS	|2024|	36 states + FCT|		Survey|
+|NFCMS|	2021|	Zones|	Survey|
+|NDHS/DHS|	2018|	36 states + FCT|	Survey|
+|DHS |	2018|	States + LGAs| spatial modelling|
+
+
+The most recent data on stunting are from the 2023-2024 NDHS, and the spatial level is the state which is preferable to the 2021 NFCMS.
+
+
+```{r}
+#| label: NDHS_stunting_CH
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+ggplot(vect_state_geo_NDHS_stunting) +
+  geom_spatvector(aes(fill = stunting_ndhs2024_pct)) +
+  geom_spatvector_text(aes(label = stunting_ndhs2024_pct), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of stunting in children", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The spatial patterns of stunting are somewhat similar to those of zinc deficiency in children, with higher incidences in the states of the North West, and also high levels in the states of North East. For zinc deficiency the rates in North Central are more or less equivalent to those in South South or South West. However, for stunting this pattern is not repeated apart from the Federal Capital Territory. The states in South East zone have the lowest rates of stunting - consistent with the zinc deficiency in children from 2021.
+
