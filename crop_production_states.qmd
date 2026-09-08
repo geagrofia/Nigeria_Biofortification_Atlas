@@ -60,6 +60,7 @@ There are number of sources of crop production data. The three main sources iden
 |              |                    |                  | - Sorghum         |                 |
 |              |                    |                  | - Sweet Potato    |                 |
 +--------------+--------------------+------------------+-------------------+-----------------+
+| WorldCover   | 10m                | 2021
 : Crop Production data sources for Nigeria {#tbl-Sources}
 
 # Methods
@@ -367,7 +368,7 @@ df_spotato_2006 <- as.data.frame(vect_spotato_2006) |> rename(spotato_2006 = val
 
 ## MapSpam 2020 
 
-The MapSpam 2020 [@youGeneratingGlobalCrop2014] data are provided as GeoTiff raster images,
+The MapSpam 2020 [@youGeneratingGlobalCrop2014] data are provided as GeoTiff raster images.
 
 ::: callout-note
 ### Total area per grid cell
@@ -929,7 +930,14 @@ ggplot(vect_spam_total) +
 
 
 ```
+
 ### WorldCover 30
+
+The WorldCover dataset has a spatial resolution of 10m, and includes a landcover class for cropland [@zanagaESAWorldCover102022]. 
+The original raster needs to be reclassified as 1 for cropland and 0 for all other classes.
+Zonal statistics are then computed for each state - giving a pixel count. This value needs to be divided by 100 to give a value in hectares.
+
+
 
 ```{r}
 
@@ -973,15 +981,155 @@ ggplot(vect_spam_total) +
 # 
 # writeVector(vect_wc_nigeria_crop, "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-zonal-crop.geojson", overwrite=TRUE)
 
-# vect_wc_nigeria_crop<- vect(
-# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-zonal-crop.geojson")
-# 
-# df_wc_nigeria_crop <- as.data.frame(vect_wc_nigeria_crop) 
+vect_wc_nigeria_crop<- vect(
+"E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-zonal-crop.geojson")
+
+vect_wc_nigeria_crop$Area_Ha_2021 <- (vect_wc_nigeria_crop$`_sum` / 100)
+vect_wc_nigeria_crop$LandArea_Ha_2021 <- (vect_wc_nigeria_crop$`_count` / 100)
+vect_wc_nigeria_crop$crop_pc_2021 <- ((vect_wc_nigeria_crop$Area_Ha_2021 / vect_wc_nigeria_crop$LandArea_Ha_2021) * 100)
+
+df_wc_nigeria_crop <- as.data.frame(vect_wc_nigeria_crop)
+df_wc_nigeria_crop['NAME_1'][df_wc_nigeria_crop['NAME_1'] == 'Nassarawa'] <- 'Nasarawa'
 
 ```
 
 
+```{r}
+#| label: wc_total_map
+#| message: false
+#| warning: false
+#| cache: true
 
+ggplot(vect_wc_nigeria_crop) +
+  geom_spatvector(aes(fill = Area_Ha_2021)) +
+  geom_spatvector_text(aes(label = NAME_1), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 4000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Cropland Area - 2021",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+```{r}
+#| label: wc_land_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_wc_nigeria_crop) +
+  geom_spatvector(aes(fill = LandArea_Ha_2021)) +
+  geom_spatvector_text(aes(label = NAME_1), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 10000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Land Area - 2021",
+    fill = "Land<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+```{r}
+#| label: wc_total_pc_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_wc_nigeria_crop) +
+  geom_spatvector(aes(fill = crop_pc_2021)) +
+  geom_spatvector_text(aes(label = NAME_1), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 100),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Cropland Area as % of total land - 2021",
+    fill = "(%)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+### Compare sources for total crop area
+
+The table below displays all four sources together. The data are initially sorted according to the NAERLS data source, and by default the table shows the top 15 states - but you can change the number displayed. You can also change which column to sort by clicking on the arrows, and search for a specific state.
+
+
+```{r}
+#| label: compare_sources_total
+#| message: false
+#| warning: false
+#| cache: true
+
+
+df_total_comb <- dplyr::left_join(dplyr::left_join(dplyr::select(df_total_cropped_2024, adm1_pcode, adm1_ref_name, Area_Ha_2024, Area_Ha_2023), dplyr::select(df_wc_nigeria_crop, NAME_1, Area_Ha_2021), by = c('adm1_ref_name' = "NAME_1")), df_spam_total, by = c('adm1_ref_name' = 'ADM1_NAME'))
+
+df_total_comb_rename <- df_total_comb |> dplyr::rename(NAERLS_2024 = Area_Ha_2024, NAERLS_2023 = Area_Ha_2023, WC_2021 = Area_Ha_2021, MapSpam_2020 = total)
+
+df_total_comb_rename_round <- df_total_comb_rename
+
+df_total_comb_rename_round$NAERLS_2024 <- round(df_total_comb_rename$NAERLS_2024, digits = 0)
+df_total_comb_rename_round$NAERLS_2023 <- round(df_total_comb_rename$NAERLS_2023, digits = 0)
+df_total_comb_rename_round$WC_2021 <- round(df_total_comb_rename$WC_2021, digits = 0)
+df_total_comb_rename_round$MapSpam_2020 <- round(df_total_comb_rename$MapSpam_2020, digits = 0)
+
+
+df_total_comb_rename_round |>
+  base::sort_by(df_total_comb_rename_round$NAERLS_2024, decreasing = T) |>
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+
+<div style="margin-bottom:50px;">
+</div>
+
+
+The comparison of crop areas among the sources shows some very large discrepancies among the sources. The most obvious difference is for the Federal Capital Territory. The NAERLS source gives a total crop area in excess of 2 million hectares, this in spite of the fact that the actual total area of the FCT (including urban areas, grassland, woodland etc.) is less than a million hectares.
+
+Because NAERLS compiles its report using data sent in from individual State Agricultural Development Programmes (ADPs) and Ministries of Agriculture, errors usually trace back to a few specific systematic systemic issues: 
+
+- The Double-Counting Trap: If a single field in the FCT was used to grow multiple crops simultaneously (intercropping, such as mixing maize, sorghum, and cowpeas on the same plot), the data collectors likely recorded the full size of that field for each individual crop. When those crop areas were summed together vertically, it generated an inflated "total crop area" that exceeded the physical size of the land.
+- Data Entry and Decimal Errors: A misplaced comma, extra zero, or basic typo during data aggregation can instantly turn a minor regional figure into a national peak.
+- Flawed Projection Baselines: Lacking a real-time satellite mapping infrastructure, local agencies often rely on rough estimates or outdated population multipliers to guess cultivated areas, which completely breaks down when applied to a rapidly developing urban territory like Abuja.
 
 ## Banana & Plantain
 
