@@ -1402,7 +1402,7 @@ anaemia.
 
 **Combined Moderate and Severe anaemia** when haemoglobin level \<11.0 g/dl
 
-The global BPI uses an indicator of the proportion of preschool-age children with Hb \< 110 g/l.
+The global Biofortification Priority Index (BPI) [@asare-marfoPrioritizingCountriesBiofortifcation2013] uses an indicator of the proportion of preschool-age children with Hb \< 110 g/l.
 This value is equivalent to the definitions of moderate and severe anaemia in children in the NDHS report.
 
 As a result, the two percentages are added together. Due to the low levels of severe anaemia in children the map of combined anaemia is similar to that of moderate anaemia, with high values in 
@@ -1447,8 +1447,7 @@ for iron. However, there are some differences in the indicators used for
 iron deficiency anaemia in the two sources.
 
 The NDHS has a finer spatial resolution, and the data were collected
-more recently. The only issue would be to decide which of the four
-anaemia indicators to use.
+more recently. The four anaemia indicators can be mapped independently, or combined to be consistent with the global BPI.
 
 ## Zinc deficiency
 
