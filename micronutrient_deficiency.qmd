@@ -1326,7 +1326,7 @@ ggplot(vect_state_geo_NDHS) +
 
 There are some very big differences in the levels of moderate anaemia
 among the states - with a low of 9% in the Federal Capital Territory and
-Delta states, while both Akwa Ibom and Zamfara had levels above 40%.
+Delta states, while Ebonyi, Akwa Ibom and Zamfara had levels above 40%.
 
 These are patterns which were masked in the zone map.
 
@@ -1401,6 +1401,13 @@ anaemia.
 
 
 **Combined Moderate and Severe anaemia** when haemoglobin level \<11.0 g/dl
+
+The global BPI uses an indicator of the proportion of preschool-age children with Hb \< 110 g/l.
+This value is equivalent to the definitions of moderate and severe anaemia in children in the NDHS report.
+
+As a result, the two percentages are added together. Due to the low levels of severe anaemia in children the map of combined anaemia is similar to that of moderate anaemia, with high values in 
+Ebonyi, Akwa Ibom and Zamfara.
+
 
 ```{r}
 #| label: NDHS_anaemia_combined_CH
