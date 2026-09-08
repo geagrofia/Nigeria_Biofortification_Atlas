@@ -1400,6 +1400,37 @@ states in South West zone have consistently low vales for severe
 anaemia.
 
 
+**Combined Moderate and Severe anaemia** when haemoglobin level \<11.0 g/dl
+
+```{r}
+#| label: NDHS_anaemia_combined_CH
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NDHS$CH_anaemia_comb <- (vect_state_geo_NDHS$CH_anaemia_mod + vect_state_geo_NDHS$CH_anaemia_sev)
+
+
+ggplot(vect_state_geo_NDHS) +
+  geom_spatvector(aes(fill = CH_anaemia_comb)) +
+  geom_spatvector_text(aes(label = CH_anaemia_comb), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (combined) in children between 6 and 59 months", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
 
 
 ### Compare sources
