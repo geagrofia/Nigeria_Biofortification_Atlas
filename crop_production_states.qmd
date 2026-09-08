@@ -243,7 +243,7 @@ The HarvestStat data are loaded and there are data available for the following s
 #| cache: true
 #| results: asis
 
-df_hstat <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/HarvestStat/adm_crop_production_NG.csv")
+df_hstat <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/HarvestStat/adm_crop_production_NG.csv")
 df_hstat$admin_1 <- as.factor(df_hstat$admin_1) 
 
 cat(paste(levels(df_hstat$admin_1), "; ")) # Check levels
@@ -270,6 +270,7 @@ The HarvestStat dataset does not contain codes for the states - only names. Ther
 #| results: hide
 
 df_state_production <- dplyr::left_join(df_state, df_hstat, by = c("adm1_name" = "admin_1"))
+
 str(df_state_production)
 
 ```
@@ -626,6 +627,20 @@ df_spam_nigeria['ADM1_NAME'][df_spam_nigeria['ADM1_NAME'] == 'Nassarawa'] <- 'Na
 
 ```
 
+**Total crop area**
+
+```{r}
+#| label: spam_csv_state_total
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spam_total <- df_spam_nigeria |>
+  dplyr::group_by(ADM1_NAME) |>
+  dplyr::summarise(total = sum(whea + rice + maiz + barl + mill + sorg + ocer + pota + swpo + yams + cass + orts + bean + chic + cowp + pige + lent + opul + soyb + grou + cnut + oilp + sunf + rape + sesa + ooil + sugc + sugb + cott + ofib + coff + teas + toba + bana + plnt + trof + temf + vege + rest + pmil + rcof + citr + toma + onio + rubb ))
+
+```
+
 **Banana & Plantain**
 
 ```{r}
@@ -725,9 +740,248 @@ df_spam_spot_2 <- df_spam_nigeria |>
 
 ```
 
+
+
+
+
 # Compare data sources
 
 To help select the best data source it is necessary to compare the state statistics for each crop from the three sources.
+
+
+## Total crop area
+
+### NAERLS/FMAFS crop database
+
+Add the harvested area for each crop and sum to obtain an estimate of the total crop area.
+I parsed all 17 crop tables in Section 12.0 (Rice, Maize, Sorghum, Millet, Cowpea, Groundnut, Soybean, Benniseed, Yam, Cassava, Cocoyam, Cotton, Ginger, Tomato, Onion, Okra, Plantain/Banana) and summed the "Land Area (Ha)" figures for each state across all crops it grows. The state-level sums total almost exactly to the sum of the national totals given in each table (a good cross-check), confirming the extraction is accurate.
+
+Not every state grows every crop, so each state's total reflects however many of the 17 crops were reported for it (ranging from 7 crops for Rivers up to 15 for Benue, Taraba, and Plateau).
+FCT and Bauchi top the list, largely driven by very large reported areas under crops like yam and cassava (whose land-area figures are much bigger than cereals per state).
+
+Zamfara, Sokoto, and Katsina show the largest declines in total cropped area in 2024 vs 2023.
+
+In addition to crops not reported these are the report's own land-area estimates per crop (Table 12.1–12.17), not an independent GIS measurement — some of the same land may be double-cropped or intercropped, so this "total area" is a sum of reported cultivated hectares per crop rather than a literal footprint of unique land.
+
+**Total Cropped Area** data are loaded and are available for the following states:
+
+```{r}
+#| label: naerls_total_cropped
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+df_naerls_total_cropped <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/NAERLS_Crop_Stats_2024/nigeria_crop_area_by_state_2023_24.csv")
+
+# change name to match states dataset
+df_naerls_total_cropped['State'][df_naerls_total_cropped['State'] == "FCT"] <- "Federal Capital Territory"
+
+
+df_naerls_total_cropped$State <- as.factor(df_naerls_total_cropped$State)
+cat(paste(levels(df_naerls_total_cropped$State), "; ")) # Check levels
+
+vect_total_cropped_2024 <- dplyr::left_join(vect_state_geo, df_naerls_total_cropped, by = c("adm1_name" = "State"))
+
+df_total_cropped_2024 <- as.data.frame(vect_total_cropped_2024)
+
+```
+
+```{r}
+#| label: naerls_total_cropped_map_2024
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_total_cropped_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2024)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 2500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Crop Area - 2024",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: naerls_total_cropped_map_2023
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_total_cropped_2024) +
+  geom_spatvector(aes(fill = Area_Ha_2023)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 2500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Crop Area - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### HarvestStat
+
+
+```{r}
+#| label: hstat_total_cropped
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_total_cropped_2023 <- dplyr::left_join(vect_state_geo, dplyr::filter(df_hstat, harvest_year == "2023", indicator == "area"), by = c("adm1_name" = "admin_1"))
+
+vect_total_cropped_2023 <- vect_total_cropped_2023 |>
+  dplyr::group_by(adm1_name) |>
+  dplyr::summarise(sum_area = sum(value))
+
+```
+
+```{r}
+#| label: hstat_total_cropped_map
+#| message: false
+#| warning: false
+#| cache: true
+#| results: asis
+
+ggplot(vect_total_cropped_2023) +
+  geom_spatvector(aes(fill = sum_area)) +
+  geom_spatvector_text(aes(label = adm1_name), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 2500000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Crop Area - 2023",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### MapSpam 2020
+
+The MapSpam 2020 dataset does not contain codes for the states - only names. Therefore we need to join the two data frames using the name of the state - and checking that all states have data.
+
+```{r}
+#| label: spam_total_join
+#| message: false
+#| warning: false
+#| cache: true
+#| results: hide
+
+vect_spam_total <- dplyr::left_join(vect_state_geo, df_spam_total, by = c("adm1_name" = "ADM1_NAME"))
+
+
+```
+
+
+
+```{r}
+#| label: spam_total_map
+#| message: false
+#| warning: false
+#| cache: true
+
+ggplot(vect_spam_total) +
+  geom_spatvector(aes(fill = total)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 2) +
+  scale_fill_stepsn(
+      n.breaks = 10,
+      limits = c(0, 4000000),
+      colours = hcl.colors(palette = "Grays", 10, rev = T),
+      guide = "legend",  na.value = "pink", labels = scales::comma
+    ) +
+  labs(
+    title = "Total Crop Area - 2020",
+    fill = "Cropped<br>Area (ha)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+### WorldCover 30
+
+```{r}
+
+# run once then save and load the results in subsequent runs
+# rast_wc_1 <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-0000000000-0000131072.tif")
+# 
+# rast_wc_2 <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-0000065536-0000131072.tif")
+# 
+# rast_wc_3 <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-0000000000-0000000000.tif")
+# 
+# rast_wc_4 <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-0000065536-0000065536.tif")
+# 
+# rast_wc_5 <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-0000065536-0000000000.tif")
+# 
+# rast_wc_6 <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-0000000000-0000065536.tif")
+# 
+# rast_wc_nigeria <- mosaic(rast_wc_1, rast_wc_2, rast_wc_3, rast_wc_4, rast_wc_5, rast_wc_6)
+# writeRaster(rast_wc_nigeria,"E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-mosaic.tif")
+# 
+# rast_wc_nigeria <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-mosaic.tif")
+# 
+# m_wc <- matrix(c(40, 1), nrow = 1, ncol = 2)
+# 
+# rast_wc_nigeria_crop <- classify(rast_wc_nigeria, m_wc, others = 0)
+# 
+# writeRaster(rast_wc_nigeria_crop,"E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-mosaic-crop.tif")
+# 
+# rast_wc_nigeria_crop <- rast(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-mosaic-crop.tif")
+# 
+# vect_wc_nigeria_crop <- zonal(rast_wc_nigeria_crop, vect_state_geo, fun="sum", exact = TRUE, weights = TRUE, as.polygons = TRUE, na.rm = TRUE)
+### DIDN'T FINISH TRY IN QGIS ###
+# 
+# 
+# writeVector(vect_wc_nigeria_crop, "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-zonal-crop.geojson", overwrite=TRUE)
+
+# vect_wc_nigeria_crop<- vect(
+# "E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-zonal-crop.geojson")
+# 
+# df_wc_nigeria_crop <- as.data.frame(vect_wc_nigeria_crop) 
+
+```
+
+
+
 
 ## Banana & Plantain
 
@@ -1702,66 +1956,66 @@ These are saved to the local database.
 #| warning: false
 #| cache: true
 
-# plantain banana 2024
-writeVector(
-  x = vect_plantain_banana_2024,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/plantain_banana_2024_naerls.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
+# # plantain banana 2024
+# writeVector(
+#   x = vect_plantain_banana_2024,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/plantain_banana_2024_naerls.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
+# 
+# # Cassava 2024
+# writeVector(
+#   x = vect_cassava_2024,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cassava_2024_naerls.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
+# 
+# # Cowpea 2024
+# writeVector(
+#   x = vect_cowpea_2024,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cowpea_2024_naerls.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
+# 
+# # Maize 2024
+# writeVector(
+#   x = vect_maize_2024,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/maize_2024_naerls.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
+# 
+# # Rice 2024
+# writeVector(
+#   x = vect_rice_2024,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/rice_2024_naerls.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
 
-# Cassava 2024
-writeVector(
-  x = vect_cassava_2024,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cassava_2024_naerls.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
 
-# Cowpea 2024
-writeVector(
-  x = vect_cowpea_2024,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cowpea_2024_naerls.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
-
-# Maize 2024
-writeVector(
-  x = vect_maize_2024,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/maize_2024_naerls.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
-
-# Rice 2024
-writeVector(
-  x = vect_rice_2024,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/rice_2024_naerls.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
-
-
-# Sorghum 2024
-writeVector(
-  x = vect_sorghum_2024,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/sorghum_2024_naerls.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
+# # Sorghum 2024
+# writeVector(
+#   x = vect_sorghum_2024,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/sorghum_2024_naerls.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
 
 
 # Sweet Potato MapSpam 2020
 # join df to vect
 vect_spam_spot_2 <- tidyterra::left_join(vect_state_geo, df_spam_spot_2, by =c("adm1_ref_name" = "ADM1_NAME"))
 
-writeVector(
-  x = vect_spam_spot_2,
-  filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/spotato_2020_mapspam.geojson",
-  filetype = "GeoJSON",
-  overwrite = TRUE
-)
+# writeVector(
+#   x = vect_spam_spot_2,
+#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/spotato_2020_mapspam.geojson",
+#   filetype = "GeoJSON",
+#   overwrite = TRUE
+# )
 
 ```
 
