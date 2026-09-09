@@ -1,0 +1,38 @@
+country,state,ihme_location_name,ihme_location_id,iso_3166_2,stunting_ndhs2024_pct
+Nigeria,Abia,Abia,,NG-AB,20
+Nigeria,Adamawa,Adamawa,,NG-AD,49
+Nigeria,Akwa Ibom,Akwa Ibom,,NG-AK,24
+Nigeria,Anambra,Anambra,,NG-AN,13
+Nigeria,Bauchi,Bauchi,,NG-BA,62
+Nigeria,Bayelsa,Bayelsa,,NG-BY,28
+Nigeria,Benue,Benue,,NG-BE,25
+Nigeria,Borno,Borno,,NG-BO,41
+Nigeria,Cross River,Cross River,,NG-CR,21
+Nigeria,Delta,Delta,,NG-DE,20
+Nigeria,Ebonyi,Ebonyi,,NG-EB,32
+Nigeria,Edo,Edo,,NG-ED,14
+Nigeria,Ekiti,Ekiti,,NG-EK,17
+Nigeria,Enugu,Enugu,,NG-EN,15
+Nigeria,Federal Capital Territory,Federal Capital Territory,,NG-FC,16
+Nigeria,Gombe,Gombe,,NG-GO,51
+Nigeria,Imo,Imo,,NG-IM,17
+Nigeria,Jigawa,Jigawa,,NG-JI,56
+Nigeria,Kaduna,Kaduna,,NG-KD,41
+Nigeria,Kano,Kano,,NG-KN,52
+Nigeria,Katsina,Katsina,,NG-KT,65
+Nigeria,Kebbi,Kebbi,,NG-KB,60
+Nigeria,Kogi,Kogi,,NG-KO,35
+Nigeria,Kwara,Kwara,,NG-KW,41
+Nigeria,Lagos,Lagos,,NG-LA,17
+Nigeria,Nasarawa,Nasarawa,,NG-NA,35
+Nigeria,Niger,Niger,,NG-NI,44
+Nigeria,Ogun,Ogun,,NG-OG,18
+Nigeria,Ondo,Ondo,,NG-ON,23
+Nigeria,Osun,Osun,,NG-OS,31
+Nigeria,Oyo,Oyo,,NG-OY,23
+Nigeria,Plateau,Plateau,,NG-PL,46
+Nigeria,Rivers,Rivers,,NG-RI,12
+Nigeria,Sokoto,Sokoto,,NG-SO,43
+Nigeria,Taraba,Taraba,,NG-TA,46
+Nigeria,Yobe,Yobe,,NG-YO,55
+Nigeria,Zamfara,Zamfara,,NG-ZA,64
