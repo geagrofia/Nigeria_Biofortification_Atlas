@@ -85,6 +85,10 @@ At the subnational level (@tbl-national_prod_index), the export share is not con
 
 : Variables Used for the Calculation of the Production Index of the Subnational BPIs {#tbl-national_prod_index}
 
+The percentage land area allocated to a given crop of interest, of total agricultural land area cultivated in a state was estimated by summing all crop land areas outlined in the 2014 Agricultural Performance Survey report. The authors acknowledge that the percentages may be biased upwards since not all crops were included in the report. However, total land area cultivated at the state-level was not available.
+
+To calculate per capita land area, state-level population was obtained from the 2016 Annual Abstract of Statistics Volume 1 Report, produced by the National Bureau of Statistics in Nigeria. To match the timeframe of production estimates, 2014 population figures were used.
+
 ### Consumption Index
 
 The consumption index consists of two variables (@tbl-global_cons_index) in the global BPI, and a single variable in the subnational BPI (@tbl-national_cons_index).
@@ -138,14 +142,27 @@ For their subnational BPIs @herringtonSubnationalPrioritizationBiofortification2
 
 ## Seek more recent equivalent data, or data for alternative indicators
 
+### Production Index
+
+
+
+
+
+
+### Micronutrient Deficiency Index
+
 - Serum retinol (vitamin A) for women of reproductive age and children between 6 and 59 months is available from 2021 (this was not available for 2018 study) 
 
-- Age standardised DALYs Vitamin A Deficiency (VAD) available at subnational level for 2023 (but data disputed)
+- Age standardised DALYs Vitamin A Deficiency (VAD) available at subnational level for 2023
 
 - Percentage of population at risk of inadequate intake of zinc. This is now available at the subnational level from the 2021 NFCMS as *womens's prevalence of inadequacy of zinc intakes*. A further indicator is also available:  *prevalence of women of reproductive age with zinc deficiency* and *prevalence of children with zinc deficiency*
 These are only available at the geopolitical zone level in Nigeria, but are potentially an improvement on both the global and 2018 subnational indicators
 
-- Prevalence of stunting among children age 6-59 months
+- Prevalence of stunting among children age 6-59 months available at subnational level for 2023-24
+
+- Age-standardized DALYs lost per 100,000 inhabitants to IDA. The IMHE GBD database includes Age standardised DALYs Dietary iron Deficiency - a slightly different indicator, which focuses on the dietary component of anaemia, but is available at the state level
+
+- Proportion of preschool-age children with Hb \< 110 g/l - the NFCMS includes Iron deficiency in children defined as serum ferritin concentration \<15 µg/L corrected for inflammation. Both the NFCMS and NDHS include anaemia for pre-school children - for the NDHS at the state level, and for NFCMS at the zone level. The definition of any anaemia in the NDHS is is when haemoglobin level is <12.0 g/dl. A closer level of Haemoglobin to the global BPI is for moderate and severe anaemia, which combined have an upper limit of 11 g/dl.
 
 
 ## Assess relationship between consumption data and food baskets 
