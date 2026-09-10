@@ -4537,7 +4537,7 @@ ggplot(vect_gpz_geo_NFCMS) +
 
 # Raw GHS data
 
-The raw data files are available for use if necessary, but the summaries per geopolitical zone are sufficient for the atlas.
+The raw data files are available for use if necessary, the summaries per geopolitical zone are sufficient for some aspects of the atlas, but other indicators require the raw data.
 
 ::: callout-note
 ## Relevant Datasets in the GHS
@@ -4560,6 +4560,7 @@ Data collected through Post-Harvest Household Questionnaire Section 5C (Aggregat
 Data collected through Post-Harvest Household Questionnaire Section 3D (Women Dietary Diversity). This section records women-level information on women’s nutrition diet for the previous day.
 :::
 
+## Description of datasets
 
 ```{r}
 #| label: GHS_raw_data
@@ -4583,16 +4584,1286 @@ The data unit for these data are food products per household. The response for e
 
 There are over 100 different food products that can be recorded, consequently there are over half a million records for the post-planting dataset.
 
-To map each indicator the data will need to be filtered on the specific indicator, then recoded to a numeric response:
 
-+---------+-------+
-| Before  | After |
-+=========+=======+
-| 1.  Yes | 1     |
-+---------+-------+
-| 2.  No  | 0     |
-+---------+-------+
+## Per capita consumption of specific food products and crop equivalents
 
-Once recoded, the statistics for each zone can be computed. The mean value for each zone will show the percentage of households that consumed the particular product.
+The global Biofortification Priority Index (BPI) [@asare-marfoPrioritizingCountriesBiofortifcation2013] uses an indicator of
+consumption per capita per year for each specific crop, standardised to fit with the maximum and minimum values encountered.
 
-When the summary statistics are calculated the resulting table can be joined to the zone spatial dataset.
+These consumption values are not readily available in the reports of the 2021 NFCMS or the 2023/24 General Household Survey–Panel. An advantage of the 2023/24 General Household Survey–Panel (GHS-Panel Wave 5) is that it has a household food-consumption module publicly available from the Nigeria National Bureau of Statistics.
+
+The 2023/24 GHS contains a Post-Harvest Section 5B – Food Consumption with, for each household and food item:
+
+ - quantity consumed during the past 7 days
+ - unit of measurement
+ - conversion factor to standard quantity
+ - quantity obtained from:
+ + purchases
+ + own production
+ + gifts/other sources
+ - quantity purchased during the past 30 days
+ - expenditure on the food
+
+The dataset has 509,220 food-item/household observations and 26 variables.
+
+The microdata have individual `item_cd` food items, so we can investigate the actual item list and identify things such as maize, maize flour, maize meal, gari, cassava flour, fufu, etc. The conversion factor is particularly valuable because households report quantities in local/non-standard units and the survey provides an item-unit-size-zone conversion factor.
+
+We can also calculate the crop-equivalent consumption:
+
+::: {.callout-note title="Calculating the crop-equivalent consumption"}
+For example, suppose the household records:
+
+Gari → 10 kg consumed
+
+We could have two possible measures:
+
+Food-product consumption
+
+Gari = 10 kg/person/year
+
+or, with the appropriate processing/yield conversion:
+
+Crop-equivalent consumption
+
+Cassava equivalent = X kg/person/year
+
+That would allow you to aggregate all cassava-derived products:
+
+gari + fufu + cassava flour + other cassava foods
+→ total cassava-equivalent consumption kg/person/year
+
+Likewise:
+
+maize grain + maize flour + maize meal + maize products
+→ total maize-equivalent consumption
+:::
+
+
+1. The dataset we want
+
+For the post-harvest 2023/24 visit, the key file is:
+
+`sect5b_harvestw5.dta` — Section 5B: Food Consumption
+
+It contains 509,220 household-food observations and 26 variables. Each household has a record for the food items in the food roster, whether or not that particular item was consumed.
+
+The corresponding post-planting file is:
+
+`sect6b_plantingw5.dta`
+
+with 529,470 observations, and essentially the same food-consumption structure.
+
+The survey is representative of the six geopolitical zones, so zonal estimates are an intended use of the data.
+
+Importantly, the GHS report says that when information was collected at both visits, the published results normally use the most recent information, i.e. the post-harvest visit.
+
+So for our purpose we use `sect5b_harvestw5.dta` as the *primary* dataset.
+
+2. What food items are actually available?
+
+The standard `item_cd` roster contains the following crop-related items, among others:
+
+Code |	Food item
+-----|-----------
+10	| Guinea corn/sorghum
+11	| 	Millet
+13	| 	Rice – local
+14	| 	Rice – imported
+16	| 	Maize flour
+17	| 	Yam flour
+18	| 	Cassava flour
+20	| 	Maize – unshelled/on the cob
+22	| 	Maize – shelled/off the cob
+23	| 	Other grains and flour
+30	| 	Cassava – roots
+31	| 	Yam – roots
+32	| 	Gari – white
+33	| 	Gari – yellow
+34	| 	Cocoyam
+35	| 	Plantains
+36	| 	Sweet potatoes
+37	| 	Potatoes
+38	| 	Other roots and tubers
+40	| 	Soya beans
+41	| 	Brown beans
+42	| 	White beans
+43	| 	Groundnuts – unshelled
+44	| 	Groundnuts – shelled
+45	| 	Other nuts/seeds/pulses
+46	| 	Coconut
+47	| 	Kola nut
+48	| 	Cashew nut
+50	| 	Palm oil
+52	| 	Groundnut oil
+60	| 	Bananas
+61	| 	Orange/tangerine
+62	| 	Mangoes
+63	| 	Avocado pear
+64	| 	Pineapples
+67	| 	Pawpaw
+68	| 	Watermelon
+70	| 	Tomatoes
+72	| 	Onions
+73	| 	Garden eggs/eggplant
+74	| 	Okra – fresh
+75	| 	Okra – dried
+76	| 	Fresh pepper
+77	| 	Dry pepper
+78	| 	Leaves
+79	| 	Other vegetables
+
+There are also numerous non-crop foods. The complete catalogue runs from item code 10 through 601, with gaps between food groups.
+
+But there is an important second level
+
+The variable `item_os_cd` captures additional foods when the respondent selected "other item".
+
+This is particularly interesting for our purposes because it contains:
+
+Code |	Food item
+-----|-----------
+231	|  Semovita/semolina
+232	|  Akanu/Pap/Obi/Fufu
+234	|  Plantain flour
+235	|  Macaroni/pasta/noodles
+237	|  Acha/fonio
+381	|  Yam – second variety
+453	|  Bambara nut
+454	|  Palm nut
+455	|  Palm kernel
+456	|  Locust beans
+661	|  Agbalumo/Udara/star apple
+662	|  Cashew fruit
+790	|  Jute leaves
+793	|  Kuka/Baobab
+798	|  Pumpkin leaves
+1071	|  Crayfish
+1152	|  Yoghurt
+1331	|  Sugar cane
+1551	|  Zobo
+1552	|  Kunu
+etc.
+
+There were 503 valid `item_os_cd` observations in the post-harvest file.
+
+So fufu isn't missing entirely — it occurs as an "other item", although only two observations in the post-harvest file use the coded category 232. There are also free-text unit descriptions mentioning cooked fufu.
+
+This means we need to retain both `item_cd` and `item_os_cd`/`item_os` when constructing the food list.
+
+3. How the quantity information works
+
+For every household × food item, Section 5B contains:
+
+Variable |	Meaning
+---------|-----------
+`s5bq1`	 |	Did the household consume this item in the past 7 days?
+`s5bq2a` 	 |	Quantity consumed in past 7 days
+`s5bq2b`	 |	Unit
+`s5bq2b_os`	 |	Other unit, if applicable
+`s5bq2c`	 |	Size
+`s5bq2_cvn`	 |	Conversion factor: item × unit × size × zone
+`s5bq3`	 |	Quantity consumed from purchases
+`s5bq4`	 |	Quantity consumed from own production
+`s5bq5`	 |	Quantity consumed from gifts/other sources
+
+There is a parallel set for purchases during the previous 30 days:
+
+`s5bq7a`
+`s5bq7b`
+`s5bq7c`
+`s5bq7_cvn`
+`s5bq8`
+
+
+
+::: {.callout-note title="Calculating the weight of the food product consumed"}
+The catalogue explicitly describes the conversion factor as "conversion factor item-unit-size-zone".
+
+Suppose a household reports:
+
+2 baskets of maize
+
+The raw `s5bq2a` value is 2, but that is not 2 kg.
+
+The survey records:
+
+- quantity = 2
+- unit = basket
+- size = [reported size]
+- conversion factor = X kg per reported unit
+
+so we can derive:
+
+quantity consumed in kg = `s5bq2a` × `s5bq2_cvn`
+
+subject to checking the exact direction/definition of the conversion factor in the questionnaire/data documentation.
+
+The last check should be conducted before producing the final numbers rather than assuming the factor's direction.
+:::
+
+4. We should use consumption, NOT purchases
+
+This distinction is very important for our question.
+
+We want:
+
+average consumption per person per year
+
+Therefore the appropriate variable is:
+
+`s5bq2a` × `s5bq2_cvn`
+
+—not the 30-day purchase variable.
+
+The purchase variables tell us where the food came from / how much was bought.
+
+The survey explicitly separates these sources with `s5bq3`, `s5bq4`, and `s5bq5`.
+
+For total consumption we therefore want:
+
+purchased consumption + own-production consumption + gifts/other consumption
+
+which should correspond to the total reported in `s5bq2a`.
+
+5. Converting the seven-day observation to kg/year
+
+For each household and food item:
+
+$$ Q_{7d,kg} = `s5bq2a` \times `s5bq2\_cvn` $$
+
+Then:
+
+$$ Q_{annual,kg} = Q_{7d,kg}\times\frac{365}{7} $$
+
+But we should not calculate the annual value separately for every household and then simply take an unweighted mean, for that we need the survey weights.
+
+6. Calculate the geopolitical-zone per-capita figure
+
+There is an important statistical subtlety here.
+
+Rather than averaging household per-capita values, we should calculate the zonal estimate as:
+
+$$ \boxed{ \frac{ \sum_i w_i Q_i }{ \sum_i w_i HHSize_i } } $$
+
+where:
+
+\(Q_i\) = annual kg consumed by household \(i\)
+\(HHSize_i\) = number of people in household \(i\)
+\(w_i\) = household survey weight.
+
+In other words:
+
+estimated total kg consumed by the zone ÷ estimated population represented by the zone
+
+This is conceptually the cleanest definition of kg/person/year.
+
+It also avoids giving a five-person household and a one-person household equal influence simply because they are both households.
+
+
+8. There is one major issue we need to resolve before calculating the numbers
+
+The GHS food-consumption data are weekly household consumption observations, not a continuous annual food diary.
+
+The post-harvest survey records:
+
+"quantity ... consumed in the past 7 days"
+
+and the post-planting survey does the same.
+
+And the two visits produce noticeably different results.
+
+For example, the report shows that the share of households consuming particular food groups changes between post-planting and post-harvest.
+
+Therefore:
+
+We cannot automatically call
+
+7-day consumption × 52.14
+
+"annual consumption".
+
+It is better described as:
+
+annualised consumption based on the post-harvest seven-day recall
+
+unless we decide to combine the two seasonal observations.
+
+This matters particularly for crops such as:
+
+maize
+cassava
+yam
+plantain
+mango
+etc.
+
+because consumption is seasonal.
+
+9. For our application we should actually calculate two versions
+
+This would be much more informative.
+
+A. Post-harvest annualised consumption
+$$ Q_{PH,annual}=Q_{PH,7d}\times365/7 $$
+
+This corresponds to the standard Wave 5 food-consumption observation used by NBS for its most recent visit.
+
+B. Seasonal-average annualised consumption
+
+If we use both visits:
+
+$$ Q_{annual} = \frac{ Q_{PP,7d}+Q_{PH,7d} }{2} \times\frac{365}{7} $$
+
+This is effectively an estimate based on two seasonal snapshots.
+
+We should not present B as an official NBS annual consumption statistic, but it could be a much better estimate for our crop-consumption application.
+
+The NBS report explicitly recognises the seasonal difference between post-planting and post-harvest consumption.
+
+11. Final Zonal Dataset
+
+I think the ideal final dataset would actually have three levels:
+
+Zone |	Crop |	Product |	kg/person/year
+---- |-------|----------|---------------
+North Central |	Maize |	Maize flour |	...
+North Central |	Maize |	Shelled maize |		...
+North Central |	Maize |	Unshelled maize |		...
+North Central |	Cassava |	Cassava roots |		...
+North Central |	Cassava |	Cassava flour |		...
+North Central |	Cassava |	Gari – white |		...
+North Central |	Cassava |	Gari – yellow |		...
+South East |	Cassava |	Cassava roots |		...
+South East |	Cassava |	Gari – white |		...
+...	...	...	...
+
+and then a second table:
+
+Zone |	Crop |	Crop-equivalent kg/person/year
+---- |-------|-------------------------
+North Central |	Maize |		...
+North Central |	Cassava |		...
+North East |	Maize |		...
+...	...	...
+
+The second table would require us to establish defensible processing conversion factors for gari, flour, etc.
+
+One particularly useful discovery
+
+The "other food" mechanism means we should not limit ourselves to `item_cd`.
+
+The post-harvest data contain 503 `item_os_cd` records, including fufu, plantain flour, Bambara nut, palm kernel, locust beans, Kunu, Zobo and many other foods.
+
+So when we actually process the microdata, I would:
+
+ - retain the standard `item_cd`;
+ - retain `item_os_cd`;
+ - retain the free-text `item_os`;
+ - construct a master food-code lookup;
+ - identify crop/product relationships;
+ - calculate consumption in kg;
+ - apply household weights;
+ - calculate the six-zone estimates;
+ - separately identify observations that require manual classification.
+
+That last step is important because otherwise we could silently lose things like fufu.
+
+What I would do next
+
+The remaining critical piece is the actual Wave 5 household weight and household-size variables. Once those are identified, we can write an R workflow that takes the NBS .dta files and produces the six-zone consumption estimates.
+
+I would also like to inspect the NBS questionnaire/data documentation for the precise definition of `s5bq2_cvn`, rather than making an assumption about whether it is kg per reported unit or its reciprocal.
+
+Then we can produce, for example:
+
+Maize flour — North Central — X kg/person/year
+Maize flour — North East — X kg/person/year
+...
+Gari white — South East — X kg/person/year
+...
+
+with the calculation fully reproducible in R.
+
+
+The next step is to pin down the exact variables and conversion-factor definition, then we can build the reproducible R workflow for the six geopolitical zones.
+
+I’ll treat the target output as:
+
+food product → crop → geopolitical zone → kg/person/year, with the option to aggregate processed products back to crop-equivalent kg/person/year later.
+
+I’ve now pinned down the key pieces. There is one correction to my previous answer: we should use the cross-sectional weight `wt_cross_wave5`, not the longitudinal weight, because your objective is a representative estimate of food consumption in 2023/24 rather than a longitudinal comparison. NBS explicitly says the cross-sectional weight is calibrated to the 2023 population and is intended for representative current-population estimates.
+
+1. Files we need
+
+For the primary calculation we need three files:
+
+`sect5b_harvestw5.dta` — food consumption
+`secta_harvestw5.dta` — household ID, zone and wt_cross_wave5
+`sect1_harvestw5.dta` — household roster, from which we calculate household size
+
+The food file contains 509,220 household × food-item observations and 26 variables.
+
+The cover file contains 4,771 households and the three Wave 5 weight variables, including `wt_cross_wave5`.
+
+The roster contains 28,256 individual records across the households.
+
+2. The consumption calculation
+
+The relevant variables are:
+
+`s5bq1`       consumed this item in previous 7 days?
+`s5bq2a`      quantity consumed
+`s5bq2b`      unit
+`s5bq2b_os`   other unit
+`s5bq2c`      size
+`s5bq2_cvn`   conversion factor
+
+NBS describes `s5bq2_cvn` specifically as:
+
+conversion factor item-unit-size-zone
+
+and it ranges from 0.001 to 50 in the released data.
+
+So the basic calculation is:
+
+quantity_kg_7days =
+    s5bq2a * s5bq2_cvn
+    
+But I would test this against the actual data before finalising it, because the catalogue gives us the definition and range but doesn't explicitly state the direction of the conversion factor in the metadata. We don't want to assume that 0.5, for example, means 0.5 kg/unit rather than the reverse.
+
+3. Household size
+
+Rather than relying on a pre-calculated household-size variable, I recommend calculating it directly from `sect1_harvestw5.dta`.
+
+That gives us:
+hh_size =
+    number of household members in the Wave 5 post-harvest roster
+
+This is preferable because we can explicitly inspect which roster records represent current household members.
+
+. The weight
+
+We'll join:
+
+`sect5b_harvestw5`
+        |
+        | `hhid`
+        v
+`secta_harvestw5`
+        |
+        +---- `zone`
+        +---- `wt_cross_wave5`
+
+The `wt_cross_wave5` weight is the appropriate one because NBS says it was calibrated against official 2023 population projections at state level and is specifically designed for cross-sectional estimates of the 2023/24 population.
+
+5. The resulting estimator
+
+For a food item \(j\) in geopolitical zone \(z\), I would calculate:
+
+$$ Q_{j,z} = \frac{ \sum_i w_i Q_{ij} }{ \sum_i w_i H_i } $$
+
+where:
+
+\(Q_{ij}\) = annual kg of food \(j\) consumed by household \(i\)
+\(H_i\) = household size
+\(w_i\) = wt_cross_wave5
+
+This is effectively:
+
+estimated annual kilograms consumed by the population / estimated population
+
+which is exactly the interpretation we want for kg/person/year.
+
+6. Annualisation
+
+The survey asks about consumption during the previous seven days.
+
+So for the post-harvest observation:
+
+kg_year <- kg_7days * 365 / 7
+
+However, I suggest that we initially report this explicitly as:
+
+annualised post-harvest consumption
+
+rather than implying that NBS directly measured annual consumption.
+
+This is important because Wave 5 has two separate food-consumption observations:
+
+post-planting: July–September 2023
+post-harvest: January–March 2024.
+
+The catalogue confirms that the post-planting food-consumption file has the same basic structure, using `s6bq2a` and `s6bq2_cvn`.
+
+7. I think we should actually retain both seasons
+
+For your eventual crop-consumption analysis, I would create:
+
+Dataset A — post-harvest
+`zone`
+`item_cd`
+`item_name`
+`kg_person_year`
+
+based on:
+
+January–March 2024
+7-day recall
+annualised × 365/7
+
+Dataset B — post-planting
+`zone`
+`item_cd`
+`item_name`
+`kg_person_year`
+
+based on:
+
+July–September 2023
+7-day recall
+annualised × 365/7
+
+Dataset C — seasonal average
+
+Then:
+
+annualised =
+    ((post_planting_7day + post_harvest_7day) / 2) * 365 / 7
+    
+I'd regard Dataset C as an analytical estimate, not an official NBS annual statistic.
+
+For crops with strong seasonality, this will probably be much more useful than relying exclusively on the January–March observation.
+
+8. An important additional opportunity
+
+There is also a Section 5C – Aggregate Food Consumption file:
+
+`sect5c_harvestw5.dta` 
+
+It has 56,580 observations and records the number of days the household consumed each food-group item during the previous seven days.
+
+We should not use that for the kg calculation, but it is potentially useful as a quality check.
+
+For example, if our calculation says a household consumed 50 kg of maize flour in seven days, we can check whether that household reported consuming maize flour on some/all of the seven days. It could help identify implausible conversion-factor results.
+
+::: {.callout-note title="Testing the conversion factor"}
+The conversion factor works exactly as we hoped
+
+For example, one household reported:
+
+*"25 cigarette cups of local rice"*
+
+and the conversion factor is:
+
+0.232
+
+giving:
+
+25 × 0.232 = 5.8 kg
+
+That is clearly the intended interpretation.
+
+Another household reported:
+
+*"2 large loaves of bread"*
+
+with conversion factor 0.780, giving:
+
+2 × 0.780 = 1.56 kg
+
+So we can safely calculate:
+
+kg_7days = `s5bq2a` * `s5bq2_cvn`
+
+The conversion factor is therefore effectively kg per reported quantity/unit/size/zone combination.
+::: 
+
+
+2. The food item coding is more interesting than expected
+
+`item_cd` is actually a labelled text field in our CSV, e.g.:
+
+16. Maize flour
+18. Cassava  flour
+30. Cassava - roots
+32. Gari - white
+33. Gari - yellow
+
+There is also `item_cd_alt`, which is extremely important.
+
+For example, the standard category:
+23. Other grains and flour
+
+can have:
+
+231. Semovita/semolina
+232. Akanu/Pap/Obi/Fufu
+234. Plantain flour
+235. Macaroni/pasta/noodles
+238. INDOMIE noodles
+
+Similarly:
+
+107. Other fish or seafood
+can contain:
+1071. Crayfish
+1072. Periwinkle
+1073. Stockfish
+
+So we absolutely need to retain `item_cd_alt` when building the food dictionary.
+
+3. There is a complication with cassava. Some respondents coded their consumption as:
+
+30. Cassava - roots
+
+but their free-text description says things such as:
+
+WRAP (FUFU)
+
+or
+
+WRAP COOKEDFUFU
+
+This means the NBS coding isn't perfectly clean at the product level.
+
+For example, some households have:
+
+`item_cd` = 30. Cassava - roots
+`unit` = WRAP
+`description` = WRAP FUFU
+
+So we shouldn't blindly interpret every kilogram assigned to item 30 as raw cassava root.
+
+This is actually a strong argument for retaining the original variables and creating our own carefully documented crop and product classification.
+
+4. Missing conversion factors are rare—but need treatment
+
+There are 80,702 "Yes" consumption observations.
+
+Of those, only 210 have a missing `s5bq2_cvn`.
+
+For the crops we're interested in, the situation is generally excellent.
+
+For example:
+
+Food | Consumed |	Missing conversion
+-----|----------|--------------------
+Maize flour |		1,106 |		0
+Yam flour |		425	 |	0
+Cassava flour |		886	 |	1
+Maize, unshelled |		26 |		0
+Maize, shelled |		444 |		0
+Cassava roots |		530 |	38
+Yam roots |	2,138 |		0
+Gari white |		1,926 |		0
+Gari yellow |		1,011 |		1
+Plantains |		1,080 |		0
+
+So for maize, yam, gari, etc., we're in very good shape.
+
+Cassava roots require some additional cleaning because of those 38 observations, many involving locally described units such as wrap or satana.
+
+5. Household size can also be calculated reliably
+
+The household roster contains 28,256 records.
+
+We found that we cannot simply count rows.
+
+For existing household members, `s1q4` = "1. YES" identifies membership, but new household members have `NEWMEMBER` = 1 and `s1q4` is blank.
+
+So I would define household size as:
+
+member =
+    `s1q4` == "1. YES" |
+    `NEWMEMBER` == 1
+    
+This gives 4,716 households with a calculable household size.
+
+The average household size in these records is about 5.44 people, with a range of 1–25.
+
+That's a useful validation check.
+
+6. The weight is exactly where expected
+
+`secta_harvestw5.csv` contains:
+
+`wt_wave5`
+`wt_longpanel_wave5`
+`wt_cross_wave5`
+
+For our purpose the most appropriate is `wt_cross_wave5`, because we're estimating population consumption in 2023/24, rather than analysing changes among the longitudinal panel.
+
+7. First calculation
+
+Using:
+
+- post-harvest consumption
+- 7-day recall
+- the NBS conversion factor
+- household size from the roster
+- wt_cross_wave5
+- population-weighted aggregation
+- annualisation by 365/7
+
+We get the following preliminary figures.
+
+kg/person/year
+
+Product	| North Central	| North East| North West| South East| South South	| South West
+--------|---------------|-----------|-----------|-----------|-------------|-----------
+Maize flour	      | 	 31.78	| 	…		| …		| …		| …	| 	14.85
+Maize – shelled		|    16.86	| 	…		| …		| …		| …	| 	15.92
+Maize – unshelled	| 	 14.43	| 	…	  | …		| …	  | …	|   10.72
+Cassava flour	    | 	 17.41	| 	…		| …		| …		| …	|   17.74
+Cassava roots*	  | 	204.33	| 	…	  | …		| …		| …	|  375.90
+Gari – white	    | 	 12.40	| 	…	  | 	…	| 	…	| …	|   19.08
+Gari – yellow	    | 	 12.78	| 	…		|  …	| 	…	| …	|   22.98
+Yam flour	        | 	 23.31	| 	…	  | 	…	| …		| …	|   16.51
+Yam roots	        | 	134.97	| 	…	  | …		| …		| …	|   86.09
+Plantains	        | 	 15.05	| 	…	  | 	…	| …		| …	|   18.63
+
+* Do not use the cassava-root figures yet. The fufu/wrap coding issue means these need additional investigation.
+
+These numbers are not yet the final dataset; They're shown as a check that the calculation is working, and the numbers are reasonable.
+
+The magnitude of the yam and cassava numbers is plausible, but we need to investigate the coding before interpreting them as crop consumption.
+
+8. Intermediate food dictionary
+
+Rather than immediately producing a simple:
+
+crop | zone | kg/person/year
+-----|------|---------------
+
+dataset, we should construct an intermediate food dictionary.
+
+Something like:
+
+GHS code	| 	GHS description	| 	Crop 	Product	| 	Include?	| 	Notes
+----------|-------------------|-----------------|-------------|----------
+16	      | 	Maize flour		    | Maize	Flour	  | 	Yes		| 
+20	      | 	Maize unshelled		| Maize	Cob	    | 	Yes		| conversion needed for crop equivalent
+22	      | 	Maize shelled	    | Maize	Grain	  | 	Yes		| 
+30	      | 	Cassava roots	    | Cassava	Roots	|  Yes*		| inspect fufu descriptions
+18	      | 	Cassava flour	    | Cassava	Flour	| 	Yes		| 
+32	      | 	Gari white	      | Cassava	Gari	| 	Yes		| 
+33	      | 	Gari yellow	      | Cassava	Gari	| 	Yes		| 
+232	      | 	Akanu/Pap/Obi/Fufu| ?	Fufu	      | 	Yes  	| investigate composition
+234	      | 	Plantain flour	  | Plantain Flour|   Yes		| 
+31	      | 	Yam roots		      | Yam	Roots	    | 	Yes		| 
+17	      | 	Yam flour	        | Yam	Flour   	| 	Yes		| 
+
+This gives us a transparent classification that you can subsequently modify.
+
+9. And I think we should make the final dataset slightly richer
+
+I'd suggest the final output contain:
+
+- `zone`
+- `food_code`
+- `food_product`
+- `crop`
+- `product_type`
+- `households_consuming`
+- `kg_person_7day`
+- `kg_person_year`
+
+and perhaps:
+
+- `conversion_missing`
+
+and a flag for problematic/custom food descriptions.
+
+Then we can create a second aggregated table:
+
+- `zone`
+- `crop`
+- `kg_person_year`
+
+but only for products that genuinely can be aggregated without a processing conversion.
+
+For crop-equivalent consumption, we'll subsequently need a separate processing-conversion table.
+
+Since we now have the actual Wave 5 files, I would use the following as the first complete production script. It deliberately keeps the food-product calculation separate from any later crop-equivalent conversion.
+
+The script:
+
+- reads the three files;
+- constructs household size from the roster;
+- uses wt_cross_wave5;
+- uses the 7-day consumption quantity, not purchases;
+- converts reported quantities to kg using s5bq2_cvn;
+- annualises the 7-day quantity;
+- calculates population-weighted kg/person/year for each food product and geopolitical zone;
+- retains the item_cd_alt and item_os information;
+- creates a crop/product lookup;
+- flags unusual observations rather than silently discarding them;
+- writes CSV files that you can inspect in Excel.
+
+### State-level estimates
+
+State-level estimates are possible, technically calculable, but not entirely statistically reliable.
+
+The Wave 5 sample covers all 36 states plus FCT, and the survey documentation says the original GHS design allocated PSUs across all 37 state-level areas. The NBS catalogue confirms that state is available in the Wave 5 data with codes 1–37.
+
+The important caveat
+
+The number of sampled households varies considerably by state. For example, in one Wave 5 household-level file:
+
+- Abia: 2,997 observations
+- Bauchi: 2,553
+- Kaduna: 2,442
+- Lagos: 2,553
+- Nasarawa: only 222
+- Kebbi: 777
+- Sokoto: 666
+- Zamfara: 666
+
+The NBS catalogue shows all 37 areas and these substantial differences in sample size.
+
+So we should not simply calculate a state mean and assume that all 37 estimates are equally precise. But the survey weights make state estimates legitimate. The GHS is designed to produce estimates at the state level, and the household data contain the state identifier and survey weights. Therefore, for a state \(s\), we can calculate:
+
+$$ \text{kg/person/year}_{s} = \frac{ \sum_i w_i Q_i }{ \sum_i w_i H_i } $$
+
+where:
+
+\(Q_i\) = annualised kg consumed by household \(i\)
+\(H_i\) = household size
+\(w_i\) = Wave 5 cross-sectional household weight.
+
+So the same estimator we developed for the geopolitical zones can be applied to each of the 37 state-level areas.
+
+I would, however, add precision diagnostics
+
+For each state × food product, the output should include at least:
+
+State	| Product	| kg/person/year	| Sample households	| Consuming households
+------|---------|-----------------|-------------------|-------------------- 
+Nasarawa	| Maize flour	| X	 	|  ...	| 	...
+Nasarawa	| Gari white	| X		| ...	| 	...
+Kaduna	| Maize flour	| X		| ...	| 	...
+
+And ideally:
+
+- standard error
+- coefficient of variation (CV)
+- 95% confidence interval
+- unweighted number of households contributing to the estimate.
+
+That would allow us to flag estimates such as:
+
+Nasarawa — a particular food — 8.4 kg/person/year (CV 38%)
+
+as substantially less reliable than:
+
+Kaduna — same food — 9.1 kg/person/year (CV 8%).
+
+This is particularly important for relatively uncommon foods.
+
+There is another reason to be cautious. The food-consumption file contains 509,220 household × food observations, but those are repeated food records within only about 4,700 households. We cannot treat the 509,220 observations as independent observations when calculating uncertainty.
+
+For proper standard errors, we should account for the complex survey design — PSU, strata and weights.
+
+So the final R workflow should use the 'survey' package, rather than just 'dplyr', for the state-level estimates and confidence intervals.
+
+Instead of producing only:
+
+- `geopolitical_zone`
+- `food_product`
+- `kg_person_year`
+
+The main output should show:
+
+- `geopolitical_zone`
+- `state`
+- `food_code`
+- `food_product`
+- `crop`
+- `product_type`
+- `n_households`
+- `n_consuming`
+- `kg_person_year`
+- `se`
+- `cv`
+- `ci_lower`
+- `ci_upper`
+
+Then we can aggregate the state estimates to the six zones.
+That gives much more flexibility: state-level results for our analysis, while retaining the geopolitical-zone results.
+
+And because we have your actual Wave 5 files, I can revise the script to use the actual PSU/stratum variables in these files and calculate proper survey-weighted standard errors and confidence intervals, rather than just producing point estimates. That is the version I would recommend using for publication-quality state-level consumption estimates.
+
+I have also checked the structure of your Wave 5 files: `cluster` is a better PSU identifier than `ea`, because `ea` is reused across states. The script therefore uses:
+
+- Weight: wt_cross_wave5
+- PSU: cluster
+- Strata: strata
+- Denominator: weighted household members
+- Estimator: ratio of total annual food kg to total weighted population
+
+One important change from the previous script
+
+The key difference is that we arenot calculating a simple weighted average of household per-capita consumption. Instead, the state estimate is:
+
+$$ \frac{\text{weighted total kg consumed in the state}} {\text{weighted total population in the state}} $$
+
+and `svyratio()` estimates the corresponding sampling error using the GHS survey design.
+
+So, for example, the state result might look conceptually like:
+
+State	| Product	| kg/person/year	| SE	| 95% CI	| CV
+------|---------|-----------------|-----|----------|------
+Abia	| Maize - shelled	| 18.4	| 2.1	| 14.3–22.5	| 11.4%
+Adamawa	| Maize - shelled	| 42.7	| 5.8	| 31.3–54.1	| 13.6%
+...	| 	...		| ...		| ...	| 	...	| 	...
+
+The CV is particularly important for what we want to do. A state estimate of 35 kg/person/year with a CV of 8% is quite different, analytically, from one of 35 kg/person/year with a CV of 45%.
+
+Also, we need to verify the exact GHS Wave 5 survey-design variables and how NBS defines the PSU/strata. We shouldn't simply assume cluster/strata are correct just because they are available in the file. That affects the SEs and confidence intervals, although it does not affect the basic weighted point estimates.
+
+NBS's Wave 5 metadata confirms that the household cover file contains `ea`, `cluster`, `strata`, and `wt_cross_wave5`; importantly, NBS describes `strata` as “Original Strata (Zone)” and `wt_cross_wave5` as the Wave 5 cross-sectional weight. The survey interviewed 4,715 households across 518 EAs.
+
+I would check these things:
+
+* `cluster`
+  + Is each cluster associated with one EA?
+  + Is cluster unique within strata?
+  + How many households occur in each cluster?
+* `ea`
+  + Whether it is simply the EA identifier underlying cluster.
+  + Whether EA codes are unique nationally or only within another geographic identifier.
+* `strata`
+  + Confirm that the values correspond to the six geopolitical zones.
+  + Check the number of clusters/EAs per stratum.
+* `state`
+  + Number of sampled households per state.
+  + Number of PSUs per state.
+  + Particularly identify states with very few PSUs.
+* `wt_cross_wave5`
+  + Check that the weights are positive and non-missing.
+  + Check their distribution by state and zone.
+  + Check whether the weights sum approximately to the relevant population totals.
+  + Most importantly: compare the actual structure against the NBS documentation before specifying the `svydesign()` object.
+
+The resulting design might be:
+
+`svydesign(
+  ids = ~cluster,
+  strata = ~strata,
+  weights = ~wt_cross_wave5,
+  data = ...,
+  nest = TRUE
+)`
+
+One additional issue
+
+There is an important distinction between the survey design and whether state-level estimates are officially representative.
+
+NBS describes the GHS-Panel as nationally representative and its original sample as designed for national and zonal representation. So even if the correct variance design is cluster + strata + weight, we should still be cautious about calling every state-level estimate “state-representative.”
+
+What we can do is produce state estimates with:
+
+- weighted kg/person/year
+- standard error
+- 95% CI
+- CV
+- number of households
+- number of PSUs
+
+and then identify which state/product combinations have sufficient precision.
+
+Yes. I inspected the actual `secta_harvestw5.csv` you supplied and cross-checked it against the NBS/World Bank Wave 5 documentation. The results are useful because there are a couple of details that we should not have assumed.
+
+What I found
+
+Your household file has:
+
+- 4,771 households in total
+- 4,715 complete households, which agrees with NBS's published Wave 5 sample.
+- 37 state/FCT categories
+- 6 strata
+- `wt_cross_wave5` is the correct weight for our purpose: NBS explicitly defines it as the Wave 5 cross-sectional weight, intended for current-population estimates.
+- `strata` has exactly 6 values, corresponding to the six geopolitical zones.
+- `cluster` has 725 distinct values.
+- `ea` has only 398 distinct values, so ea is definitely not the identifier I would use directly as the PSU in this file.
+- `cluster` is the variable labelled by NBS as Original Cluster.
+
+So the basic survey design should indeed use:
+
+`ids = ~cluster
+strata = ~strata
+weights = ~wt_cross_wave5`
+
+There is one complication
+
+The data contain households that have moved since their original enumeration area was sampled. Consequently, `cluster` is not perfectly nested within `strata` or current state.
+
+For example, the actual data show some clusters appearing with more than one `strata` value, and one `cluster` (3706-0) appears across two states/zones.
+
+This makes nest = TRUE important. It tells survey to treat the PSU identifiers as nested within the supplied `strata` rather than assuming that the raw PSU labels are globally unique.
+
+So I would use:
+
+`design <- svydesign(
+  ids = ~cluster,
+  strata = ~strata,
+  weights = ~wt_cross_wave5,
+  data = data,
+  nest = TRUE
+)`
+
+I would not use `ea`.
+
+An important point about state estimates
+
+The NBS documentation gives us good reason to use the cross-sectional weight for state estimates: the Wave 5 cross-sectional weights were calibrated using 2023 official population projections for males and females in each state.
+
+However, the underlying GHS-Panel sample was designed primarily for national and zonal representativeness, not explicitly as a 37-state representative survey. NBS says the combined Wave 5 sample generally maintains national and zonal representativeness.
+
+Therefore I'd describe our results as:
+
+**State-level survey-weighted estimates from the GHS-Panel Wave 5**
+
+rather than automatically calling them "official state-representative estimates."
+
+This is particularly important for small samples. The actual number of complete households varies enormously:
+
+State	| 	Complete households
+------|---------------------- 
+Abia	| 	243
+Adamawa	| 	234
+Bauchi	| 	225
+Kaduna	| 	215
+...	| 	...
+Kebbi	| 	64
+Sokoto	| 	59
+Zamfara	| 	54
+Borno	| 	46
+Nasarawa	| 	24
+
+So the 24 households in Nasarawa are a very different situation from the 243 in Abia. This is exactly why calculating the survey-design SE and CV is worthwhile.
+
+One correction to my previous script
+
+I would therefore keep this:
+
+`design_food <- svydesign(
+  ids = ~cluster,
+  strata = ~strata,
+  weights = ~wt_cross_wave5,
+  data = food_hh,
+  nest = TRUE
+)`
+
+but I would not yet regard the previous state-estimation code as the final version.
+
+There is another methodological issue we should fix: when estimating a particular food at state level, we need to make sure that zero-consuming households are represented correctly in the survey design, while retaining the household-level PSU structure. The previous script's crossing() approach does this conceptually, but it creates a very large household × product dataset and needs to be handled carefully.
+
+I can now give you a revised complete script based specifically on the structure of your actual Wave 5 files, including:
+
+ - the verified cluster/strata design;
+ - tate and zone estimates;
+ - SE and 95% CI;
+ - CV and precision flags;
+ - actual state sample sizes and PSU counts;
+ - the food-product coding;
+ - proper treatment of zero consumption;
+ - output ready for the next stage where we map food products → crops.
+
+That would be the version I recommend using going forward
+
+The NBS metadata confirms that cluster is the Original Cluster, strata is Original Strata (Zone), and wt_cross_wave5 is the cross-sectional weight. NBS also states that this weight is intended for estimates of the current Nigerian population in 2023/24.
+
+One important correction to the earlier discussion: NBS reports 4,715 completed households across 518 EAs, whereas the cluster variable in the microdata can contain more identifiers than the number of EAs because of the way the panel/refresh structure and identifiers are represented.
+
+I would therefore proceed with the survey design using `cluster` as PSU, `strata` as strata, and `wt_cross_wave5` as weight, with nest = TRUE.
+
+The next version of the script should also avoid the unnecessarily large household × product crossing() dataset I used previously. We can calculate each product's household consumption and then add the zero-consumption households appropriately within each state/zone.
+
+The main improvement over the previous version is that it uses the full household survey design for domain estimates, rather than creating a separate survey design after subsetting to each state. This is important for getting the variance estimates right. NBS identifies `cluster` as the original cluster, `strata` as the original zone stratum, and `wt_cross_wave5` as the cross-sectional weight.
+
+It also uses the post-harvest food data, which is appropriate because NBS generally reports the most recent observation when information was collected in both visits.
+
+A couple of important points about this version
+
+1. The zero-consumption issue is now handled correctly.
+
+For every product, the script starts with all 4,715 households and attaches the amount consumed. Households with no consumption of that product get:
+
+kg_year = 0
+
+This is essential. Otherwise, the denominator would inadvertently consist only of households that consumed the food.
+
+2. The state estimates are domain estimates from the full survey design.
+
+The script does not simply subset the survey design to, say, Abia and then treat Abia as an independent survey. Instead, `svyby()` estimates the state domains while retaining the underlying cluster/strata structure.
+
+3. `wt_cross_wave5` is definitely the weight we want here.
+
+NBS says the cross-sectional weights are specifically intended for estimates representing the current population at Wave 5, and they were calibrated using 2023 population projections for males and females in each state.
+
+4. State-level precision is still the big issue.
+
+The survey's combined Wave 5 sample is designed to maintain national and zonal representativeness, rather than explicitly promising 37 independent state-representative samples.
+
+That's why we should keep the `n_psu`, `SE`, `CI` and `CV` columns. They let us distinguish a plausible state estimate from one that is simply too imprecise to use confidently.
+
+::: {.callout-caution title="Check the results"}
+Before we start converting food products into crops, we need to run the script and look specifically at state_sample and a few major products such as maize, cassava, rice and yam.
+
+There is then a very useful diagnostic we can do: compare the state-level estimates aggregated back to Nigeria against the corresponding national/zone estimates. That will tell us whether the weighting and state-domain calculations are behaving as expected before we build the crop-equivalent calculations on top of them.
+:::
+
+
+### Seasonal estimates
+
+The logic we are aiming for is essentially:
+
+GHS Wave 5 household consumption data → two survey periods/seasons → kg/person/year → state and zone estimates
+
+The important point is that the two seasonal estimates should be calculated from the appropriate GHS survey rounds, rather than simply splitting the existing annual estimate in half.
+
+The first script would produce three types of result:
+
+Output |	Meaning
+-------|-----------
+food_state_results |	Annualised food consumption by state
+food_zone_results |	Annualised food consumption by zone
+food_state_season_results / food_zone_season_results |	Consumption estimates separately for the two survey periods
+
+The seasonal estimates would retain the same basic calculation:
+
+kg_week = reported_quantity * GHS_conversion_factor
+
+then:
+
+kg_person_period =
+    survey-weighted household consumption
+    / household size
+
+and annualise each period appropriately.
+
+But there is an important distinction, we should not simply call the two periods "two seasons" yet. The GHS Panel has different agricultural survey rounds/components, and the post-planting and post-harvest visits are not necessarily interchangeable with the 7-day food-consumption module we have already been using.
+
+So we should structure the script to explicitly retain a variable such as:
+
+`survey_period`
+
+with values such as:
+
+"Post-Planting"
+"Post-Harvest"
+
+and only describe the resulting values as seasonal food-consumption estimates once we have confirmed exactly which food-consumption observations belong to each period.
+
+This is actually useful for our crop-equivalent work
+
+It would give us:
+
+
+                    GHS Wave 5
+                         |
+             -------------------------
+             |                       |
+       Post-Planting             Post-Harvest
+             |                       |
+       food consumption         food consumption
+             |                       |
+        state / zone             state / zone
+             |                       |
+             ----------- ------------
+                         |
+                 annual/combined
+                    estimate
+                         |
+                  crop conversion
+
+That would also let us investigate whether, for example, maize, sorghum, millet, cassava, yam or plantain consumption differs substantially between the two periods.
+
+The clean workflow should become:
+
+Script 1 — Food consumption
+
+ - GHS raw data
+ - post-planting/post-harvest identification
+ - survey weighting
+ - household-size adjustment
+ - seasonal estimates
+ - annual/overall estimates
+ - state results
+ - zone results
+
+↓
+
+Script 2 — Crop equivalents
+
+ - load state food results
+ - load zone food results
+ - apply crop conversion lookup
+ - state crop equivalents
+ - zone crop equivalents
+
+That keeps the crop-conversion research independent of the survey-estimation methodology.
+
+The key change is that the script now uses both Wave 5 visits:
+
+- Post-Planting: July–September 2023
+- Post-Harvest: January–March 2024
+
+NBS confirms that Wave 5 households were visited twice and that food consumption was collected in both visits. The post-planting food module is Section 6B (`sect6b_plantingw5`), analogous to the post-harvest Section 5B (`sect5b_harvestw5`) used in our original script.
+
+What changed
+
+Our original script calculates the post-harvest 7-day quantity and annualizes it using 365/7.
+
+The revised script now:
+
+1. Reads the additional GHS input files:
+
+- `secta_plantingw5.csv`
+- `sect1_plantingw5.csv`
+- `sect6b_plantingw5.csv`
+
+2. Calculates post-planting household size separately, because the roster can differ between visits.
+
+3. Uses the same survey design for both visits:
+
+- PSU = `cluster`
+- strata = `strata`
+- weight = `wt_cross_wave5`
+
+4. Calculates:
+
+- Post-Planting kg/person/week
+- Post-Harvest kg/person/week
+
+an annualized equivalent of each weekly rate for convenient comparison.
+
+5. Does not treat the two seasonal observations as halves of an annual total. This is important. Each is a 7-day observation representing consumption during that particular survey period.
+
+6. Produces a direct seasonal comparison:
+ - post-harvest minus post-planting
+ - post-harvest / post-planting
+ 
+7. Leaves our existing post-harvest annual state and zone outputs intact.
+
+8. Produces new output files
+
+**In addition** to our existing outputs, the revised script creates:
+
+ - `GHS_wave5_food_consumption_state_seasonal.csv`
+ - `GHS_wave5_food_consumption_zone_seasonal.csv`
+ - `GHS_wave5_food_consumption_state_seasonal_comparison.csv`
+ - `GHS_wave5_food_consumption_zone_seasonal_comparison.csv`
+
+So, for example, the state seasonal comparison will have roughly:
+
+state	| product	| Post-Planting	| Post-Harvest	| Difference	| Ratio
+------|---------|---------------|---------------|-------------|---------
+State X	| Maize	| kg/person/week	| kg/person/week	| PH − PP	| PH / PP
+State X	| Cassava roots	| 	...		| ...		| ...		| ...
+
+This is particularly useful for our later crop-equivalent analysis because we can now see whether the crop/product consumption pattern changes between the planting and harvest periods, rather than relying only on the post-harvest observation.
+
+### Food product to crop conversion
+
