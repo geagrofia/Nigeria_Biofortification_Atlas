@@ -1,0 +1,33 @@
+product,crop,factor_low,factor_mid,factor_high,status,basis,source,source_url,notes
+Guinea corn / sorghum,Sorghum,1,1,1,provisional,direct grain,GHS item: Guinea corn / sorghum,NA,Direct grain product.
+Millet,Millet,1,1,1,provisional,direct grain,GHS item: Millet,NA,Direct grain product.
+Rice - local,Rice,1,1,1,provisional,direct milled product,GHS item: Rice - local,NA,Treated as rice as consumed.
+Rice - imported,Rice,1,1,1,provisional,direct milled product,GHS item: Rice - imported,NA,Treated as rice as consumed.
+Maize flour,Maize,1.05,1.14,1.25,provisional,maize flour extraction,FAO — Quantification of Root Crops in National Food Balance Sheets,https://www.fao.org/4/y9422e/y9422e04.htm,Maize meal extraction approximately 80–95%.
+Maize - unshelled/on cob,Maize,NA,NA,NA,research,on-cob to grain conversion,Further literature required,NA,Requires shelling/grain recovery factor.
+Maize - shelled/off cob,Maize,1,1,1,provisional,direct grain,GHS item: Maize - shelled/off cob,NA,Direct maize grain.
+Yam flour,Yam,NA,NA,NA,research,yam flour conversion,Further literature required,NA,Requires conversion from yam flour to fresh yam equivalent.
+Cassava flour,Cassava,NA,NA,NA,research,cassava flour conversion,Further literature required,NA,Requires conversion from cassava flour to appropriate cassava basis.
+Cassava roots,Cassava,1,1,1,provisional,direct roots,GHS item: Cassava roots,NA,Check GHS free-text units for prepared fufu/wrapped products.
+Yam roots,Yam,1,1,1,provisional,direct roots,GHS item: Yam roots,NA,Direct yam roots.
+Gari - white,Cassava,3.5,4.5,6,provisional,gari to fresh cassava,FAO — cassava processing literature,https://www.fao.org/4/x5458e/x5458e05.htm,Highly variable processing yield.
+Gari - yellow,Cassava,3.5,4.5,6,provisional,gari to fresh cassava,FAO — cassava processing literature,https://www.fao.org/4/x5458e/x5458e05.htm,Highly variable processing yield.
+Cocoyam,Cocoyam,1,1,1,provisional,direct roots,GHS item: Cocoyam,NA,Direct crop product.
+Plantains,Plantain,1,1,1,provisional,direct crop product,GHS item: Plantains,NA,Direct crop product.
+Sweet potatoes,Sweet potato,1,1,1,provisional,direct roots,GHS item: Sweet potatoes,NA,Direct crop product.
+Potatoes,Potato,1,1,1,provisional,direct roots,GHS item: Potatoes,NA,Direct crop product.
+Soya beans,Soybean,1,1,1,provisional,direct grain,GHS item: Soya beans,NA,Direct soybean grain.
+Brown beans,Cowpea,1,1,1,provisional,direct dry grain,GHS item: Brown beans,NA,Brown beans treated as cowpea.
+White beans,Cowpea,1,1,1,provisional,direct dry grain,GHS item: White beans,NA,White beans treated as cowpea.
+Groundnuts - unshelled,Groundnut,NA,NA,NA,research,unshelled to shelled conversion,Further literature required,NA,Requires shelling/outturn factor.
+Groundnuts - shelled,Groundnut,1,1,1,provisional,direct kernel,GHS item: Groundnuts - shelled,NA,Direct groundnut kernel.
+Palm oil,Oil palm,NA,NA,NA,research,palm oil to crop conversion,Further literature required,NA,Need to define crop endpoint.
+Groundnut oil,Groundnut,NA,NA,NA,research,groundnut oil to crop conversion,Further literature required,NA,Requires oil extraction rate.
+Wheat flour,Wheat,1.18,1.32,1.39,provisional,wheat flour extraction,FAO — Cereals,https://www.fao.org/4/X5557E/x5557e04.htm,Wheat flour extraction approximately 72–85%.
+Bread,Wheat,NA,NA,NA,research,bread recipe,Further literature required,NA,Requires wheat flour proportion.
+Cake,Wheat,NA,NA,NA,research,cake recipe,Further literature required,NA,Requires wheat flour proportion.
+Buns/Pofpof/Donuts,Wheat,NA,NA,NA,research,recipe conversion,Further literature required,NA,Requires wheat flour proportion.
+Biscuits,Wheat,NA,NA,NA,research,recipe conversion,Further literature required,NA,Requires wheat flour proportion.
+Meat pie/Sausage roll,Wheat,NA,NA,NA,research,recipe conversion,Further literature required,NA,Requires wheat flour proportion.
+Tomato puree - canned,Tomato,NA,NA,NA,research,tomato puree conversion,Further literature required,NA,Requires tomato solids/yield conversion.
+Sugar,Sugar,NA,NA,NA,research,sugar to sugarcane,Further literature required,NA,Requires sugar recovery from sugarcane.
