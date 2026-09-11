@@ -5865,5 +5865,1119 @@ State X	| Cassava roots	| 	...		| ...		| ...		| ...
 
 This is particularly useful for our later crop-equivalent analysis because we can now see whether the crop/product consumption pattern changes between the planting and harvest periods, rather than relying only on the post-harvest observation.
 
+For our purposes it is important to have an idea of the whole year, so it is beneficial to merge the two survey periods, as an extra indicator. Our objective is to get an idea of food availability/consumption over a typical year by Nigerian state and zone, rather than to study seasonal consumption itself.
+
+The two visits give us useful information about seasonal variation. NBS actually finds meaningful differences between the two visits for several food groups, so simply using the post-harvest observation could potentially over- or under-estimate the yearly picture.
+
+We should describe this as a two-season annualised estimate, rather than claiming that the survey directly measured each household's consumption over all 365 days. Each visit measures consumption during the previous seven days. The annual figure is therefore an extrapolation from the two seasonal observations.
+
+That distinction is actually useful in our methodology: it makes the calculation transparent while giving us a more plausible whole-year indicator than relying exclusively on the January–March post-harvest visit.
+
+We will not replace the post-harvest annualised estimate. Instead, we would have three related measures:
+
+Post-planting estimate — consumption rate observed in July–September 2023.
+Post-harvest estimate — consumption rate observed in January–March 2024.
+Combined annual estimate — an estimate intended to approximate the average consumption over the full year by combining the two seasonal observations.
+
+This is well motivated by the survey design: Wave 5 deliberately visited households twice, specifically post-planting and post-harvest, and NBS reports food consumption separately for the two periods.
+
+For each state × food product:
+
+$$ C_{\text{annual}} = \frac{C_{\text{planting}} + C_{\text{harvest}}}{2} \times \frac{365}{7} $$
+
+where each \(C\) is the survey-weighted kg/person/week estimate.
+
+So, for example, if a state had:
+
+Post-planting maize = 0.50 kg/person/week
+Post-harvest maize = 0.70 kg/person/week
+
+then:
+
+$$ \frac{0.50+0.70}{2}=0.60 $$
+
+and:
+
+$$ 0.60\times52.14=31.3\text{ kg/person/year} $$
+
+
+
+
 ### Food product to crop conversion
 
+I have the state and zone kg per person per year for each food product. I now need to convert the different food products into a crop equivalent. The important thing is to be able to compare states or zones, this is more important for my case than comparing different crops
+
+I am particularly interested in: cassava, maize, wheat, cowpea (brown beans and white beans in the GHS survey), sorghum, rice, bananas, plantains, millet, and sweet potato
+
+a useful combination of FAO literature, Nigerian studies, and a Nigerian source reproducing the NISER/FAO conversion table. There is an important methodological point, though: the literature contains two different kinds of conversion factors, and we should not mix them.
+
+The two types of factor
+Processing/extraction factor
+Converts a processed food back to the underlying crop, e.g. kg gari → kg fresh cassava roots.
+Grain-equivalent factor
+Converts different commodities to a common grain-equivalent basis. For example, the Nigerian NISER table gives cassava = 0.30, plantain = 0.21, beans = 0.96, etc.
+
+For your purpose—comparing states/zones for individual crops—I strongly prefer type 1. We don't want to turn cassava and maize into a common "grain" unit. We want, for example, cassava products → cassava equivalent, maize products → maize equivalent, etc.
+
+1. Cassava — strongest evidence
+
+This is probably the crop for which we can establish the best factor.
+
+FAO reports that the traditional conversion of fresh cassava roots into gari is around 15–20%, i.e. 100 kg fresh roots produces approximately 15–20 kg gari.
+
+Another FAO/IITA source gives:
+
+traditional processing: 12 kg gari / 100 kg fresh roots
+improved processing: 14 kg gari / 100 kg fresh roots.
+
+A more recent study involving processors in Benue and Oyo States in Nigeria, as well as Benin, found substantially greater yields in some circumstances: average fresh roots required per tonne of gari were 12.9 t at NRCRI, 7.0 t in Benin and 5.1 t at IITA/Osun.
+
+A separate Nigerian study reported an average of 12.5 kg gari from 50 kg unpeeled roots, i.e. about 25%, with previous studies reporting approximately 22–26%.
+
+My recommendation
+
+For your state comparison I'd use:
+
+Gari → fresh cassava roots: 4.0 ×
+
+with a sensitivity range of approximately:
+
+3.5–6.0 ×
+
+This is deliberately broader than one particular study because cassava dry matter, variety and processing technology cause substantial variation.
+
+For cassava flour, FAO gives a much more stable dry-cassava extraction rate of 75–80%, meaning approximately:
+
+1 kg dry cassava → 0.775 kg flour
+
+or:
+
+1 kg cassava flour ≈ 1.29 kg dry cassava
+
+However, that's dry cassava, not fresh roots. FAO also gives wet cassava flour extraction of only 25–33%.
+
+So I would not convert cassava flour directly to fresh cassava roots without introducing a separate dry-matter assumption.
+
+2. Maize
+
+For maize flour/meal, FAO/SADC gives an extraction range of 80–95%.
+
+That means:
+
+1 kg maize grain → 0.80–0.95 kg maize meal/flour
+
+Therefore:
+
+1 kg maize flour → approximately 1.05–1.25 kg maize grain
+
+A sensible central value would be about:
+
+1.14 kg maize grain / kg maize flour
+
+FAO's broader cereal literature also gives an extraction factor of 0.56 for maize when the derived product is corn meal in a particular food-energy comparison framework, but I would not use that for your purpose, because it represents a different standardization basis.
+
+Maize on cob
+
+This is more complicated.
+
+Your GHS has:
+
+Maize - unshelled/on cob
+
+and
+
+Maize - shelled/off cob.
+
+The former includes the cob, so it should not be treated as 1 kg grain.
+
+I would definitely create a separate factor for this rather than simply using 1.0.
+
+3. Wheat
+
+FAO/SADC gives wheat flour extraction of 72–80%.
+
+Thus:
+
+1 kg wheat flour ≈ 1.25–1.39 kg wheat grain
+
+A sensible central value is approximately:
+
+1.32 kg wheat grain / kg wheat flour
+
+FAO's rice/nutrition work gives a white-wheat-flour extraction factor of 0.73, which is consistent with this general range.
+
+Bread is different
+
+We shouldn't simply apply the flour factor to bread.
+
+Bread contains substantial water. FAO's international food-balance composition table gives approximately:
+
+wheat: 334 kcal/100 g
+wheat flour: 364 kcal/100 g
+bread: 249 kcal/100 g.
+
+So we need a bread → wheat grain factor, rather than treating bread as flour.
+
+I'd suggest we derive this using a standardized bread recipe/composition rather than guessing.
+
+The same applies to:
+
+cake
+buns/pofpof/donuts
+biscuits
+meat pie/sausage roll.
+
+These are potentially important because bread consumption varies strongly between Nigerian zones. The Nigerian literature confirms bread is one of the major household carbohydrate foods.
+
+4. Cowpea — brown and white beans
+
+This is actually much easier.
+
+I would combine:
+
+Brown beans
+White beans
+
+into:
+
+Cowpea
+
+provided these GHS categories correspond to cowpea, which is how I would interpret the Nigerian food classification.
+
+The important point is that dry cowpea grain is already essentially the crop product.
+
+There is no need for a major processing conversion unless the survey item represents flour or another processed product.
+
+A recent milling study found cowpea flour yields around 86%, with another cited study reporting about 90%.
+
+But your GHS products are:
+
+Brown beans
+White beans
+
+rather than cowpea flour.
+
+So for the household consumption quantities you have, I would use:
+
+Brown beans → cowpea = 1.00
+
+White beans → cowpea = 1.00
+
+This is preferable to using the NISER grain-equivalent factor of 0.96, because the latter is intended for a different standardization purpose.
+
+5. Sorghum
+
+FAO/SADC gives sorghum flour extraction of approximately:
+
+80–95%.
+
+Thus:
+
+1 kg sorghum flour ≈ 1.05–1.25 kg sorghum grain
+
+Central value:
+
+~1.14
+
+There is also more detailed FAO literature showing sorghum flour extraction rates around 72–80% for finer flour intended for bread.
+
+So I'd use approximately:
+
+1.15 kg sorghum grain / kg sorghum flour
+
+with a reasonable sensitivity range of about 1.05–1.30.
+
+For your Guinea corn / sorghum item, which is already grain, use 1.00.
+
+6. Millet
+
+FAO/SADC gives millet flour extraction of:
+
+80–95%.
+
+So:
+
+1 kg millet flour ≈ 1.05–1.25 kg millet grain
+
+A separate FAO example of an actual food-balance calculation uses a millet flour extraction rate of 70%, demonstrating that the factor can vary substantially depending on the type of milling/product being represented.
+
+However, your GHS item is simply:
+
+Millet
+
+so we don't actually need a conversion factor unless your quantity represents a processed millet product.
+
+I'd use:
+
+Millet → millet = 1.00
+
+for the GHS item as currently defined.
+
+7. Rice
+
+This one requires knowing whether your GHS quantity represents milled rice, which I believe it does.
+
+The GHS has:
+
+Rice – local
+Rice – imported
+
+These should both be classified as:
+
+Rice
+
+but there is a question about whether we want:
+
+kg consumed as milled rice
+
+or
+
+kg paddy required to produce that rice.
+
+IRRI reports typical milling recovery from paddy of:
+
+laboratory: 68–72%
+modern multi-stage mill: 65–70%
+village mills: 50–55%.
+
+A Nigerian study of four rice varieties found milling recovery of 65.3–68.33%.
+
+So if we want paddy equivalent, a reasonable factor is:
+
+1 kg milled rice ≈ 1.50 kg paddy
+
+using ~67% recovery.
+
+But if the objective is simply rice consumption by state, I think there is a strong argument for leaving rice as:
+
+1 kg consumed rice = 1 kg rice equivalent
+
+and not introducing a paddy conversion at all.
+
+That avoids mixing "milled rice equivalent" with "fresh cassava equivalent."
+
+8. Banana
+
+Your GHS has:
+
+Bananas
+
+This is essentially a direct crop product.
+
+I would therefore use:
+
+Banana = 1.00
+
+There is no processing conversion needed unless you subsequently identify banana flour or processed banana products.
+
+9. Plantain
+
+Likewise:
+
+Plantains → Plantain
+
+should initially be:
+
+1.00
+
+There is an important caveat concerning edible portion.
+
+The West African food-composition literature reports an edible conversion factor of about 0.65 for raw ripe plantain, reflecting the peel.
+
+But your GHS conversion factor is converting the reported household unit into kg of the reported food product. If the reported quantity is the whole plantain rather than edible pulp, we need to know how NBS defines the conversion.
+
+So I would not automatically apply 0.65. That would potentially double-count the conversion already embedded in the GHS unit conversion.
+
+This is an important distinction throughout this exercise.
+
+10. Sweet potato
+
+Your GHS item:
+
+Sweet potatoes
+
+is already the crop/root product.
+
+So:
+
+Sweet potato = 1.00
+
+Again, I would not use the NISER/FAO 0.30 grain-equivalent factor. That factor is for converting the crop into a common grain-equivalent system, not converting a processed sweet-potato product back into sweet potato.
+
+What I think our initial conversion table should look like
+
+For your actual analysis, I would therefore start with:
+
+GHS product	Crop	Initial factor	Confidence
+Guinea corn / sorghum	Sorghum	1.00	High
+Millet	Millet	1.00	High
+Rice – local	Rice	1.00	High*
+Rice – imported	Rice	1.00	High*
+Maize flour	Maize	~1.14	Medium
+Maize – shelled/off cob	Maize	1.00	High
+Maize – unshelled/on cob	Maize	TBD	Medium
+Wheat flour	Wheat	~1.32	High
+Bread	Wheat	TBD	Medium
+Cake	Wheat	TBD	Low/medium
+Buns/Pofpof/Donuts	Wheat	TBD	Low/medium
+Biscuits	Wheat	TBD	Medium
+Meat pie/Sausage roll	Wheat	TBD	Low
+Cassava roots	Cassava	1.00	High
+Cassava flour	Cassava	TBD	Medium
+Gari – white	Cassava	~4.0	Medium
+Gari – yellow	Cassava	~4.0	Medium
+Brown beans	Cowpea	1.00	High
+White beans	Cowpea	1.00	High
+Plantains	Plantain	1.00	High
+Bananas	Banana	1.00	High
+Sweet potatoes	Sweet potato	1.00	High
+
+*Assuming you want milled-rice consumption equivalent, rather than paddy equivalent.
+
+A working R script rather than just a narrative worksheet, so you can add evidence and revise factors as you search.
+
+I have consolidated what we have established so far below. I have also separated confirmed factors, provisional factors, and factors still requiring investigation. That distinction will be important later when we do the sensitivity analysis.
+
+The main sources currently include FAO's cereal extraction tables, FAO's cassava-processing material, IRRI's rice-milling data, and FAO technical conversion-factor material. For example, FAO gives wheat flour extraction rates of 72–85% depending on flour type, and lists sorghum and millet at about 90%; IRRI reports typical milled-rice recovery of 65–70% in modern mills and 68–72% under laboratory conditions.
+
+FAO's detailed cassava processing example gives 22 kg gari from 100 kg fresh unwashed roots, while its broader African review gives a traditional gari conversion rate of 15–20%.
+
+Since you've already got the state and zone food estimates, I would not put the literature sources into the analysis data itself. I'd keep a separate, carefully documented conversion_lookup containing:
+
+item_cd
+product
+crop
+factor_low
+factor_mid
+factor_high
+factor_basis
+source
+source_country
+processing_method
+notes
+
+Then your actual results remain very clean.
+
+This also means that when you find a better Nigerian estimate for, say, gari, you only change one row in the lookup, rerun the conversion, and all your state and zone results update automatically.
+
+this script does not touch the household-level GHS data at all. It treats food_results as the starting point and preserves your original kg_person_year values while creating separate crop-equivalent outputs.
+
+Since the original workflow already produces two distinct objects, I would keep them separate throughout the conversion script.
+
+The structure would be:
+
+Load food_state_results
+Load food_zone_results
+Define the conversion lookup once
+State section
+join conversion factors
+calculate crop equivalents
+aggregate by state/crop
+produce state output
+Zone section
+join the same conversion factors
+calculate crop equivalents
+aggregate by zone/crop
+produce zone output
+Export the two results separately
+
+That has several advantages:
+
+It mirrors your existing analysis.
+You can easily inspect state and zone results independently.
+It avoids accidentally mixing state and zone in a single pipeline.
+The same conversion lookup is applied consistently to both.
+Later, if the state and zone files have slightly different column structures, the two sections can be adjusted independently.
+
+standalone script with two input files, one shared conversion lookup, and two completely separate processing sections. I’ve also kept the conversion factors that still need research as NA, so the script will not silently introduce arbitrary assumptions.
+
+One small but important point: the conversion_lookup.csv produced by this script is intended to become your research worksheet. As you find better Nigerian-specific factors, you can replace the provisional NA/ranges there and rerun the script without changing the state- or zone-level analysis.
+
+## Map the state consumption estimates
+
+### Load the consumption estimates
+
+```{r}
+#| label: GHS_crop_consumption_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_crop_state <- read.csv("tab_data/GHS food per capita outputs/crop_state_results.csv")
+df_GHS_crop_state <- df_GHS_crop_state |>
+  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
+
+# change name to match states dataset
+df_GHS_crop_state['state'][df_GHS_crop_state['state'] == "FCT"] <- "Federal Capital Territory"
+
+df_GHS_crop_state$state <- as.factor(df_GHS_crop_state$state) 
+
+cat(paste(levels(df_GHS_crop_state$state), "; ")) # Check levels
+
+df_GHS_crop_zone <- read.csv("tab_data/GHS food per capita outputs/crop_zone_results.csv")
+
+df_GHS_crop_zone <- df_GHS_crop_zone |>
+  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
+
+df_GHS_crop_zone$zone <- as.factor(df_GHS_crop_zone$zone) 
+
+cat(paste(levels(df_GHS_crop_zone$zone), "; ")) # Check levels
+
+```
+
+
+### Join to States dataset
+
+```{r}
+#| label: GHS_crop_consumption_state_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_GHS_crop <- dplyr::left_join(vect_state_geo, df_GHS_crop_state, by = c("adm1_ref_name" = "state"))
+
+vect_state_geo_GHS_crop |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "GHS crop consumption zone summary",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+### Join to Zone dataset
+
+```{r}
+#| label: GHS_crop_consumption_zone_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_gpz_geo_GHS_crop <- dplyr::left_join(vect_gpz_geo, df_GHS_crop_zone, by = c("geopolitical_zone" = "zone"))
+
+vect_gpz_geo_GHS_crop |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    caption = "GHS crop consumption zone summary",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+### Plot the States results
+
+#### Cassava consumption
+
+```{r}
+#| label: GHS_2023_24_state_cassava_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cassava")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Cocoyam (Taro) consumption
+
+```{r}
+#| label: GHS_2023_24_state_cocoyam_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cocoyam")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cocoyam kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Cowpea consumption
+
+```{r}
+#| label: GHS_2023_24_state_cowpea_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cowpea")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 30),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+#### Maize consumption
+
+```{r}
+#| label: GHS_2023_24_state_maize_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Maize")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Millet consumption
+
+```{r}
+#| label: GHS_2023_24_state_millet_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Millet")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Millet kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Potato consumption
+
+```{r}
+#| label: GHS_2023_24_state_potato_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Potato")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Plantain consumption
+
+```{r}
+#| label: GHS_2023_24_state_plantain_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Plantain")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 40),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+#### Rice consumption
+
+```{r}
+#| label: GHS_2023_24_state_rice_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Rice")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Sorghum consumption
+
+```{r}
+#| label: GHS_2023_24_state_sorghum_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sorghum")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Sweet Potato consumption
+
+```{r}
+#| label: GHS_2023_24_state_sweet_potato_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sweet potato")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 15),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+### Plot the Zones results
+
+#### Cassava consumption
+
+```{r}
+#| label: GHS_2023_24_zone_cassava_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cassava")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Cocoyam (Taro) consumption
+
+```{r}
+#| label: GHS_2023_24_zone_cocoyam_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cocoyam")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cocoyam kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Cowpea consumption
+
+```{r}
+#| label: GHS_2023_24_zone_cowpea_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cowpea")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 30),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+#### Maize consumption
+
+```{r}
+#| label: GHS_2023_24_zone_maize_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Maize")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Millet consumption
+
+```{r}
+#| label: GHS_2023_24_zone_millet_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Millet")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Millet kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Potato consumption
+
+```{r}
+#| label: GHS_2023_24_zone_potato_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Potato")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Plantain consumption
+
+```{r}
+#| label: GHS_2023_24_zone_plantain_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Plantain")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 40),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+#### Rice consumption
+
+```{r}
+#| label: GHS_2023_24_zone_rice_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Rice")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Sorghum consumption
+
+```{r}
+#| label: GHS_2023_24_zone_sorghum_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sorghum")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+#### Sweet Potato consumption
+
+```{r}
+#| label: GHS_2023_24_zone_sweet_potato_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sweet potato")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 15),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
