@@ -29,6 +29,7 @@ library(readODS)
 library(kableExtra)
 library(DT)
 library(geojsonsf)
+library(survey)
 
 ```
 # Household level GHS data
@@ -373,12 +374,12 @@ Those households are removed to leave a consistent set of 4,715 households from 
 
 # ----1. post planting survey ----
 
-df_hh_analysis_pp <- df_GHS_secta_plantingw5 %>%
+df_hh_analysis_pp <- df_GHS_secta_plantingw5 |>
   filter(
     interview_result == "1. COMPLETE",
     !is.na(wt_cross_wave5),
     wt_cross_wave5 > 0
-  ) %>%
+  ) |>
   select(
     hhid,
     zone,
@@ -389,11 +390,11 @@ df_hh_analysis_pp <- df_GHS_secta_plantingw5 %>%
     cluster,
     strata,
     wt_cross_wave5
-  ) %>%
+  ) |>
   left_join(
     select(df_hh_size_pp, -c(zone, state)),
     by = "hhid"
-  ) %>%
+  ) |>
   filter(
     !is.na(hh_size),
     hh_size > 0
@@ -401,12 +402,12 @@ df_hh_analysis_pp <- df_GHS_secta_plantingw5 %>%
 
 # ----2. post harvest survey ----
 
-df_hh_analysis_ph <- df_GHS_secta_harvestw5 %>%
+df_hh_analysis_ph <- df_GHS_secta_harvestw5 |>
   filter(
     interview_result == "1. COMPLETE",
     !is.na(wt_cross_wave5),
     wt_cross_wave5 > 0
-  ) %>%
+  ) |>
   select(
     hhid,
     zone,
@@ -417,11 +418,11 @@ df_hh_analysis_ph <- df_GHS_secta_harvestw5 %>%
     cluster,
     strata,
     wt_cross_wave5
-  ) %>%
+  ) |>
   left_join(
     select(df_hh_size_ph, -c(zone, state)),
     by = "hhid"
-  ) %>%
+  ) |>
   filter(
     !is.na(hh_size),
     hh_size > 0
@@ -444,7 +445,25 @@ zone_sample_analysis_pp <- df_hh_analysis_pp |>
     zone
   ) |>
   summarise(
-    n_households_pp = n(),
+    n_households = n(),
+    n_psu = n_distinct(cluster),
+    weighted_population = sum(
+      wt_cross_wave5 * hh_size,
+      na.rm = TRUE
+    ),
+    median_household_size = median(
+      hh_size,
+      na.rm = TRUE
+    ),
+    mean_household_size = weighted.mean(
+      hh_size,
+      wt_cross_wave5,
+      na.rm = TRUE
+    ),
+    max_household_size = max(
+      hh_size,
+      na.rm = TRUE
+    ),
     .groups = "drop"
   ) |>
   arrange(zone)
@@ -455,9 +474,27 @@ state_sample_analysis_pp <- df_hh_analysis_pp |>
     state
   ) |>
   summarise(
-    n_households_pp = n(),
+    n_households = n(),
+    n_psu = n_distinct(cluster),
+    weighted_population = sum(
+      wt_cross_wave5 * hh_size,
+      na.rm = TRUE
+    ),
+    median_household_size = median(
+      hh_size,
+      na.rm = TRUE
+    ),
+    mean_household_size = weighted.mean(
+      hh_size,
+      wt_cross_wave5,
+      na.rm = TRUE
+    ),
+    max_household_size = max(
+      hh_size,
+      na.rm = TRUE
+    ),
     .groups = "drop"
-  ) |> 
+  ) |>
   arrange(zone, state)
 
 # ----2. post harvest survey ----
@@ -467,7 +504,25 @@ zone_sample_analysis_ph <- df_hh_analysis_ph |>
     zone
   ) |>
   summarise(
-    n_households_ph = n(),
+    n_households = n(),
+    n_psu = n_distinct(cluster),
+    weighted_population = sum(
+      wt_cross_wave5 * hh_size,
+      na.rm = TRUE
+    ),
+    median_household_size = median(
+      hh_size,
+      na.rm = TRUE
+    ),
+    mean_household_size = weighted.mean(
+      hh_size,
+      wt_cross_wave5,
+      na.rm = TRUE
+    ),
+    max_household_size = max(
+      hh_size,
+      na.rm = TRUE
+    ),
     .groups = "drop"
   ) |>
   arrange(zone)
@@ -478,7 +533,25 @@ state_sample_analysis_ph <- df_hh_analysis_ph |>
     state
   ) |>
   summarise(
-    n_households_ph = n(),
+    n_households = n(),
+    n_psu = n_distinct(cluster),
+    weighted_population = sum(
+      wt_cross_wave5 * hh_size,
+      na.rm = TRUE
+    ),
+    median_household_size = median(
+      hh_size,
+      na.rm = TRUE
+    ),
+    mean_household_size = weighted.mean(
+      hh_size,
+      wt_cross_wave5,
+      na.rm = TRUE
+    ),
+    max_household_size = max(
+      hh_size,
+      na.rm = TRUE
+    ),
     .groups = "drop"
   ) |>
   arrange(zone, state)
@@ -497,11 +570,17 @@ The pattern of the distribution of households among the zones is similar to the 
 #| tab-cap: "hh_analysis_zone"
 
 zone_sample_analysis <- zone_sample_analysis_pp |> left_join(zone_sample_analysis_ph, by = "zone")
-
-zone_sample_analysis |> 
+  
+zone_sample_analysis[, c(1,2,8,3,9,4,10,5,11,6,12,7,13)] |> 
+  mutate(
+    weighted_population.x = prettyunits::pretty_round(weighted_population.x, digits = 0),
+    weighted_population.y = prettyunits::pretty_round(weighted_population.y, digits = 0),
+    mean_household_size.x = prettyunits::pretty_round(mean_household_size.x, digits = 1),
+    mean_household_size.y = prettyunits::pretty_round(mean_household_size.y, digits = 1)
+  )|>
   DT::datatable(
     rownames = F,
-    colnames=c("Zone", "# of households (post planting survey)", "# of households (post harvest survey)"),
+    colnames=c("Zone", "# of households (post planting survey)", "# of households (post harvest survey)","# of clusters (post planting survey)","# of clusters (post harvest survey)","weighted population (post planting survey)","weighted population (post harvest survey)","median household size (post planting survey)","median household size (post harvest survey)","mean household size (post planting survey)","mean household size (post harvest survey)","max household size (post planting survey)","max household size (post harvest survey)"),
     caption = "Households per zone",
     selection = list(mode = "none"),
     editable = FALSE,
@@ -530,191 +609,197 @@ At the state level the changes are greater, especially for the post planting sur
 
 state_sample_analysis <- state_sample_analysis_pp |> left_join(select(state_sample_analysis_ph, -zone), by = "state")
 
-state_sample_analysis |> 
+state_sample_analysis[, c(1,2,3,9,4,10,5,11,6,12,7,13,8,14)] |> 
+  mutate(
+    weighted_population.x = prettyunits::pretty_round(weighted_population.x, digits = 0),
+    weighted_population.y = prettyunits::pretty_round(weighted_population.y, digits = 0),
+    mean_household_size.x = prettyunits::pretty_round(mean_household_size.x, digits = 1),
+    mean_household_size.y = prettyunits::pretty_round(mean_household_size.y, digits = 1)
+  )|>
   DT::datatable(
     rownames = F,
-    colnames=c("Zone", "State", "# of households (post planting survey)", "# of households (post harvest survey)"),
+    colnames=c("Zone", "State","# of households (post planting survey)", "# of households (post harvest survey)","# of clusters (post planting survey)","# of clusters (post harvest survey)","weighted population (post planting survey)","weighted population (post harvest survey)","median household size (post planting survey)","median household size (post harvest survey)","mean household size (post planting survey)","mean household size (post harvest survey)","max household size (post planting survey)","max household size (post harvest survey)"),
     caption = "Households per state",
     selection = list(mode = "none"),
     editable = FALSE,
     options = list(
-      order = list(list(0, 'asc'), list(2, 'asc')),
       digits = 0,
       scrollX = TRUE,
       scrollCollapse = TRUE,
-      #autoWidth = TRUE,
+      # autoWidth = TRUE,
       fixedColumns = list(leftColumns = 2),
       lengthMenu = c(15, 40),
       pageLength = 15
     ))
-```
-
-```{r}
-#| label: GHS_roster_data_analysis
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-
-# ----1. post planting household size----
-
-
-# filter the roster using the valid hh_analysis hhid
-
-df_hh_analysis_size_pp <- df_hh_size_pp |> right_join(select(df_hh_analysis_pp, hhid), by = "hhid")
-
-# Get zone samples of hh_size
-
-zone_sample_hh_analysis_size_pp <- df_hh_analysis_size_pp |>
-  group_by(
-    zone
-  ) |>
-  summarise(
-    median_hh_size_pp = median(hh_size),
-    max_hh_size_pp = max(hh_size),
-    .groups = "drop"
-  ) |>
-  arrange(zone)
-
-
-# Get state samples of hh_size
-
-state_sample_hh_analysis_size_pp <- df_hh_analysis_size_pp |>
-  group_by(
-    zone, state
-  ) |>
-  summarise(
-    median_hh_size_pp = median(hh_size),
-    max_hh_size_pp = max(hh_size),
-    .groups = "drop"
-  ) |>
-  arrange(zone, state)
-
-# ----2. post harvest household size----
-# filter the roster using the valid hh_analysis hhid
-
-df_hh_analysis_size_ph <- df_hh_size_ph |> right_join(select(df_hh_analysis_ph, hhid), by = "hhid")
-
-
-# Get zone samples of hh_size
-
-zone_sample_hh_analysis_size_ph <- df_hh_analysis_size_ph |>
-  group_by(
-    zone
-  ) |>
-  summarise(
-    median_hh_size_ph = median(hh_size),
-    max_hh_size_ph = max(hh_size),
-    .groups = "drop"
-  ) |>
-  arrange(zone)
-
-
-# Get state samples of hh_size
-
-state_sample_hh_analysis_size_ph <- df_hh_analysis_size_ph |>
-  group_by(
-    zone, state
-  ) |>
-  summarise(
-    median_hh_size_ph = median(hh_size),
-    max_hh_size_ph = max(hh_size),
-    .groups = "drop"
-  ) |>
-  arrange(zone, state)
 
 ```
 
-The average sizes of households in the analysis do not change, either for the zonal averages (@tbl-hh_analysis_size_zone) or the state averages (@tbl-hh_analysis_size_state).
+<!-- ```{r} -->
+<!-- #| label: GHS_roster_data_analysis -->
+<!-- #| message: false -->
+<!-- #| warning: false -->
+<!-- #| cache: false -->
+<!-- #| results: asis -->
 
-```{r}
-#| label: tbl-hh_analysis_size_zone
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-#| tab-cap: "Households in analysis size per zone"
+<!-- # ----1. post planting household size---- -->
 
-zone_sample_hh_analysis_size <- zone_sample_hh_analysis_size_pp |> left_join(zone_sample_hh_analysis_size_ph, by = "zone")
 
-zone_sample_hh_analysis_size |> 
-  DT::datatable(
-    rownames = F,
-    colnames=c("Zone", "Median household size (post planting survey)", "Max household size (post planting survey)", "Median household size (post harvest survey)", "Max household size (post harvest survey)"),
-    caption = "Household size per zone",
-    selection = list(mode = "none"),
-    editable = FALSE,
-    options = list(
-      digits = 0,
-      scrollX = TRUE,
-      scrollCollapse = TRUE,
-      # autoWidth = TRUE,
-      fixedColumns = list(leftColumns = 1),
-      # lengthMenu = c(15, 40),
-      pageLength = 6
-    ))
-```
+<!-- # filter the roster using the valid hh_analysis hhid -->
 
-```{r}
-#| label: tbl-hh_analysis_size_state
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-#| tab-cap: "Households in analysis size per state"
+<!-- df_hh_analysis_size_pp <- df_hh_size_pp |> right_join(select(df_hh_analysis_pp, hhid), by = "hhid") -->
 
-state_sample_hh_analysis_size <- state_sample_hh_analysis_size_pp |> left_join(select(state_sample_hh_analysis_size_ph, -zone), by = "state")
+<!-- # Get zone samples of hh_size -->
 
-state_sample_hh_analysis_size |> 
-  DT::datatable(
-    rownames = F,
-    colnames=c("Zone", "State", "Median household size (post planting survey)", "Max household size (post planting survey)", "Median household size (post harvest survey)", "Max household size (post harvest survey)"),
-    caption = "Household size per state",
-    selection = list(mode = "none"),
-    editable = FALSE,
-    options = list(
-      order = list(list(0, 'asc'), list(2, 'desc')),
-      digits = 0,
-      scrollX = TRUE,
-      scrollCollapse = TRUE,
-      # autoWidth = TRUE,
-      fixedColumns = list(leftColumns = 1),
-      # lengthMenu = c(15, 40),
-      pageLength = 15
-    ))
-```
+<!-- zone_sample_hh_analysis_size_pp <- df_hh_analysis_size_pp |> -->
+<!--   group_by( -->
+<!--     zone -->
+<!--   ) |> -->
+<!--   summarise( -->
+<!--     median_hh_size_pp = median(hh_size), -->
+<!--     max_hh_size_pp = max(hh_size), -->
+<!--     .groups = "drop" -->
+<!--   ) |> -->
+<!--   arrange(zone) -->
 
-### Extrapolating from the sample to the population
 
-Since our objective is a representative estimate of food consumption in 2023/24 (rather than a longitudinal comparison) we should use the cross-sectional weight `wt_cross_wave5`. NBS explicitly says the cross-sectional weight is calibrated to the 2023 population and is intended for representative current-population estimates.
+<!-- # Get state samples of hh_size -->
 
-```{r}
-#| label: GHS_analysis_weights
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
+<!-- state_sample_hh_analysis_size_pp <- df_hh_analysis_size_pp |> -->
+<!--   group_by( -->
+<!--     zone, state -->
+<!--   ) |> -->
+<!--   summarise( -->
+<!--     median_hh_size_pp = median(hh_size), -->
+<!--     max_hh_size_pp = max(hh_size), -->
+<!--     .groups = "drop" -->
+<!--   ) |> -->
+<!--   arrange(zone, state) -->
 
-# Check
+<!-- # ----2. post harvest household size---- -->
+<!-- # filter the roster using the valid hh_analysis hhid -->
 
-summary(df_hh_analysis_pp$wt_cross_wave5)
-summary(df_hh_analysis_ph$wt_cross_wave5)
+<!-- df_hh_analysis_size_ph <- df_hh_size_ph |> right_join(select(df_hh_analysis_ph, hhid), by = "hhid") -->
 
-# Get zone samples of hh_size
 
-zone_sample_wt_cross_pp <- df_hh_analysis_pp |>
-  group_by(
-    zone
-  ) |>
-  summarise(
-    mean_wt_cross_pp = mean(wt_cross_wave5),
-    .groups = "drop"
-  ) |>
-  arrange(zone)
+<!-- # Get zone samples of hh_size -->
 
-```
+<!-- zone_sample_hh_analysis_size_ph <- df_hh_analysis_size_ph |> -->
+<!--   group_by( -->
+<!--     zone -->
+<!--   ) |> -->
+<!--   summarise( -->
+<!--     median_hh_size_ph = median(hh_size), -->
+<!--     max_hh_size_ph = max(hh_size), -->
+<!--     .groups = "drop" -->
+<!--   ) |> -->
+<!--   arrange(zone) -->
 
-We will use the cross sectional weight in further calculations.
+
+<!-- # Get state samples of hh_size -->
+
+<!-- state_sample_hh_analysis_size_ph <- df_hh_analysis_size_ph |> -->
+<!--   group_by( -->
+<!--     zone, state -->
+<!--   ) |> -->
+<!--   summarise( -->
+<!--     median_hh_size_ph = median(hh_size), -->
+<!--     max_hh_size_ph = max(hh_size), -->
+<!--     .groups = "drop" -->
+<!--   ) |> -->
+<!--   arrange(zone, state) -->
+
+<!-- ``` -->
+
+<!-- The average sizes of households in the analysis do not change, either for the zonal averages (@tbl-hh_analysis_size_zone) or the state averages (@tbl-hh_analysis_size_state). -->
+
+<!-- ```{r} -->
+<!-- #| label: tbl-hh_analysis_size_zone -->
+<!-- #| message: false -->
+<!-- #| warning: false -->
+<!-- #| cache: false -->
+<!-- #| results: asis -->
+<!-- #| tab-cap: "Households in analysis size per zone" -->
+
+<!-- zone_sample_hh_analysis_size <- zone_sample_hh_analysis_size_pp |> left_join(zone_sample_hh_analysis_size_ph, by = "zone") -->
+
+<!-- zone_sample_hh_analysis_size |>  -->
+<!--   DT::datatable( -->
+<!--     rownames = F, -->
+<!--     colnames=c("Zone", "Median household size (post planting survey)", "Max household size (post planting survey)", "Median household size (post harvest survey)", "Max household size (post harvest survey)"), -->
+<!--     caption = "Household size per zone", -->
+<!--     selection = list(mode = "none"), -->
+<!--     editable = FALSE, -->
+<!--     options = list( -->
+<!--       digits = 0, -->
+<!--       scrollX = TRUE, -->
+<!--       scrollCollapse = TRUE, -->
+<!--       # autoWidth = TRUE, -->
+<!--       fixedColumns = list(leftColumns = 1), -->
+<!--       # lengthMenu = c(15, 40), -->
+<!--       pageLength = 6 -->
+<!--     )) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- #| label: tbl-hh_analysis_size_state -->
+<!-- #| message: false -->
+<!-- #| warning: false -->
+<!-- #| cache: false -->
+<!-- #| results: asis -->
+<!-- #| tab-cap: "Households in analysis size per state" -->
+
+<!-- state_sample_hh_analysis_size <- state_sample_hh_analysis_size_pp |> left_join(select(state_sample_hh_analysis_size_ph, -zone), by = "state") -->
+
+<!-- state_sample_hh_analysis_size |>  -->
+<!--   DT::datatable( -->
+<!--     rownames = F, -->
+<!--     colnames=c("Zone", "State", "Median household size (post planting survey)", "Max household size (post planting survey)", "Median household size (post harvest survey)", "Max household size (post harvest survey)"), -->
+<!--     caption = "Household size per state", -->
+<!--     selection = list(mode = "none"), -->
+<!--     editable = FALSE, -->
+<!--     options = list( -->
+<!--       order = list(list(0, 'asc'), list(2, 'desc')), -->
+<!--       digits = 0, -->
+<!--       scrollX = TRUE, -->
+<!--       scrollCollapse = TRUE, -->
+<!--       # autoWidth = TRUE, -->
+<!--       fixedColumns = list(leftColumns = 1), -->
+<!--       # lengthMenu = c(15, 40), -->
+<!--       pageLength = 15 -->
+<!--     )) -->
+<!-- ``` -->
+
+<!-- ### Extrapolating from the sample to the population -->
+
+<!-- Since our objective is a representative estimate of food consumption in 2023/24 (rather than a longitudinal comparison) we should use the cross-sectional weight `wt_cross_wave5`. NBS explicitly says the cross-sectional weight is calibrated to the 2023 population and is intended for representative current-population estimates. -->
+
+<!-- ```{r} -->
+<!-- #| label: GHS_analysis_weights -->
+<!-- #| message: false -->
+<!-- #| warning: false -->
+<!-- #| cache: false -->
+<!-- #| results: asis -->
+
+<!-- # Check -->
+
+<!-- summary(df_hh_analysis_pp$wt_cross_wave5) -->
+<!-- summary(df_hh_analysis_ph$wt_cross_wave5) -->
+
+<!-- # Get zone samples of hh_size -->
+
+<!-- zone_sample_wt_cross_pp <- df_hh_analysis_pp |> -->
+<!--   group_by( -->
+<!--     zone -->
+<!--   ) |> -->
+<!--   summarise( -->
+<!--     mean_wt_cross_pp = mean(wt_cross_wave5), -->
+<!--     .groups = "drop" -->
+<!--   ) |> -->
+<!--   arrange(zone) -->
+
+<!-- ``` -->
+
+<!-- We will use the cross sectional weight in further calculations. -->
 
 ### Household Food consumption
 
@@ -745,14 +830,20 @@ So the basic calculation is:
 
 quantity_kg_7days =    `s6bq2a`  * `s6bq2_cvn`
 
+However, a number of food products items in the surveys do not have a conversion factor (@tbl-GHS_food_consumed_hh_analysis_pp and @tbl-GHS_food_consumed_hh_analysis_ph). The food products with the highest number of missing conversion factors are okra and cassava roots.
+The reasons for the missing conversion factors for okra are unclear, because other households with the same unit and size do have a conversion unit.
+For cassava, the reason appears to be a mis-match between the principal product name (cassava roots) and the alternative name and unit, e.g. wrap of fufu.
+Given these mis-matches we will not attempt to add a conversion unit.
 
 
 ```{r}
-#| label: GHS_food_consumed_hh_analysis
+#| label: tbl-GHS_food_consumed_hh_analysis_pp
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
+#| tab-cap: "Number of consumed food product items without a conversion factor in the post planting survey"
+
 
 # ----1. post planting household food consumption----
 
@@ -774,10 +865,42 @@ df_food_pp_consumed <- df_food_pp |>
     s6bq1 == "1. Yes",
     !is.na(s6bq2a),
     s6bq2a >= 0
-  ) %>%
+  ) |>
   mutate(
-    kg_week = s6bq2a * s6bq2_cvn) %>%
-  filter(!is.na(kg_week))
+    kg_week = s6bq2a * s6bq2_cvn) 
+
+
+df_missing_conversion_pp <- df_food_pp_consumed |>
+  filter(
+    is.na(s6bq2_cvn)
+  ) |>
+  count(
+    item_cd_int,
+    item_cd,
+    item_cd_alt,
+    item_os,
+    sort = TRUE
+  )
+
+df_missing_conversion_pp |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("Item code", "Food Product Name", "alternative name", "alternative name", "Number without conversion factor"),
+    caption = "Post planting missing conversion factors",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(4, 'desc'), list(0, 'asc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 1),
+      # lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+df_food_pp_consumed <- df_food_pp_consumed |> filter(!is.na(kg_week))
 
 df_food_item_pp_consumed <- df_food_pp_consumed |>
   group_by(
@@ -789,6 +912,17 @@ df_food_item_pp_consumed <- df_food_pp_consumed |>
   ) |>
   arrange(item_cd_int)
 
+
+
+```
+
+```{r}
+#| label: tbl-GHS_food_consumed_hh_analysis_ph
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| tab-cap: "Number of consumed food product items without a conversion factor in the post harvest survey"
 
 # ----2. post harvest household food consumption----
 
@@ -810,11 +944,42 @@ df_food_ph_consumed <- df_food_ph |>
     s5bq1 == "1. Yes",
     !is.na(s5bq2a),
     s5bq2a >= 0
-  ) %>%
+  ) |>
   mutate(
     kg_week = s5bq2a * s5bq2_cvn,
-  ) %>%
-  filter(!is.na(kg_week))
+  ) 
+
+df_missing_conversion_ph <- df_food_ph_consumed |>
+  filter(
+    is.na(s5bq2_cvn)
+  ) |>
+  count(
+    item_cd_int,
+    item_cd,
+    item_cd_alt,
+    item_os,
+    sort = TRUE
+  )
+
+df_missing_conversion_ph |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("Item code", "Food Product Name", "alternative name", "alternative name", "Number without conversion factor"),
+    caption = "Post harvest missing conversion factors",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(4, 'desc'), list(0, 'asc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 1),
+      # lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+df_food_ph_consumed <- df_food_ph_consumed |>  filter(!is.na(kg_week))
 
 df_food_item_ph_consumed <- df_food_ph_consumed |>
   group_by(
@@ -971,6 +1136,8 @@ food_lookup <- tribble(
 
 ```
 
+The conversion factor is used to calculate the household consumption of the food product item.
+The crop products with the highest weight are cassava roots and yam roots (@tbl-food_kg_week), but it should be remembered that this table only considers the households that actually consumed the food product in the previous seven days, so these values cannot yet be used to calculate the per capita consumption.
 
 ```{r}
 #| label: tbl-food_kg_week
@@ -1013,21 +1180,1916 @@ df_food_item_consumed |>
 
 
 ```{r}
-# missing_conversion_pp <- food_pp_consumed %>%
-#   filter(
-#     is.na(s6bq2_cvn)
-#   ) %>%
-#   count(
-#     item_cd,
-#     item_cd_alt,
-#     item_os,
-#     sort = TRUE
-#   )
-# 
-# missing_conversion_pp
+#| label: tbl-food_kg_week_agg
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| tab-cap: "food_kg_week_pp"
+
+
+# ------------------------------------------------------------
+# JOIN Product name
+# ------------------------------------------------------------
+
+df_food_pp_consumed_standard <- df_food_pp_consumed |>
+left_join(food_lookup, by = "item_cd_int") 
+
+df_food_ph_consumed_standard <- df_food_ph_consumed |>
+left_join(food_lookup, by = "item_cd_int") 
+
+# ------------------------------------------------------------
+# AGGREGATE FOOD TO HOUSEHOLD × PRODUCT
+# A household can potentially have more than one observation
+# contributing to a product.
+# ------------------------------------------------------------
+
+df_food_pp_consumed_standard_hh <- df_food_pp_consumed_standard |>
+  group_by(hhid, product) |>
+  summarise(kg_week = sum(kg_week, na.rm = TRUE), .groups = "drop")
+
+df_food_ph_consumed_standard_hh <- df_food_ph_consumed_standard |>
+  group_by(hhid, product) |>
+  summarise(kg_week = sum(kg_week, na.rm = TRUE), .groups = "drop")
+# ------------------------------------------------------------
+
+```
+
+```{r}
+#| label: consumption_diagnostics_function
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# ------------------------------------------------------------
+# CONSUMPTION DIAGNOSTICS
+#
+# Calculates, for each geographic unit and food product:
+#
+# 1. % of households consuming
+# 2. % of population living in consuming households
+# 3. kg/person/week among consumers
+# 4. number of consuming households
+# 5. total number of eligible households
+#
+# geographic variable can be:
+#   "state"
+#   "zone"
+# ------------------------------------------------------------
+
+# lonely.psu = "adjust" prevents failures when a domain
+
+# contains only one PSU within a stratum.
+
+# ------------------------------------------------------------
+
+options(
+  survey.lonely.psu = "adjust"
+)
+
+make_consumption_diagnostics <- function(
+  hh_analysis,
+  food_standard,
+  survey_period,
+  geographic_variable = "state"
+) {
+  products <- sort(
+    unique(food_standard$product)
+  )
+
+  results <- vector(
+    "list",
+    length(products)
+  )
+
+  for (i in seq_along(products)) {
+    p <- products[i]
+
+    message(
+      survey_period,
+      " - ",
+      geographic_variable,
+      " diagnostics: ",
+      p,
+      " (",
+      i,
+      "/",
+      length(products),
+      ")"
+    )
+
+    # --------------------------------------------------------
+    # ALL ELIGIBLE HOUSEHOLDS
+    # --------------------------------------------------------
+
+    hh <- hh_analysis |>
+      select(
+        hhid,
+        zone,
+        state,
+        cluster,
+        strata,
+        wt_cross_wave5,
+        hh_size
+      ) |>
+
+      left_join(
+        food_standard |>
+          filter(
+            product == p
+          ) |>
+          group_by(
+            hhid
+          ) |>
+          summarise(
+            kg_week = sum(
+              kg_week,
+              na.rm = TRUE
+            ),
+            .groups = "drop"
+          ),
+        by = "hhid"
+      ) |>
+
+      mutate(
+        # A household is a consumer if it has a food record
+        # for this product.
+        consumed = !is.na(kg_week),
+
+        # Non-consumers have zero consumption.
+        kg_week = replace_na(
+          kg_week,
+          0
+        )
+      )
+
+    # --------------------------------------------------------
+    # SURVEY DESIGN
+    # --------------------------------------------------------
+
+    d <- svydesign(
+      ids = ~cluster,
+      strata = ~strata,
+      weights = ~wt_cross_wave5,
+      data = hh,
+      nest = TRUE
+    )
+
+    # --------------------------------------------------------
+    # HOUSEHOLD CONSUMPTION PREVALENCE
+    # --------------------------------------------------------
+
+    f_hh <- as.formula(
+      paste0(
+        "~consumed"
+      )
+    )
+
+    f_geo <- as.formula(
+      paste0(
+        "~",
+        geographic_variable
+      )
+    )
+
+    hh_prev <- svyby(
+      f_hh,
+      f_geo,
+      d,
+      svymean,
+      na.rm = TRUE
+    )
+
+    # Find the estimate column rather than assuming its name
+    estimate_col <- setdiff(
+      names(hh_prev),
+      geographic_variable
+    )[1]
+
+    hh_prev <- hh_prev |>
+      rename(
+        hh_consumption_prevalence = all_of(estimate_col)
+      ) |>
+      mutate(
+        hh_consumption_percent = 100 * hh_consumption_prevalence
+      )
+
+    # --------------------------------------------------------
+    # POPULATION CONSUMPTION PREVALENCE
+    #
+    # A household contributes its household size to the
+    # population denominator.
+    # --------------------------------------------------------
+
+    population_design <- svydesign(
+      ids = ~cluster,
+      strata = ~strata,
+      weights = ~wt_cross_wave5,
+      data = hh,
+      nest = TRUE
+    )
+
+    # Use a population-weighted numerator and denominator
+    # explicitly rather than changing the survey weights.
+    hh <- hh |>
+      mutate(
+        consuming_persons = hh_size * as.numeric(consumed),
+
+        total_persons = hh_size
+      )
+
+    d_population <- svydesign(
+      ids = ~cluster,
+      strata = ~strata,
+      weights = ~wt_cross_wave5,
+      data = hh,
+      nest = TRUE
+    )
+
+    pop_ratio <- svyby(
+      ~consuming_persons,
+      f_geo,
+      d_population,
+      svytotal,
+      na.rm = TRUE
+    )
+
+    pop_total <- svyby(
+      ~total_persons,
+      f_geo,
+      d_population,
+      svytotal,
+      na.rm = TRUE
+    )
+
+    pop_prev <- pop_ratio |>
+      select(
+        all_of(geographic_variable),
+        consuming_persons
+      ) |>
+      left_join(
+        pop_total |>
+          select(
+            all_of(geographic_variable),
+            total_persons
+          ),
+        by = geographic_variable
+      ) |>
+      mutate(
+        population_consumption_prevalence = consuming_persons /
+          total_persons,
+
+        population_consumption_percent = 100 *
+          population_consumption_prevalence
+      )
+
+    # --------------------------------------------------------
+    # NUMBER OF CONSUMING HOUSEHOLDS
+    #
+    # These are UNWEIGHTED sample counts and are useful as a
+    # diagnostic for small sample sizes.
+    # --------------------------------------------------------
+
+    sample_counts <- hh |>
+      group_by(
+        .data[[geographic_variable]]
+      ) |>
+      summarise(
+        n_households = n(),
+
+        n_consuming_households = sum(
+          consumed,
+          na.rm = TRUE
+        ),
+
+        .groups = "drop"
+      ) |>
+      rename(
+        geographic_unit = all_of(geographic_variable)
+      )
+
+    # --------------------------------------------------------
+    # CONSUMPTION AMONG CONSUMERS
+    #
+    # kg/person/week among households that actually consumed
+    # the product.
+    # --------------------------------------------------------
+
+    consumer_hh <- hh |>
+      filter(
+        consumed
+      )
+
+    if (nrow(consumer_hh) > 0) {
+      d_consumer <- svydesign(
+        ids = ~cluster,
+        strata = ~strata,
+        weights = ~wt_cross_wave5,
+        data = consumer_hh,
+        nest = TRUE
+      )
+
+      consumer_results <- lapply(
+        sort(
+          unique(
+            consumer_hh[[geographic_variable]]
+          )
+        ),
+        function(g) {
+          dc <- subset(
+            d_consumer,
+            get(geographic_variable) == g
+          )
+
+          if (nrow(dc) == 0) {
+            return(
+              tibble(
+                geographic_unit = g,
+                consumer_kg_person_week = NA_real_,
+                consumer_se = NA_real_,
+                consumer_cv = NA_real_
+              )
+            )
+          }
+
+          r <- svyratio(
+            ~kg_week,
+            ~hh_size,
+            dc,
+            na.rm = TRUE
+          )
+
+          estimate <- as.numeric(
+            coef(r)
+          )
+
+          se <- as.numeric(
+            SE(r)
+          )
+
+          tibble(
+            geographic_unit = g,
+            consumer_kg_person_week = estimate,
+            consumer_se = se,
+            consumer_cv = if_else(
+              estimate > 0,
+              100 * se / estimate,
+              NA_real_
+            )
+          )
+        }
+      ) |>
+        bind_rows()
+    } else {
+      consumer_results <- tibble(
+        geographic_unit = character(),
+        consumer_kg_person_week = numeric(),
+        consumer_se = numeric(),
+        consumer_cv = numeric()
+      )
+    }
+
+    # --------------------------------------------------------
+    # COMBINE
+    # --------------------------------------------------------
+
+    results[[i]] <-
+      hh_prev |>
+
+      select(
+        all_of(geographic_variable),
+        hh_consumption_prevalence,
+        hh_consumption_percent
+      ) |>
+
+      rename(
+        geographic_unit = all_of(geographic_variable)
+      ) |>
+
+      left_join(
+        pop_prev |>
+          select(
+            geographic_unit = all_of(geographic_variable),
+            population_consumption_prevalence,
+            population_consumption_percent
+          ),
+        by = "geographic_unit"
+      ) |>
+
+      left_join(
+        consumer_results,
+        by = "geographic_unit"
+      ) |>
+
+      left_join(
+        sample_counts,
+        by = "geographic_unit"
+      ) |>
+
+      mutate(
+        product = p,
+        survey_period = survey_period,
+        geographic_level = geographic_variable,
+        .before = 1
+      )
+  }
+
+  bind_rows(
+    results
+  )
+}
+
+```
+
+```{r}
+#| label: consumption_diagnostics_state
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+# ------------------------------------------------------------
+# 14B. CALCULATE DIAGNOSTICS FOR BOTH VISITS
+# ------------------------------------------------------------
+
+df_state_consumption_diagnostics_pp <-
+  make_consumption_diagnostics(
+    df_hh_analysis_pp,
+    df_food_pp_consumed_standard,
+    "Post-Harvest"
+  )
+
+
+df_state_consumption_diagnostics_ph <-
+  make_consumption_diagnostics(
+    df_hh_analysis_ph,
+    df_food_ph_consumed_standard,
+    "Post-Planting"
+  )
+
+
+df_state_consumption_diagnostics <-
+  bind_rows(
+    df_state_consumption_diagnostics_pp,
+    df_state_consumption_diagnostics_ph
+  )
+
+```
+
+As an intermediate step we check on the number of households that consume specific food product items and also assess the population for which these households represent, and the overall average consumption per week.
+
+There are too many products and geographic units to show all records but @tbl-pop_sample_food_kg_week shows the number of households surveyed in Kaduna and Nasarawa states, and the consumption of Millet in both surveys
+
+
+```{r}
+#| label: tbl-pop_sample_food_kg_week
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| tab-cap: "pop_sample_food_kg_week"
+
+df_state_consumption_diagnostics_sample <- df_state_consumption_diagnostics |>
+  filter(product == "Millet" & (geographic_unit == "18. Kaduna" | geographic_unit == "25. Nasarawa")) |>
+  select(-population_consumption_prevalence, -hh_consumption_prevalence, -hh_consumption_percent, -consumer_se, -consumer_cv) |>
+    mutate(
+      population_consumption_percent = prettyunits::pretty_round(
+        population_consumption_percent,
+        digits = 2
+      ),
+      consumer_kg_person_week = prettyunits::pretty_round(
+        consumer_kg_person_week,
+        digits = 2
+      )
+    )
+
+df_state_consumption_diagnostics_sample |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("Food Product", "Survey period","Geographic Level", "Geographic Unit", "Mean kg per capita per week", "households sampled", "households consuming"),
+    caption = "Weekly Food Product Consumption",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(2, 'desc'), list(3, 'asc')),
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
 
 
 ```
+
+We start with ALL households and then attach the food quantity for the selected product.
+
+Therefore:
+
+consumer household -> measured kg/week
+non-consumer        -> 0 kg/week
+
+The denominator remains household size for EVERY household.
+
+This avoids the serious bias that would occur if we only
+analysed households that consumed the product.
+
+
+```{r}
+#| label: GHS_per_capita_food_consumption_calculation_functions
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# 15. FUNCTION FOR ONE PRODUCT
+# ------------------------------------------------------------
+
+make_product_design <- function(product_name, hh_analysis, food_hh) {
+  product_data <- hh_analysis |>
+    select(
+      hhid,
+      zone,
+      state,
+      lga,
+      sector,
+      ea,
+      cluster,
+      strata,
+      wt_cross_wave5,
+      hh_size
+    ) |>
+    left_join(
+      food_hh |>
+        filter(
+          product == product_name
+        ) |>
+        select(
+          hhid,
+          kg_week
+        ),
+      by = "hhid"
+    ) |>
+    mutate(
+      kg_week = replace_na(
+        kg_week,
+        0
+      )
+    )
+
+  svydesign(
+    ids = ~cluster,
+    strata = ~strata,
+    weights = ~wt_cross_wave5,
+    data = product_data,
+    nest = TRUE
+  )
+}
+
+# ------------------------------------------------------------
+# 16. FUNCTION TO EXTRACT RATIO ESTIMATE
+#
+# Ratio:
+#
+# weighted total kg/week
+# ---------------------
+# weighted total persons
+#
+# This gives kg/person/week.
+# ------------------------------------------------------------
+
+extract_ratio <- function(
+  design,
+  by_variable,
+  denominator = ~hh_size
+) {
+  result <- svyby(
+    formula = ~kg_week,
+    by = by_variable,
+    design = design,
+    FUN = svyratio,
+    denominator = denominator,
+    na.rm = TRUE,
+    keep.names = FALSE,
+    vartype = c("se", "cv")
+  )
+
+  names(result) <- c(
+    all.vars(by_variable),
+    "estimate_kg_person_week",
+    "se",
+    "cv"
+  )
+
+  result |>
+    mutate(
+      ci_low = pmax(
+        0,
+        estimate_kg_person_week - 1.96 * se
+      ),
+      ci_high = estimate_kg_person_week + 1.96 * se,
+      # Annualized equivalent is included only as a convenient
+      # comparison scale. It is NOT an observed annual total.
+      estimate_kg_person_year_equivalent = estimate_kg_person_week * 365 / 7
+    )
+}
+```
+
+
+```{r}
+#| label: GHS_per_capita_food_consumption_calculation_function_products
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# ------------------------------------------------------------
+# 17. PRODUCTS TO ANALYSE
+# ------------------------------------------------------------
+
+products_pp <- sort(
+  unique(
+    df_food_pp_consumed_standard_hh$product
+  )
+)
+
+cat("\n\nPost Planting Survey Number of products:",length(products_pp),"\n")
+products_pp
+
+products_ph <- sort(
+  unique(
+    df_food_ph_consumed_standard_hh$product
+  )
+)
+
+cat("\n\nPost Harvest Survey Number of products:",length(products_ph),"\n")
+products_ph
+
+
+```
+
+
+```{r}
+#| label: GHS_per_capita_food_consumption_state_calculations
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# 18. STATE-LEVEL RESULTS
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# -------------POST PLANTING------------------
+# ------------------------------------------------------------
+
+state_results_list_pp <- vector(
+  "list",
+  length(products_pp)
+)
+
+for (i in seq_along(products_pp)) {
+  p_pp <- products_pp[i]
+
+  message(
+    "State estimates: ",
+    p_pp,
+    " (",
+    i,
+    "/",
+    length(products_pp),
+    ")"
+  )
+
+  d_pp <- make_product_design(p_pp, df_hh_analysis_pp, df_food_pp_consumed_standard_hh)
+
+  result_pp <- extract_ratio(
+    d_pp,
+    ~state
+  )
+
+  result_pp <- extract_ratio(d_pp, ~state) |>
+    mutate(survey_period = "Post-Planting", product = p_pp, .before = 1)
+
+  state_results_list_pp[[i]] <- result_pp
+}
+
+state_results_pp <- bind_rows(
+  state_results_list_pp
+)
+
+# ------------------------------------------------------------
+# 19. ADD 95% CONFIDENCE INTERVALS
+# ------------------------------------------------------------
+
+state_results_pp <- state_results_pp |>
+  mutate(
+    ci_low = pmax(
+      0,
+      estimate_kg_person_week -
+        1.96 * se
+    ),
+
+    ci_high = estimate_kg_person_week +
+      1.96 * se
+  )
+
+# ------------------------------------------------------------
+# 20. ADD STATE SAMPLE INFORMATION
+# ------------------------------------------------------------
+
+state_results_pp <- state_results_pp |>
+  left_join(
+    state_sample_analysis_pp,
+    by = "state"
+  ) |>
+  select(
+    state,
+    zone,
+    survey_period,
+    product,
+    estimate_kg_person_week,
+    se,
+    ci_low,
+    ci_high,
+    cv,
+    n_households,
+    n_psu,
+    weighted_population,
+    median_household_size,
+    mean_household_size,
+    estimate_kg_person_year_equivalent
+  ) |>
+  arrange(
+    state,
+    product
+  )
+
+# -----------------------------------------------------------
+# 21. PRECISION FLAG
+#
+# These are analytical flags, not NBS thresholds.
+# ------------------------------------------------------------
+
+state_results_pp <- state_results_pp |>
+  mutate(
+    precision_flag = case_when(
+      is.na(cv) ~        "No estimate",
+        cv < .10 ~        "CV < 10%",
+        cv < .20 ~        "CV 10–20%",
+        cv < .30 ~        "CV 20–30% — caution",
+        TRUE ~        "CV > 30% — low precision"
+    )
+  )
+
+# ------------------------------------------------------------
+# -------------POST HARVEST------------------
+# ------------------------------------------------------------
+
+state_results_list_ph <- vector(
+  "list",
+  length(products_ph)
+)
+
+for (i in seq_along(products_ph)) {
+  p_ph <- products_ph[i]
+
+  message(
+    "State estimates: ",
+    p_ph,
+    " (",
+    i,
+    "/",
+    length(products_ph),
+    ")"
+  )
+
+  d_ph <- make_product_design(p_ph, df_hh_analysis_ph, df_food_ph_consumed_standard_hh)
+
+  result_ph <- extract_ratio(
+    d_ph,
+    ~state
+  )
+
+  result_ph <- extract_ratio(d_ph, ~state) |>
+    mutate(survey_period = "Post-Harvest", product = p_ph, .before = 1)
+
+  state_results_list_ph[[i]] <- result_ph
+}
+
+state_results_ph <- bind_rows(
+  state_results_list_ph
+)
+
+# ------------------------------------------------------------
+# 19. ADD 95% CONFIDENCE INTERVALS
+# ------------------------------------------------------------
+
+state_results_ph <- state_results_ph |>
+  mutate(
+    ci_low = pmax(
+      0,
+      estimate_kg_person_week -
+        1.96 * se
+    ),
+
+    ci_high = estimate_kg_person_week +
+      1.96 * se
+  )
+
+# ------------------------------------------------------------
+# 20. ADD STATE SAMPLE INFORMATION
+# ------------------------------------------------------------
+
+state_results_ph <- state_results_ph |>
+  left_join(
+    state_sample_analysis_ph,
+    by = "state"
+  ) |>
+  select(
+    state,
+    zone,
+    survey_period,
+    product,
+    estimate_kg_person_week,
+    se,
+    ci_low,
+    ci_high,
+    cv,
+    n_households,
+    n_psu,
+    weighted_population,
+    median_household_size,
+    mean_household_size,
+    estimate_kg_person_year_equivalent
+  ) |>
+  arrange(
+    state,
+    product
+  )
+
+# ------------------------------------------------------------
+# 21. PRECISION FLAG
+#
+# These are analytical flags, not NBS thresholds.
+# ------------------------------------------------------------
+
+state_results_ph <- state_results_ph |>
+  mutate(
+    precision_flag = case_when(
+      is.na(cv) ~        "No estimate",
+        cv < .10 ~        "CV < 10%",
+        cv < .20 ~        "CV 10–20%",
+        cv < .30 ~        "CV 20–30% — caution",
+        TRUE ~        "CV > 30% — low precision"
+    )
+  )
+```
+
+
+```{r}
+#| label: GHS_per_capita_food_consumption_zone_calculations
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ------------------------------------------------------------
+# 22. ZONE-LEVEL RESULTS
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# -------------POST PLANTING------------------
+# ------------------------------------------------------------
+
+zone_results_list_pp <- vector(
+  "list",
+  length(products_pp)
+)
+
+for (i in seq_along(products_pp)) {
+  p_pp <- products_pp[i]
+
+  message(
+    "Zone estimates: ",
+    p_pp,
+    " (",
+    i,
+    "/",
+    length(products_pp),
+    ")"
+  )
+
+  d_pp <- make_product_design(p_pp, df_hh_analysis_pp, df_food_pp_consumed_standard_hh) 
+
+  result_pp <- extract_ratio(d_pp, ~zone) |>
+    mutate(survey_period = "Post-Planting", product = p_pp, .before = 1)
+
+  zone_results_list_pp[[i]] <- result_pp
+}
+
+zone_results_pp <- bind_rows(
+  zone_results_list_pp
+) |>
+  mutate(
+    ci_low = pmax(
+      0,
+      estimate_kg_person_week -
+        1.96 * se
+    ),
+    ci_high = estimate_kg_person_week +
+      1.96 * se
+  ) |>
+  arrange(
+    zone,
+    product
+  )
+
+# ------------------------------------------------------------
+# -------------POST HARVEST------------------
+# ------------------------------------------------------------
+
+zone_results_list_ph <- vector(
+  "list",
+  length(products_ph)
+)
+
+for (i in seq_along(products_ph)) {
+  p_ph <- products_ph[i]
+
+  message(
+    "Zone estimates: ",
+    p_ph,
+    " (",
+    i,
+    "/",
+    length(products_ph),
+    ")"
+  )
+
+  d_ph <- make_product_design(p_ph, df_hh_analysis_ph, df_food_ph_consumed_standard_hh)
+
+  result_ph <- extract_ratio(d_ph, ~zone) |>
+    mutate(survey_period = "Post-Planting", product = p_ph, .before = 1)
+
+  zone_results_list_ph[[i]] <- result_ph
+}
+
+zone_results_ph <- bind_rows(
+  zone_results_list_ph
+) |>
+  mutate(
+    ci_low = pmax(
+      0,
+      estimate_kg_person_week -
+        1.96 * se
+    ),
+    ci_high = estimate_kg_person_week +
+      1.96 * se
+  ) |>
+  arrange(
+    zone,
+    product
+  )
+
+```
+
+
+```{r}
+#| label: tbl-GHS_per_capita_food_consumption_check_results_maize
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# ------------------------------------------------------------
+# 23. CHECK RESULTS
+# ------------------------------------------------------------
+
+# state_results_pp
+# state_results_ph
+# zone_results_pp
+# zone_results_ph
+
+# ------------------------------------------------------------
+# 24. EXAMPLE:
+# MAIZE PRODUCTS
+# ------------------------------------------------------------
+
+maize_results_state_pp <- state_results_pp |>
+  filter(
+    product %in%
+      c(
+        "Maize flour",
+        "Maize - unshelled/on cob",
+        "Maize - shelled/off cob"
+      )
+  )
+
+maize_results_state_pp |> select(product, state, zone, survey_period, estimate_kg_person_week, se, ci_low, ci_high, cv, precision_flag ) |>   
+  mutate(
+    estimate_kg_person_week = prettyunits::pretty_round(estimate_kg_person_week, digits = 2),
+    se = prettyunits::pretty_round(se, digits = 3),
+    ci_low = prettyunits::pretty_round(ci_low, digits = 3),
+    ci_high = prettyunits::pretty_round(ci_high, digits = 3),
+    cv = prettyunits::pretty_round(cv, digits = 3)
+  ) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "Zone", "Survey period", "Food Product","Estimated kg per person per week", "se", "ci low", "ci high", "cv", "precision flag"),
+    caption = "Maize Food Product Consumption",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(4, 'desc'), list(5, 'desc')),
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 40),
+      pageLength = 10
+    ))
+
+```
+
+
+```{r}
+#| label: tbl-GHS_per_capita_food_consumption_check_results_cassava
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ------------------------------------------------------------
+# 25. EXAMPLE:
+# CASSAVA PRODUCTS
+#
+# DO NOT add these together yet.
+#
+# They represent different processed/raw products.
+# ------------------------------------------------------------
+
+cassava_results_state_ph <- state_results_ph |>
+  filter(
+    product %in%
+      c(
+        "Cassava roots",
+        "Cassava flour",
+        "Gari - white",
+        "Gari - yellow"
+      )
+  )
+
+cassava_results_state_ph |> select(product, state, zone, survey_period, estimate_kg_person_week, se, ci_low, ci_high, cv, precision_flag ) |>   
+  mutate(
+    estimate_kg_person_week = prettyunits::pretty_round(estimate_kg_person_week, digits = 2),
+    se = prettyunits::pretty_round(se, digits = 3),
+    ci_low = prettyunits::pretty_round(ci_low, digits = 3),
+    ci_high = prettyunits::pretty_round(ci_high, digits = 3),
+    cv = prettyunits::pretty_round(cv, digits = 3)
+  ) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "Zone", "Survey period", "Food Product","Estimated kg per person per week", "se", "ci low", "ci high", "cv", "precision flag"),
+    caption = "Cassava Food Product Consumption",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(4, 'desc'), list(5, 'desc')),
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 40),
+      pageLength = 10
+    ))
+
+```
+
+
+```{r}
+#| label: tbl-GHS_per_capita_food_consumption_precision_summary_pp
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ------------------------------------------------------------
+# 26. STATE PRECISION SUMMARY
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# -------------POST PLANTING------------------
+# ------------------------------------------------------------
+
+
+state_precision_summary_pp <- state_results_pp |>
+  group_by(
+    state
+  ) |>
+  summarise(
+    n_products = n(),
+
+    n_cv_gt_30 = sum(
+      cv > 0.3,
+      na.rm = TRUE
+    ),
+
+    median_cv = median(
+      cv,
+      na.rm = TRUE
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    desc(n_cv_gt_30)
+  )
+
+state_precision_summary_pp |> 
+  mutate( median_cv = prettyunits::pretty_round(median_cv, digits = 2)) |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "Number of Products","Number of Products CV > 30%", "Median CV"),
+    caption = "State Precision Summary - Post Planting survey",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(2, 'desc'), list(3, 'desc')),
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+
+```{r}
+#| label: tbl-GHS_per_capita_food_consumption_precision_summary_ph
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+# ------------------------------------------------------------
+# -------------POST HARVEST------------------
+# ------------------------------------------------------------
+
+state_precision_summary_ph <- state_results_ph |>
+  group_by(
+    state
+  ) |>
+  summarise(
+    n_products = n(),
+
+    n_cv_gt_30 = sum(
+      cv > 0.3,
+      na.rm = TRUE
+    ),
+
+    median_cv = median(
+      cv,
+      na.rm = TRUE
+    ),
+
+    .groups = "drop"
+  ) |>
+  arrange(
+    desc(n_cv_gt_30)
+  )
+
+state_precision_summary_ph |> 
+  mutate( median_cv = prettyunits::pretty_round(median_cv, digits = 2)) |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "Number of Products","Number of Products CV > 30%", "Median CV"),
+    caption = "State Precision Summary - Post Harvest survey",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(2, 'desc'), list(3, 'desc')),
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+```{r}
+#| label: GHS_per_capita_food_consumption_seasonal_comparison
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# ------------------------------------------------------------
+# 28. COMBINE THE TWO SEASONAL OBSERVATIONS
+#
+# To make the two visits directly comparable, the post-harvest
+# annual estimate is expressed back as kg/person/week.
+# The original annual post-harvest output is left unchanged.
+# ------------------------------------------------------------
+
+state_seasonal_results <- bind_rows(
+  state_results_pp |>
+    transmute(
+      survey_period,
+      state,
+      zone,
+      product,
+      estimate_kg_person_week,
+      se,
+      cv,
+      ci_low,
+      ci_high,
+      estimate_kg_person_year_equivalent,
+      precision_flag,
+      n_households,
+      n_psu,
+      weighted_population,
+      median_household_size
+    ),
+
+  state_results_ph |>
+    transmute(
+      survey_period = "Post-Harvest",
+      state,
+      zone,
+      product,
+      estimate_kg_person_week,
+      se,
+      cv,
+      ci_low ,
+      ci_high ,
+      estimate_kg_person_year_equivalent,
+      precision_flag,
+      n_households,
+      n_psu,
+      weighted_population,
+      median_household_size
+    )
+) |>
+  arrange(
+    state,
+    product,
+    survey_period
+  )
+
+zone_seasonal_results <- bind_rows(
+  zone_results_pp |>
+    transmute(
+      survey_period,
+      zone,
+      product,
+      estimate_kg_person_week,
+      se,
+      cv,
+      ci_low,
+      ci_high,
+      estimate_kg_person_year_equivalent
+    ),
+
+  zone_results_ph |>
+    transmute(
+      survey_period = "Post-Harvest",
+      zone,
+      product,
+      estimate_kg_person_week,
+      se ,
+      cv,
+      ci_low ,
+      ci_high ,
+      estimate_kg_person_year_equivalent
+    )
+) |>
+  arrange(
+    zone,
+    product,
+    survey_period
+  )
+
+# Direct state-level seasonal comparison
+state_seasonal_comparison <- state_seasonal_results |>
+  select(
+    survey_period,
+    state,
+    zone,
+    product,
+    estimate_kg_person_week
+  ) |>
+  pivot_wider(
+    names_from = survey_period,
+    values_from = estimate_kg_person_week
+  ) |>
+  mutate(
+    difference_post_harvest_minus_post_planting = `Post-Harvest` -
+      `Post-Planting`,
+    ratio_post_harvest_to_post_planting = if_else(
+      `Post-Planting` > 0,
+      `Post-Harvest` / `Post-Planting`,
+      NA_real_
+    )
+  ) |>
+  arrange(
+    state,
+    product
+  )
+
+# Direct zone-level seasonal comparison
+zone_seasonal_comparison <- zone_seasonal_results |>
+  select(
+    survey_period,
+    zone,
+    product,
+    estimate_kg_person_week
+  ) |>
+  pivot_wider(
+    names_from = survey_period,
+    values_from = estimate_kg_person_week
+  ) |>
+  mutate(
+    difference_post_harvest_minus_post_planting = `Post-Harvest` -
+      `Post-Planting`,
+    ratio_post_harvest_to_post_planting = if_else(
+      `Post-Planting` > 0,
+      `Post-Harvest` / `Post-Planting`,
+      NA_real_
+    )
+  ) |>
+  arrange(
+    zone,
+    product
+  )
+
+```
+
+
+```{r}
+#| label: GHS_per_capita_food_consumption_save_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ------------------------------------------------------------
+# 29. SAVE OUTPUTS
+# ------------------------------------------------------------
+
+# All files
+
+data_dir <- "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/LSMS-GHS 2023-2024"
+
+output_dir <- file.path(
+  data_dir,
+  "outputs"
+)
+
+dir.create(
+  output_dir,
+  showWarnings = FALSE,
+  recursive = TRUE
+)
+
+#----post-planting----
+
+# State × product
+
+write_csv(
+  state_results_pp,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_state_planting.csv"
+  )
+)
+
+# Zone × product
+
+write_csv(
+  zone_results_pp,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_zone_planting.csv"
+  )
+)
+
+# State sample information
+
+write_csv(
+  state_sample_pp,
+  file.path(
+    output_dir,
+    "GHS_wave5_state_sample_diagnostics_planting.csv"
+  )
+)
+
+# Precision summary
+
+write_csv(
+  state_precision_summary_pp,
+  file.path(
+    output_dir,
+    "GHS_wave5_state_precision_summary_planting.csv"
+  )
+)
+
+# # Alternative codes
+# 
+# write_csv(
+#   alternative_codes_planting,
+#   file.path(
+#     output_dir,
+#     "GHS_wave5_alternative_food_codes_planting.csv"
+#   )
+# )
+
+# Missing conversion factors
+
+write_csv(
+  df_missing_conversion_pp,
+  file.path(
+    output_dir,
+    "GHS_wave5_missing_conversion_factors_planting.csv"
+  )
+)
+
+#----post-harvest----
+
+# State × product
+
+write_csv(
+  state_results_ph,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_state_harvest.csv"
+  )
+)
+
+# Zone × product
+
+write_csv(
+  zone_results_ph,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_zone_harvest.csv"
+  )
+)
+
+# State sample information
+
+write_csv(
+  state_sample_ph,
+  file.path(
+    output_dir,
+    "GHS_wave5_state_sample_diagnostics_harvest.csv"
+  )
+)
+
+# Precision summary
+
+write_csv(
+  state_precision_summary_ph,
+  file.path(
+    output_dir,
+    "GHS_wave5_state_precision_summary_harvest.csv"
+  )
+)
+
+# # Alternative codes
+# 
+# write_csv(
+#   alternative_codes_planting,
+#   file.path(
+#     output_dir,
+#     "GHS_wave5_alternative_food_codes_planting.csv"
+#   )
+# )
+
+# Missing conversion factors
+
+write_csv(
+  df_missing_conversion_ph,
+  file.path(
+    output_dir,
+    "GHS_wave5_missing_conversion_factors_planting.csv"
+  )
+)
+#-----Comparison-----
+
+# State × product
+
+write_csv(
+  state_seasonal_results,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_state_seasonal.csv"
+  )
+)
+
+write_csv(
+  state_seasonal_comparison,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_state_seasonal_comparison.csv"
+  )
+)
+
+# Zone × product
+
+write_csv(
+  zone_seasonal_results,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_zone_seasonal.csv"
+  )
+)
+
+write_csv(
+  zone_seasonal_comparison,
+  file.path(
+    output_dir,
+    "GHS_wave5_food_consumption_zone_seasonal_comparison.csv"
+  )
+)
+
+```
+
+### Conversion to Crop consumption
+
+```{r}
+#| label: GHS_crop_conversion_load_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 2. INPUT FILES
+# ============================================================
+#
+# Change these paths if necessary.
+#
+# If the CSV files are in the same directory as this script,
+# the filenames alone are sufficient.
+#
+# ============================================================
+
+state_file <- "tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_seasonal_comparison.csv"
+
+zone_file <- "tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_zone_seasonal_comparison.csv"
+
+
+# ============================================================
+# 3. LOAD STATE-LEVEL RESULTS
+# ============================================================
+
+df_food_state_results_seasonal <- read_csv(
+  state_file,
+  show_col_types = FALSE
+)
+
+# convert to kg per year
+
+df_food_state_results <- df_food_state_results_seasonal |>
+  mutate(
+    estimate_kg_person_year = (((`Post-Harvest` + `Post-Planting`) / 2) *
+      (365 / 7))
+  )
+
+
+# ============================================================
+# 4. LOAD ZONE-LEVEL RESULTS
+# ============================================================
+
+df_food_zone_results_seasonal <- read_csv(
+  zone_file,
+  show_col_types = FALSE
+)
+
+# convert to kg per year
+
+df_food_zone_results <- df_food_zone_results_seasonal |>
+  mutate(
+    estimate_kg_person_year = (((`Post-Harvest` + `Post-Planting`) / 2) *
+      (365 / 7))
+  )
+
+
+# ============================================================
+# 5. CHECK INPUT FILES
+# ============================================================
+
+required_columns <- c(
+  "product",
+  "estimate_kg_person_year"
+)
+
+
+missing_state_columns <-
+  setdiff(
+    required_columns,
+    names(df_food_state_results)
+  )
+
+missing_zone_columns <-
+  setdiff(
+    required_columns,
+    names(df_food_zone_results)
+  )
+
+
+if (length(missing_state_columns) > 0) {
+  stop(
+    "The state-level file is missing: ",
+    paste(
+      missing_state_columns,
+      collapse = ", "
+    )
+  )
+}
+
+
+if (length(missing_zone_columns) > 0) {
+  stop(
+    "The zone-level file is missing: ",
+    paste(
+      missing_zone_columns,
+      collapse = ", "
+    )
+  )
+}
+
+```
+
+```{r}
+#| label: GHS_crop_conversion_lookup_table
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# ============================================================
+# 6. CROP CONVERSION LOOKUP
+# ============================================================
+#
+# factor_mid = principal factor used for the analysis
+#
+# factor_low / factor_high =
+# approximate sensitivity range where appropriate
+#
+# factor = crop-equivalent kg / food-product kg
+#
+# For a direct crop:
+#
+#       1 kg maize grain
+#       =
+#       1 kg maize crop product
+#
+# therefore factor = 1.00.
+#
+# ============================================================
+
+conversion_lookup <- tribble(
+  ~product, ~crop, ~factor_low , ~factor_mid , ~factor_high , ~status, ~basis, ~source, ~source_url , ~notes,
+  "Guinea corn / sorghum", "Sorghum", 1.00, 1.00, 1.00,"provisional" , "direct grain",
+  "GHS item: Guinea corn / sorghum", NA_character_ ,"Direct grain product."                       ,
+  "Millet" , "Millet", 1.00, 1.00, 1.00, "provisional", "direct grain" ,
+  "GHS item: Millet",  NA_character_ ,"Direct grain product."                                     ,
+  "Rice - local", "Rice", 1.00, 1.00 , 1.00, "provisional", "direct milled product",
+  "GHS item: Rice - local", NA_character_ , "Treated as rice as consumed."                        ,
+  "Rice - imported" , "Rice", 1.00, 1.00, 1.00, "provisional", "direct milled product",
+  "GHS item: Rice - imported", NA_character_ , "Treated as rice as consumed."                    ,
+  "Maize flour", "Maize", 1.05, 1.14, 1.25, "provisional", "maize flour extraction",
+  "FAO — Quantification of Root Crops in National Food Balance Sheets",
+  "https://www.fao.org/4/y9422e/y9422e04.htm",  "Maize meal extraction approximately 80–95%."      ,
+  "Maize - unshelled/on cob", "Maize", 0.75, 0.8, 0.85, "provisional", "on-cob to grain conversion", "Omnicalculator; SeedCo Zambia" ,
+  "https://www.omnicalculator.com/biology/grain-conversion ; https://www.google.com/url?sa=i&source=web&rct=j&url=/goto?url%3DCAESaQHrOzAVLcavph2gJWT-NV7fTKMrDluyjBrI2pyPhWp3IandGoIPqjS2sYekF9De8QtlOVlzv2Xe2bvni7TGH_uPHvmLA2_l9vjUACTUnbdFNVwj9uE-hg-TJs6a_5P8h8sXO2dDdv1z4g&ved=2ahUKEwiMhOvYnOWWAxWUmYQIHTnDHR8QqYcPegoIAggACAAIGBAC&opi=89978449&cd&psig=AOvVaw3eZ4Hlxm_4fQiMTrWARoRx&ust=1789171319579000", "Uses shelling/grain recovery factor."       ,
+ "Maize - shelled/off cob", "Maize", 1.00, 1.00, 1.00, "provisional", "direct grain",
+  "GHS item: Maize - shelled/off cob", NA_character_ , "Direct maize grain."                     ,
+ "Yam flour" , "Yam", 3.33, 3.63, 4, "provisional", "yam flour conversion",  
+ "YouTube recipe for making flour", 
+  "https://www.google.com/url?sa=i&source=web&rct=j&url=/goto?url%3DCAESYwHrOzAVZUTP58XwFDZod6mRyVmIcjQ6GoaeDmZYcQyomnpy1wrq-k2fLaiu5RWI5dkz_jJLG6MrYywXLunhFPKiEn052A7Bwkr7rjg9xfxIPFgtl9ECpcAGaLDNq1osZQjDfg&ved=2ahUKEwjorOuon-WWAxXRfTABHTXnFv8QqYcPegoIAggACAAIIhAC&opi=89978449&cd&psig=AOvVaw0Zrk8R1FSd2vh1SOUSvEOX&ust=1789172024227000", "Uses conversion from yam flour to fresh yam equivalent."
+ ,
+  "Cassava flour", "Cassava", 3.75, 4, 4.25, "provisional", "cassava flour conversion",
+  "J Aristizabal  2017 ",
+  "https://www.google.com/url?sa=i&source=web&rct=j&url=/goto?url%3DCAESigEB6zswFUvEIp_eTOLnYnvzde0i8HcEv4OJeq1WhLLblzOYqSyw5D42rQpZpyo2_a4w_MKmO6HplUkj9Y5vDOorkS_7W3waZwHECZZpyZbggtDMrm-IvmH8gj6hugcmLnrrsoLif5AsdFi2Hai-68CigySlygguhSosMcgWLRRp2TdgQAUUVj9xop0&ved=2ahUKEwjHyqW9oOWWAxXAgoQIHX85MMUQqYcPegoIAggACAAIFhAC&opi=89978449&cd&psig=AOvVaw2R1uvRmx7M9PlmXlUonnkT&ust=1789172335560000",  "Uses conversion from cassava flour to appropriate cassava basis."                            ,
+  "Cassava roots", "Cassava", 1.00, 1.00, 1.00, "provisional", "direct roots",
+  "GHS item: Cassava roots", NA_character_ , "Check GHS free-text units for prepared fufu/wrapped products."                                                                                        ,
+  "Yam roots", "Yam", 1.00 , 1.00 , 1.00 , "provisional", "direct roots",
+  "GHS item: Yam roots", NA_character_ , "Direct yam roots."                                      ,
+  "Gari - white", "Cassava", 3.5, 4.5, 6.0, "provisional", "gari to fresh cassava",
+  "FAO — cassava processing literature", "https://www.fao.org/4/x5458e/x5458e05.htm" ,
+  "Highly variable processing yield."                                                              ,
+  "Gari - yellow", "Cassava", 3.5, 4.5, 6.0, "provisional", "gari to fresh cassava",
+  "FAO — cassava processing literature",
+  "https://www.fao.org/4/x5458e/x5458e05.htm",
+  "Highly variable processing yield."                                                               ,
+  "Cocoyam", "Cocoyam", 1.00, 1.00, 1.00, "provisional", "direct roots",
+  "GHS item: Cocoyam", NA_character_ , "Direct crop product."                                      ,
+  "Plantains", "Plantain", 1.00, 1.00, 1.00, "provisional", "direct crop product",
+  "GHS item: Plantains", NA_character_ , "Direct crop product."                                     ,
+  "Sweet potatoes", "Sweet potato", 1.00, 1.00, 1.00, "provisional", "direct roots",
+  "GHS item: Sweet potatoes", NA_character_  , "Direct crop product."                              ,
+  "Potatoes", "Potato", 1.00, 1.00, 1.00, "provisional", "direct roots",
+  "GHS item: Potatoes", NA_character_ , "Direct crop product."                                     ,
+  "Soya beans" , "Soybean", 1.00, 1.00, 1.00, "provisional", "direct grain",
+  "GHS item: Soya beans", NA_character_ , "Direct soybean grain."                                  ,
+  "Brown beans", "Cowpea", 1.00, 1.00, 1.00, "provisional", "direct dry grain",
+  "GHS item: Brown beans", NA_character_ , "Brown beans treated as cowpea."                        ,
+  "White beans", "Cowpea", 1.00, 1.00, 1.00, "provisional", "direct dry grain",
+  "GHS item: White beans", NA_character_ , "White beans treated as cowpea."                        ,
+  "Groundnuts - unshelled", "Groundnut", 0.65, 0.7, 0.75, "research", "unshelled to shelled conversion"  , "Nzambani Agrifarms",
+  "https://www.google.com/url?sa=i&source=web&rct=j&url=/goto?url%3DCAESzAEB6zswFe6qsuL50Ak61sGftkrGIMYIVr54zPI-HAofFPziIemt0JWX3POqA6VJZW96ySFklK2p4XVkWSAVHSZ6oO9FAeo95RMDDy0_iBcD1aLk_iKWcrQyzK81oIqzylBdQySItDxcfwfXwg1UxGRJaoULSLdQREL6_XRoq7nlct9Q20drUtZIRwj0N7UNr0ljpxMeekGfpsEJTLdQneHM3XiF_1eB1YqamBIua4jWQCwv33x9iyFs-_Tz31NvpqTCAle01rktfq0T7xY&ved=2ahUKEwid88n7oeWWAxWvTDABHTrLBKMQqYcPegoIAggACAAIHhAC&opi=89978449&cd&psig=AOvVaw0jqGOvF_ai0Vgg6rLT2nQP&ust=1789172734614000" ,
+  "Uses shelling/outturn factor."                                                                ,
+  "Groundnuts - shelled", "Groundnut", 1.00, 1.00, 1.00, "provisional" , "direct kernel",
+  "GHS item: Groundnuts - shelled", NA_character_ , "Direct groundnut kernel."                   ,
+  "Palm oil", "Oil palm", NA, NA, NA, "research", "palm oil to crop conversion",
+  "Further literature required", NA_character_ , "Need to define crop endpoint."                 ,
+  "Groundnut oil", "Groundnut", NA, NA, NA, "research", "groundnut oil to crop conversion" ,
+  "Further literature required", NA_character_ , "Requires oil extraction rate."                  ,
+  "Wheat flour", "Wheat", 1.18 , 1.32 , 1.39 , "provisional", "wheat flour extraction" ,
+  "FAO — Cereals", "https://www.fao.org/4/X5557E/x5557e04.htm" ,
+  "Wheat flour extraction approximately 72–85%."                                                  ,
+  "Bread", "Wheat", NA, NA, NA, "research", "bread recipe",
+  "Further literature required", NA_character_ , "Requires wheat flour proportion."                ,
+  "Cake", "Wheat", NA, NA, NA, "research", "cake recipe",
+  "Further literature required", NA_character_ , "Requires wheat flour proportion."               ,
+  "Buns/Pofpof/Donuts", "Wheat", NA, NA, NA, "research", "recipe conversion",
+  "Further literature required", NA_character_ , "Requires wheat flour proportion."                ,
+  "Biscuits", "Wheat", NA, NA, NA, "research", "recipe conversion",
+  "Further literature required", NA_character_ , "Requires wheat flour proportion."               ,
+  "Meat pie/Sausage roll", "Wheat" , NA, NA, NA, "research", "recipe conversion",
+  "Further literature required", NA_character_ , "Requires wheat flour proportion."               ,
+  "Tomato puree - canned", "Tomato", NA, NA, NA, "research", "tomato puree conversion",
+  "Further literature required", NA_character_ , "Requires tomato solids/yield conversion."      ,
+  "Sugar", "Sugar", NA, NA, NA, "research", "sugar to sugarcane", 
+ "Further literature required", NA_character_ , "Requires sugar recovery from sugarcane."
+)
+
+# ============================================================
+# 7. SAVE CONVERSION LOOKUP
+# ============================================================
+#
+# The lookup is effectively a research
+# worksheet. We can edit/add factors as literature is found.
+#
+# ============================================================
+
+write_csv(
+  conversion_lookup,
+  "tab_data/GHS food per capita outputs/conversion_lookup.csv"
+)
+
+```
+
+
+```{r}
+
+
+# ============================================================
+# 8. CHECK FOR FOOD ITEMS WITH NO LOOKUP
+# ============================================================
+
+df_state_items <- df_food_state_results |>
+  distinct(product)
+
+
+df_zone_items <- df_food_zone_results |>
+  distinct(product)
+
+df_missing_state_lookup <- df_state_items |>
+  anti_join(conversion_lookup |>
+      select(product),by = "product")
+
+
+df_missing_zone_lookup <- df_zone_items |>
+  anti_join(conversion_lookup |>
+      select(product),by = "product"
+  )
+
+if (nrow(df_missing_state_lookup) > 0) {
+  message("\nSTATE RESULTS — ITEMS WITHOUT A CONVERSION LOOKUP:\n")
+  print(df_missing_state_lookup )
+}
+
+
+if (nrow(df_missing_zone_lookup) > 0) {
+  message("\nZONE RESULTS — ITEMS WITHOUT A CONVERSION LOOKUP:\n")
+  print(df_missing_zone_lookup)
+}
+```
+
+
+```{r}
+
+# ============================================================
+# 9. STATE-LEVEL CONVERSION
+# ============================================================
+
+df_food_state_crop <- df_food_state_results %>%
+
+  left_join(
+    conversion_lookup,
+    by = "product"
+  ) %>%
+
+  mutate(
+    crop_equivalent_low = estimate_kg_person_year * factor_low,
+    crop_equivalent_mid = estimate_kg_person_year * factor_mid,
+    crop_equivalent_high = estimate_kg_person_year * factor_high
+  )
+
+df_crop_state_results <- df_food_state_crop %>%
+
+  filter(
+    !is.na(crop),
+    !is.na(factor_mid)
+  ) %>%
+
+  group_by(
+    state,
+    crop
+  ) %>%
+
+  summarise(
+    crop_equivalent_low = sum(crop_equivalent_low, na.rm = TRUE),
+    crop_equivalent_kg_person_year = sum(crop_equivalent_mid, na.rm = TRUE),
+    crop_equivalent_high = sum(crop_equivalent_high, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+write_csv(
+  df_crop_state_results,
+  "tab_data/GHS food per capita outputs/crop_state_results.csv"
+)
+```
+
+```{r}
+# ============================================================
+# 10. ZONE-LEVEL CONVERSION
+# ============================================================
+
+df_food_zone_crop <- df_food_zone_results %>%
+
+  left_join(
+    conversion_lookup,
+    by = "product"
+  ) %>%
+
+  mutate(
+    crop_equivalent_low = estimate_kg_person_year * factor_low,
+    crop_equivalent_mid = estimate_kg_person_year * factor_mid,
+    crop_equivalent_high = estimate_kg_person_year * factor_high
+  )
+
+
+df_crop_zone_results <- df_food_zone_crop %>%
+
+  filter(
+    !is.na(crop),
+    !is.na(factor_mid)
+  ) %>%
+
+  group_by(
+    zone,
+    crop
+  ) %>%
+
+  summarise(
+    crop_equivalent_low = sum(crop_equivalent_low, na.rm = TRUE),
+    crop_equivalent_kg_person_year = sum(crop_equivalent_mid, na.rm = TRUE),
+    crop_equivalent_high = sum(crop_equivalent_high, na.rm = TRUE),
+
+    .groups = "drop"
+  )
+
+write_csv(
+  df_crop_zone_results,
+  "tab_data/GHS food per capita outputs/crop_zone_results.csv"
+)
+```
+
+
 
 
 
