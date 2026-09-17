@@ -30,6 +30,8 @@ library(kableExtra)
 library(DT)
 library(geojsonsf)
 library(survey)
+library(ggnewscale)
+library(ggpattern)
 
 ```
 # Introduction
@@ -3759,12 +3761,21 @@ state_seasonal_comparison <- state_seasonal_results |>
     state,
     zone,
     product,
-    estimate_kg_person_week
+    estimate_kg_person_week,
+    cv
+    #,
+    #precision_flag
+    
   ) |>
   pivot_wider(
     names_from = survey_period,
-    values_from = estimate_kg_person_week
+    values_from = c(estimate_kg_person_week, cv)
   ) |>
+  rename(`Post-Planting` = `estimate_kg_person_week_Post-Planting`,
+         `Post-Harvest` = `estimate_kg_person_week_Post-Harvest`,
+         cv_pp = `cv_Post-Planting`,
+         cv_ph = `cv_Post-Harvest`
+         ) |>
   mutate(
     difference_post_harvest_minus_post_planting = `Post-Harvest` -
       `Post-Planting`,
@@ -3772,13 +3783,15 @@ state_seasonal_comparison <- state_seasonal_results |>
       `Post-Planting` > 0,
       `Post-Harvest` / `Post-Planting`,
       NA_real_
-    )
-  ) |>
-  arrange(
-    state,
-    product
-  )
-
+    )) |>
+rowwise() %>%
+mutate(cv_combined = mean(c(cv_pp, cv_ph), na.rm = T) * 100) |>
+arrange(
+  state,
+  product
+)
+  
+  
 # Direct zone-level seasonal comparison
 zone_seasonal_comparison <- zone_seasonal_results |>
   select(
@@ -3822,11 +3835,11 @@ zone_seasonal_comparison <- zone_seasonal_results |>
 
 # All files
 
-data_dir <- "D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/LSMS-GHS 2023-2024"
+data_dir <- "tab_data"
 
 output_dir <- file.path(
   data_dir,
-  "outputs"
+  "GHS food per capita outputs"
 )
 
 dir.create(
@@ -4370,6 +4383,7 @@ df_crop_state_results <- df_food_state_crop %>%
     crop_equivalent_low = sum(crop_equivalent_low, na.rm = TRUE),
     crop_equivalent_kg_person_year = sum(crop_equivalent_mid, na.rm = TRUE),
     crop_equivalent_high = sum(crop_equivalent_high, na.rm = TRUE),
+    crop_cv_combined = mean(cv_combined, na.rm = TRUE),
     .groups = "drop"
   )
 
@@ -4632,6 +4646,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cassava")) +
     axis.title = element_blank()
   )
 
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cassava")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
 ```
 
 #### Cocoyam (Taro) consumption
@@ -4661,6 +4693,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cocoyam")) +
     axis.title = element_blank()
   )
 
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cocoyam")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
 ```
 
 #### Cowpea consumption
@@ -4684,6 +4734,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cowpea")) +
     labels = scales::comma
   ) +
   labs(title = "Cowpea kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cowpea")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -4721,6 +4789,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Maize")) +
     axis.title = element_blank()
   )
 
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Maize")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
 ```
 
 #### Millet consumption
@@ -4744,6 +4830,25 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Millet")) +
     labels = scales::comma
   ) +
   labs(title = "Millet kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Millet")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -4774,6 +4879,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Potato")) +
     labels = scales::comma
   ) +
   labs(title = "Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Potato")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -4811,6 +4934,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Plantain")) +
   )
 
 
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Plantain")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
 ```
 
 #### Rice consumption
@@ -4834,6 +4975,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Rice")) +
     labels = scales::comma
   ) +
   labs(title = "Rice kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Rice")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -4870,6 +5029,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sorghum")) +
     axis.title = element_blank()
   )
 
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sorghum")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
 ```
 
 #### Sweet Potato consumption
@@ -4893,6 +5070,24 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sweet potato")) +
     labels = scales::comma
   ) +
   labs(title = "Sweet Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sweet potato")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
