@@ -3469,7 +3469,7 @@ maize_results_state_pp |> select(product, state, zone, survey_period, estimate_k
   ) |>
   DT::datatable(
     rownames = F,
-    colnames=c("State", "Zone", "Survey period", "Food Product","Estimated kg per person per week", "se", "ci low", "ci high", "cv", "precision flag"),
+    colnames=c("Food Product", "State", "Zone", "Survey period", "Estimated kg per person per week", "se", "ci low", "ci high", "cv", "precision flag"),
     caption = "Maize Food Product Consumption",
     selection = list(mode = "none"),
     editable = FALSE,
@@ -3525,7 +3525,7 @@ cassava_results_state_ph |> select(product, state, zone, survey_period, estimate
   ) |>
   DT::datatable(
     rownames = F,
-    colnames=c("State", "Zone", "Survey period", "Food Product","Estimated kg per person per week", "se", "ci low", "ci high", "cv", "precision flag"),
+    colnames=c("Food Product", "State", "Zone", "Survey period", "Estimated kg per person per week", "se", "ci low", "ci high", "cv", "precision flag"),
     caption = "Cassava Food Product Consumption",
     selection = list(mode = "none"),
     editable = FALSE,
