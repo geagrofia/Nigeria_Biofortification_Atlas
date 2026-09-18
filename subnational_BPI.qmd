@@ -27,6 +27,8 @@ library(ggtext)
 library(kableExtra)
 library(DT)
 library(geojsonsf)
+library(DT)
+library(spdep)
 
 ```
 
@@ -145,6 +147,20 @@ For their subnational BPIs @herringtonSubnationalPrioritizationBiofortification2
 ### Production Index
 
 
+### Consumption Index
+
+The consumption index consisted of a single variable in the subnational BPI (@tbl-national_cons_index).
+
+This was updated using the Wave 5 2023-24 General Household Surveys
+
+| Variable Name | Variable Explanation | Main Data Source and Year |
+|----|----|----|
+| Per-capita food consumption | Per-capita crop consumption (kg/year) | World Bank Living Standards Measurement Studies – General Household Surveys. Specifically Wave 3 data, 2023-2024 |
+
+: Variables available for the Calculation of the Consumption Index of the Subnational BPIs {#tbl-national_cons_index}
+
+We calculated crop consumption per capita per year at the state and the zone level. The survey sampling strategy is not representative at the state level, but the survey deign allowed us to estimate direct, design-weighted state estimates. For some states the overall number of households was small, and for some food products there were often few responses and as a consequence a large coefficient of variation associated with the estimates.
+
 
 
 
@@ -166,3 +182,587 @@ These are only available at the geopolitical zone level in Nigeria, but are pote
 
 
 ## Assess relationship between consumption data and food baskets 
+
+# Assess smoothing options
+
+### Load the States
+
+```{r}
+#| label: states
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson")
+
+crs(vect_state_geo) <- "epsg:4326"
+
+vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
+
+# levels(vect_state_geo$adm1_pcode) # Check levels
+
+ggplot(vect_state_geo)+
+  geom_spatvector(aes(fill = adm1_pcode)) +
+  geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
+  labs(
+    title = "Nigeria States",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+df_state <- as.data.frame(vect_state_geo)
+
+
+```
+
+### Load the geopolitical zones
+
+The geopolitical zones are a combination of states with similar ethnic groups, and/or common political history.
+
+There are six zones:
+
++---------------+----------------------------------------------------------------------------------------+
+| Zone name     | States                                                                                 |
++===============+========================================================================================+
+| North Central | Benue, Kogi, Kwara, Nasarawa, Niger, and Plateau States, and Federal Capital Territory |
++---------------+----------------------------------------------------------------------------------------+
+| North East    | Adamawa, Bauchi, Borno, Gombe, Taraba, and Yobe                                        |
++---------------+----------------------------------------------------------------------------------------+
+| North West    | Jigawa, Kaduna, Kano, Katsina, Kebbi, Sokoto, and Zamfara                              |
++---------------+----------------------------------------------------------------------------------------+
+| South East    | Abia, Anambra, Ebonyi, Enugu, and Imo                                                  |
++---------------+----------------------------------------------------------------------------------------+
+| South South   | Akwa Ibom, Bayelsa, Cross River, Delta, Edo, and Rivers                                |
++---------------+----------------------------------------------------------------------------------------+
+| South West    | Ekiti, Lagos, Ogun, Ondo, Osun, and Oyo                                                |
++---------------+----------------------------------------------------------------------------------------+
+
+The zones are created by joining the states.
+
+```{r}
+#| label: create_zones
+#| message: false
+#| warning: false
+
+adm1_pcode <- c("NG001", "NG002", "NG003", "NG004", "NG005", "NG006", "NG007", "NG008", "NG009", "NG010", "NG011", "NG012", "NG013", "NG014", "NG015", "NG016", "NG017", "NG018", "NG019", "NG020", "NG021", "NG022", "NG023", "NG024", "NG025", "NG026", "NG027", "NG028", "NG029", "NG030", "NG031", "NG032", "NG033", "NG034", "NG035", "NG036", "NG037")
+
+geopolitical_zone<- c("South East", "North East", "South South", "South East", "North East", "South South", "North Central", "North East", "South South", "South South", "South East", "South South", "South West", "South East", "North Central", "North East", "South East", "North West", "North West", "North West", "North West", "North West", "North Central", "North Central", "South West", "North Central", "North Central", "South West", "South West", "South West", "South West", "North Central", "South South", "North West", "North East", "North East", "North West")
+
+df_gpz <- tibble(adm1_pcode, geopolitical_zone)
+
+vect_gpz_geo <- dplyr::left_join(vect_state_geo, df_gpz, by = c("adm1_pcode")) |> aggregate(by = "geopolitical_zone")
+
+ggplot(vect_gpz_geo)+
+  geom_spatvector(aes(fill = geopolitical_zone)) +
+  geom_spatvector_text(aes(label = geopolitical_zone), size = 3) +
+  theme_minimal()
+
+```
+
+```{r}
+#| label: create_contiguity_matrices
+#| message: false
+#| warning: false
+
+
+# create queen neighbours
+# Find Queen contiguity (default)
+# queen_adj <- adjacent(vect_state_geo, type="queen", pairs=TRUE)
+
+state_names <- vect_state_geo$adm1_ref_name
+sf_polygons <- st_as_sf(vect_state_geo)|> st_make_valid()
+
+# Build neighbour list (Queen contiguity)
+nb_list <- poly2nb(sf_polygons, queen = TRUE)
+
+state_names
+
+# Convert neighbour list to a spatial weights matrix
+weights_list <- nb2listw(nb_list, style = "W",
+  zero.policy = TRUE)
+
+weights_matrix <- listw2mat(weights_list)
+
+rownames(weights_matrix) <- state_names
+colnames(weights_matrix) <- state_names
+
+```
+
+## Load the consumption data
+
+```{r}
+#| label: GHS_crop_consumption_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_crop_state <- read.csv("tab_data/GHS food per capita outputs/crop_state_results.csv")
+df_GHS_crop_state <- df_GHS_crop_state |>
+  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
+
+# change name to match states dataset
+df_GHS_crop_state['state'][df_GHS_crop_state['state'] == "FCT"] <- "Federal Capital Territory"
+
+df_GHS_crop_state$state <- as.factor(df_GHS_crop_state$state) 
+
+cat(paste(levels(df_GHS_crop_state$state), "; ")) # Check levels
+
+df_GHS_crop_zone <- read.csv("tab_data/GHS food per capita outputs/crop_zone_results.csv")
+
+df_GHS_crop_zone <- df_GHS_crop_zone |>
+  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
+
+df_GHS_crop_zone$zone <- as.factor(df_GHS_crop_zone$zone) 
+
+cat(paste(levels(df_GHS_crop_zone$zone), "; ")) # Check levels
+
+```
+
+```{r}
+#| label: GHS_population
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_pop_state_pp <- read.csv("tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_planting.csv") |> select(state, zone, n_households,	n_psu, weighted_population,	median_household_size, mean_household_size) |> distinct()
+
+df_GHS_pop_state_pp <- df_GHS_pop_state_pp |>
+  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
+df_GHS_pop_state_pp <- df_GHS_pop_state_pp |>
+  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
+
+# change name to match states dataset
+df_GHS_pop_state_pp['state'][df_GHS_pop_state_pp['state'] == "FCT"] <- "Federal Capital Territory"
+
+
+df_GHS_pop_state_ph <- read.csv("tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_harvest.csv") |> select(state, zone, n_households,	n_psu, weighted_population,	median_household_size, mean_household_size) |> distinct()
+
+df_GHS_pop_state_ph <- df_GHS_pop_state_ph |>
+  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
+df_GHS_pop_state_ph <- df_GHS_pop_state_ph |>
+  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
+df_GHS_pop_state_ph['state'][df_GHS_pop_state_ph['state'] == "FCT"] <- "Federal Capital Territory"
+
+df_GHS_pop_state <- left_join(
+  df_GHS_pop_state_pp,
+  df_GHS_pop_state_ph,
+  by = "state"
+) |>
+  rowwise() |>
+  mutate(
+    zone = zone.x,
+    n_households = mean(c(n_households.x, n_households.y), na.rm = T),
+    n_psu = mean(c(n_psu.x, n_psu.y), na.rm = T),
+    weighted_population = mean(
+      c(weighted_population.x, weighted_population.y),
+      na.rm = T
+    ),
+    median_household_size = mean(
+      c(median_household_size.x, median_household_size.y),
+      na.rm = T
+    ),
+    mean_household_size = mean(
+      c(mean_household_size.x, mean_household_size.y),
+      na.rm = T
+    )
+  ) |>
+  rename(
+    n_households_pp = n_households.x,
+    n_households_ph = n_households.y,
+    n_psu_pp = n_psu.x,
+    n_psu_ph = n_psu.y,
+    mean_household_size_pp = mean_household_size.x,
+    mean_household_size_ph = mean_household_size.y,
+    median_household_size_pp = median_household_size.x,
+    median_household_size_ph = median_household_size.y,
+    weighted_population_pp = weighted_population.x,
+    weighted_population_ph = weighted_population.y
+  ) |>
+  select(
+    state,
+    zone,
+    weighted_population_pp,
+    weighted_population_ph,
+    weighted_population,
+    n_households_pp,
+    n_households_ph,
+    n_households,
+    n_psu_pp,
+    n_psu_ph,
+    n_psu,
+    mean_household_size_pp,
+    mean_household_size_ph,
+    mean_household_size,
+    median_household_size_pp,
+    median_household_size_ph,
+    median_household_size
+  )
+
+
+# get the zonal population
+
+df_GHS_pop_zone <- df_GHS_pop_state |>
+  group_by(
+    zone
+  ) |>
+  summarise(
+    weighted_population_zone = sum(weighted_population, na.rm = TRUE),
+    .groups = "drop"
+  ) 
+
+# add zonal population to the state
+
+df_GHS_pop_state <- df_GHS_pop_state |>
+  left_join(df_GHS_pop_zone, by = "zone")
+ 
+
+```
+
+
+```{r}
+#| label: GHS_crop_pop
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_pop_crop_state <- df_GHS_crop_state |>
+  left_join(df_GHS_pop_state, by = c("state")) |>
+    left_join(df_GHS_crop_zone, by = c("zone", "crop")) |>
+rename(
+    crop_equivalent_low_state = crop_equivalent_low.x,
+    crop_equivalent_low_zone = crop_equivalent_low.y,
+    crop_equivalent_kg_person_year_state = crop_equivalent_kg_person_year.x,
+    crop_equivalent_kg_person_year_zone = crop_equivalent_kg_person_year.y,
+    crop_equivalent_high_state = crop_equivalent_high.x,
+    crop_equivalent_high_zone = crop_equivalent_high.y)
+
+```
+
+### Spatial lag to smooth state estimates
+
+```{r}
+# ============================================================
+# 1. INPUTS
+# ============================================================
+
+# Expected columns in df_GHS_pop_crop_state  :
+#
+# crop
+# state
+# zone
+# crop_equivalent_kg_person_year_state       = direct state kg/person/year
+# crop_equivalent_kg_person_year_zone        = survey-supported zone kg/person/year
+# weighted_population     = weighted population of state
+# weighted_population_zone      = weighted population of zone
+#
+# weights_matrix = row-standardised queen spatial weights matrix
+#
+# IMPORTANT:
+# The rows/columns of weights_matrix must correspond to the STATE names
+# used in df_GHS_pop_crop_state.
+# ============================================================
+```
+
+
+```{r}
+# ============================================================
+# 2. CHECK THE POPULATION / ZONE INFORMATION
+# ============================================================
+
+zone_check <- df_GHS_pop_crop_state |>
+  group_by(crop, zone) |>
+  summarise(
+    crop_equivalent_kg_person_year_zone = first(crop_equivalent_kg_person_year_zone),
+    weighted_population_zone = first(weighted_population_zone),
+
+    sum_weighted_population =
+      sum(weighted_population, na.rm = TRUE),
+
+    n_states = n(),
+
+    .groups = "drop"
+  ) |>
+  mutate(
+    population_difference =
+      sum_weighted_population - weighted_population_zone
+  )
+
+print(zone_check)
+```
+
+
+```{r}
+# ============================================================
+# 3. CALCULATE THE DIRECT STATE / ZONE RATIO
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  mutate(
+    state_zone_ratio =
+      crop_equivalent_kg_person_year_state / crop_equivalent_kg_person_year_zone
+  )
+```
+
+
+```{r}
+# ============================================================
+# 4. SPATIAL LAG OF THE STATE / ZONE RATIO
+# ============================================================
+
+# Convert weights_matrix to a matrix if necessary.
+#
+# If weights_matrix is already a matrix:
+weights_matrix_mat <- as.matrix(weights_matrix)
+
+# Check dimensions
+stopifnot(
+  nrow(weights_matrix_mat) == ncol(weights_matrix_mat)
+)
+
+# ------------------------------------------------------------
+# IMPORTANT:
+# We need the states in df_GHS_pop_crop_state to be in exactly the same order
+# as the rows/columns of weights_matrix.
+# ------------------------------------------------------------
+
+state_order <- rownames(weights_matrix_mat)
+
+if (is.null(state_order)) {
+  stop(
+    "weights_matrix must have state names as row names."
+  )
+}
+
+
+# Check that every state in df_GHS_pop_crop_state occurs in weights_matrix
+missing_states <- setdiff(
+  unique(df_GHS_pop_crop_state$state),
+  state_order
+)
+
+if (length(missing_states) > 0) {
+
+  stop(
+    "These states are missing from weights_matrix: ",
+    paste(missing_states, collapse = ", ")
+  )
+}
+
+
+# ------------------------------------------------------------
+# Function to calculate spatially lagged ratios
+# ------------------------------------------------------------
+
+spatial_lag_ratio <- function(
+    state_names,
+    values,
+    weights_matrix_mat
+) {
+
+  # Put values into the same order as weights_matrix
+  x <- setNames(
+    values,
+    state_names
+  )
+
+  x_ordered <- x[
+    rownames(weights_matrix_mat)
+  ]
+
+  # Spatial lag
+  lagged <- as.numeric(
+    weights_matrix_mat %*% x_ordered
+  )
+
+  names(lagged) <-
+    rownames(weights_matrix_mat)
+
+  # Return in original state order
+  lagged[state_names]
+}
+
+
+# ------------------------------------------------------------
+# Apply to each crop
+#
+# We calculate the spatial lag separately for each crop.
+# ------------------------------------------------------------
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  group_by(crop) |>
+  mutate(
+    spatial_lag_ratio =
+      spatial_lag_ratio(
+        state,
+        state_zone_ratio,
+        weights_matrix_mat
+      )
+  ) |>
+  ungroup()
+```
+
+
+```{r}
+# ============================================================
+# 5. CREATE THE UNBENCHMARKED SPATIAL ESTIMATE
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  mutate(
+    smoothed_ratio =
+      spatial_lag_ratio,
+
+    smoothed_crop_equivalent_kg_person_year_state =
+      #smoothed_ratio * crop_equivalent_kg_person_year_zone
+      smoothed_ratio * crop_equivalent_kg_person_year_state
+  )
+```
+
+
+```{r}
+# ============================================================
+# 6. CALCULATE THE UNBENCHMARKED STATE TOTAL
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  mutate(
+    smoothed_state_total =
+      smoothed_crop_equivalent_kg_person_year_state *
+      weighted_population
+  )
+```
+
+
+```{r}
+# ============================================================
+# 7. CALCULATE THE ZONAL BENCHMARK
+# ============================================================
+
+# The benchmark is:
+#
+# zone consumption =
+# zone per-capita consumption × zone population
+#
+# We compare this with the population-weighted total of
+# the spatially smoothed state estimates.
+
+benchmark <- df_GHS_pop_crop_state |>
+  group_by(crop, zone) |>
+  summarise(
+
+    crop_equivalent_kg_person_year_zone =
+      first(crop_equivalent_kg_person_year_zone),
+
+    weighted_population_zone =
+      first(weighted_population_zone),
+
+    zone_total =
+      crop_equivalent_kg_person_year_zone *
+      weighted_population_zone,
+
+    smoothed_state_total =
+      sum(
+        smoothed_state_total,
+        na.rm = TRUE
+      ),
+
+    .groups = "drop"
+  ) |>
+  mutate(
+
+    benchmark_factor =
+      zone_total /
+      smoothed_state_total
+
+  )
+```
+
+
+```{r}
+# ============================================================
+# 8. APPLY THE BENCHMARK
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+
+  left_join(
+    benchmark |>
+      select(
+        crop,
+        zone,
+        benchmark_factor
+      ),
+    by = c(
+      "crop",
+      "zone"
+    )
+  ) |>
+
+  mutate(
+
+    benchmarked_crop_equivalent_kg_person_year_state =
+      smoothed_crop_equivalent_kg_person_year_state *
+      benchmark_factor,
+
+    benchmarked_state_total =
+      benchmarked_crop_equivalent_kg_person_year_state *
+      weighted_population
+
+  )
+```
+
+
+```{r}
+# ============================================================
+# 9. FINAL CHECK
+# ============================================================
+
+benchmark_check <- df_GHS_pop_crop_state |>
+
+  group_by(
+    crop,
+    zone
+  ) |>
+
+  summarise(
+
+    crop_equivalent_kg_person_year_zone =
+      first(crop_equivalent_kg_person_year_zone),
+
+    weighted_population_zone =
+      first(weighted_population_zone),
+
+    zone_total =
+      crop_equivalent_kg_person_year_zone *
+      weighted_population_zone,
+
+    benchmarked_state_total =
+      sum(
+        benchmarked_state_total,
+        na.rm = TRUE
+      ),
+
+    difference =
+      benchmarked_state_total -
+      zone_total,
+
+    percentage_difference =
+      100 *
+      difference /
+      zone_total,
+
+    .groups = "drop"
+
+  )
+
+print(benchmark_check)
+```
+
+
