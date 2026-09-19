@@ -32,6 +32,7 @@ library(geojsonsf)
 library(survey)
 library(ggnewscale)
 library(ggpattern)
+library(spdep)
 
 ```
 # Introduction
@@ -1106,6 +1107,90 @@ notes
 This also meant that if we found a better Nigerian estimate for, say, gari, we only needed to change one row in the lookup, rerun the conversion, and all our state and zone results would update automatically.
 
 The crop equivalent conversion calculation did not touch the household-level GHS data at all. It treated the results of the per capita food product consumption as the starting point and preserved our original kg_person_week values.
+
+## Smoothing with a spatial lag model
+
+@herringtonSubnationalPrioritizationBiofortification2018 used a spatial lag model to introduce heterogeneity within the zone. They used queen-case contiguity using the zonal values applied to the states. So states in one zone bordering states in other zones changed their values.
+
+In our case we made an important conceptual change from the previous study and used the direct state estimates as our starting values, rather than assigning the zone value to every state.
+
+There is a well-established statistical rationale for this. Spatial small-area methods explicitly use information from neighbouring areas to stabilize noisy direct estimates, and methods such as CAR/ICAR models define neighbours through shared boundaries. More recent work also combines survey design information with spatial smoothing specifically because direct survey estimates can be noisy at small geographic scales.
+
+So we used the representative zone estimates as a benchmark, rather than as the starting value.
+
+For each state we calculated:
+$$ R_i=\frac{C_i}{C_z} $$
+where $C_z$ is our survey-weighted zone estimate.
+Then spatially lag the ratio:
+$$ R_i^{SL} = WR_i $$
+and reconstruct:
+$$ C_i^{SL} = R_i^{SL}C_z $$
+
+An advantage of this method is that it avoids a potentially awkward situation where spatial smoothing of the raw state estimates causes the aggregate of the states to differ substantially from the actual survey estimate for the zone.
+
+We can impose a benchmarking constraint so that the population-weighted state estimates add back to the observed zone estimate:
+$$ \frac{\sum_i N_iY_i^*}{\sum_iN_i}=Y_z $$
+
+where $N_i$ is the state population.
+
+This is a very useful property because these values are subsequently going into our spatial crop-consumption maps.
+We cannot not call the resulting values "state estimates" without qualification. Once we introduce the spatial lag, they become model-assisted/spatially smoothed estimates. The literature makes this distinction explicitly: direct estimates use only observations from the area itself, whereas indirect/smoothed estimates borrow information from other areas.
+
+So we used the term: **spatially smoothed state-level estimates benchmarked to geopolitical-zone survey estimates**
+
+
+::: {.callout-note title="Example of the smooting"}
+
+Suppose, for one crop, a zone has:
+
+Zone consumption = 20 kg/person/year
+Zone population  = 10 million
+
+Therefore the benchmark total is:
+
+$$ 20 \times 10,000,000 = 200,000,000\text{ kg} $$
+Suppose the direct state estimates are:
+
+State | kg/person/year | population
+------|----------------|-------------
+ A    | 15             | 3 million
+ B    | 22             | 2 million
+ C    | 27             | 4 million
+...   |...             |...    
+
+The ratio of the state to the zone estimates are
+
+- State A: 0.75
+- State B: 1.1
+- State C: 1.35
+...
+
+These **ratios** are adjusted based on the values of the surrounding states
+
+- State A: 0.8
+- State B: 1.05
+- State C: 1.3
+...
+
+The smoothed state estimates would now be:
+
+- State A: 16 kg/person/year ->  48,000,000 kg
+- State B: 21 kg/person/year ->  42,000,000 kg
+- State C: 26 kg/person/year -> 104,000,000 kg
+
+The sum for the zone would be 194,000,000 kg. This is less than the zone estimate, so the smoothed state estimates need to be adjusted by the benchmarking factor of:
+$$ \frac{200000000 } {194000000} = 1.03 $$
+
+The smoothed and adjusted state estimates would now be:
+
+- State A: 16.49 kg/person/year ->  49,484,536 kg
+- State B: 21.64 kg/person/year ->  43,298,969 kg
+- State C: 26.8  kg/person/year -> 107,216,495 kg
+
+...which sum to 200 million.
+
+The relative spatial pattern is retained, but the aggregate is forced to agree with the zonal survey estimate.
+::: 
 
 
 ## Household level GHS data
@@ -4617,9 +4702,37 @@ vect_gpz_geo_GHS_crop |> as.data.frame() |>
 
 ```
 
-### Plot the States results
+### Plot the Results
 
-#### Cassava consumption
+f#### Cassava consumption
+
+
+```{r}
+#| label: GHS_2023_24_zone_cassava_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cassava")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
 
 ```{r}
 #| label: GHS_2023_24_state_cassava_consumption_map
@@ -4669,6 +4782,33 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cassava")) +
 #### Cocoyam (Taro) consumption
 
 ```{r}
+#| label: GHS_2023_24_zone_cocoyam_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cocoyam")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cocoyam kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
 #| label: GHS_2023_24_state_cocoyam_consumption_map
 #| message: false
 #| warning: false
@@ -4713,7 +4853,37 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cocoyam")) +
 
 ```
 
+
 #### Cowpea consumption
+
+```{r}
+#| label: GHS_2023_24_zone_cowpea_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cowpea")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 30),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
 
 ```{r}
 #| label: GHS_2023_24_state_cowpea_consumption_map
@@ -4765,6 +4935,34 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cowpea")) +
 #### Maize consumption
 
 ```{r}
+#| label: GHS_2023_24_zone_maize_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Maize")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
 #| label: GHS_2023_24_state_maize_consumption_map
 #| message: false
 #| warning: false
@@ -4810,6 +5008,35 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Maize")) +
 ```
 
 #### Millet consumption
+
+```{r}
+#| label: GHS_2023_24_zone_millet_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Millet")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Millet kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
 
 ```{r}
 #| label: GHS_2023_24_state_millet_consumption_map
@@ -4861,6 +5088,34 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Millet")) +
 #### Potato consumption
 
 ```{r}
+#| label: GHS_2023_24_zone_potato_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Potato")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 10),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
 #| label: GHS_2023_24_state_potato_consumption_map
 #| message: false
 #| warning: false
@@ -4906,7 +5161,37 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Potato")) +
 ```
 
 
+
 #### Plantain consumption
+
+```{r}
+#| label: GHS_2023_24_zone_plantain_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Plantain")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 40),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
 
 ```{r}
 #| label: GHS_2023_24_state_plantain_consumption_map
@@ -4957,6 +5242,34 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Plantain")) +
 #### Rice consumption
 
 ```{r}
+#| label: GHS_2023_24_zone_rice_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Rice")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 50),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
 #| label: GHS_2023_24_state_rice_consumption_map
 #| message: false
 #| warning: false
@@ -5002,7 +5315,36 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Rice")) +
 ```
 
 
+
 #### Sorghum consumption
+
+```{r}
+#| label: GHS_2023_24_zone_sorghum_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sorghum")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
 
 ```{r}
 #| label: GHS_2023_24_state_sorghum_consumption_map
@@ -5052,6 +5394,33 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sorghum")) +
 #### Sweet Potato consumption
 
 ```{r}
+#| label: GHS_2023_24_zone_sweet_potato_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sweet potato")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 15),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
 #| label: GHS_2023_24_state_sweet_potato_consumption_map
 #| message: false
 #| warning: false
@@ -5095,47 +5464,17 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sweet potato")) +
   )
 
 ```
-### Plot the Zones results
 
-#### Cassava consumption
+#### Wheat consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_cassava_consumption_map
+#| label: GHS_2023_24_zone_wheat_consumption_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cassava")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
-  scale_fill_stepsn(
-    n.breaks = 10,
-    limits = c(0, 400),
-    colours = hcl.colors(palette = "Grays", 10, rev = T),
-    guide = "legend",
-    na.value = "pink",
-    labels = scales::comma
-  ) +
-  labs(title = "Cassava kg per person per year", fill = "kg") +
-  theme(
-    plot.title = element_markdown(),
-    legend.title = element_markdown(),
-    axis.title = element_blank()
-  )
-
-```
-
-#### Cocoyam (Taro) consumption
-
-```{r}
-#| label: GHS_2023_24_zone_cocoyam_consumption_map
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cocoyam")) +
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Wheat")) +
   geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
   geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
   scale_fill_stepsn(
@@ -5146,7 +5485,7 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cocoyam")) +
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Cocoyam kg per person per year", fill = "kg") +
+  labs(title = "Wheat kg per person per year", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5155,58 +5494,43 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cocoyam")) +
 
 ```
 
-#### Cowpea consumption
-
 ```{r}
-#| label: GHS_2023_24_zone_cowpea_consumption_map
+#| label: GHS_2023_24_state_wheat_consumption_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Cowpea")) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Wheat")) +
   geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
   geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 30),
+    limits = c(0, 10),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Cowpea kg per person per year", fill = "kg") +
+  labs(title = "Wheat kg per person per year", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
     axis.title = element_blank()
   )
 
-```
-
-
-
-#### Maize consumption
-
-```{r}
-#| label: GHS_2023_24_zone_maize_consumption_map
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Maize")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Wheat")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 50),
-    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Maize kg per person per year", fill = "kg") +
+  labs(title = "Combined CV", fill = NA) +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5215,16 +5539,16 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Maize")) +
 
 ```
 
-#### Millet consumption
+#### Yam consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_millet_consumption_map
+#| label: GHS_2023_24_zone_yam_consumption_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Millet")) +
+ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Yam")) +
   geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
   geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
   scale_fill_stepsn(
@@ -5235,7 +5559,859 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Millet")) +
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Millet kg per person per year", fill = "kg") +
+  labs(title = "Yam kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: GHS_2023_24_state_yam_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Yam")) +
+  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
+  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Yam kg per person per year", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Yam")) +
+  geom_spatvector(aes(fill = crop_cv_combined)) +
+  geom_spatvector_text(aes(label = round(crop_cv_combined)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Reds", 6, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Combined CV", fill = NA) +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Smoothed Crop Consumption
+
+
+```{r}
+#| label: create_contiguity_matrices
+#| message: false
+#| warning: false
+
+
+# create queen neighbours
+# Find Queen contiguity (default)
+# queen_adj <- adjacent(vect_state_geo, type="queen", pairs=TRUE)
+
+state_names <- vect_state_geo$adm1_ref_name
+sf_polygons <- st_as_sf(vect_state_geo)|> st_make_valid()
+
+# Build neighbour list (Queen contiguity)
+nb_list <- poly2nb(sf_polygons, queen = TRUE)
+
+#state_names
+
+# Convert neighbour list to a spatial weights matrix
+weights_list <- nb2listw(nb_list, style = "W",
+  zero.policy = TRUE)
+
+weights_matrix <- listw2mat(weights_list)
+
+rownames(weights_matrix) <- state_names
+colnames(weights_matrix) <- state_names
+
+```
+
+
+```{r}
+#| label: GHS_population
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_pop_state_pp <- read.csv("tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_planting.csv") |> select(state, zone, n_households,	n_psu, weighted_population,	median_household_size, mean_household_size) |> distinct()
+
+df_GHS_pop_state_pp <- df_GHS_pop_state_pp |>
+  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
+df_GHS_pop_state_pp <- df_GHS_pop_state_pp |>
+  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
+
+# change name to match states dataset
+df_GHS_pop_state_pp['state'][df_GHS_pop_state_pp['state'] == "FCT"] <- "Federal Capital Territory"
+
+
+df_GHS_pop_state_ph <- read.csv("tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_harvest.csv") |> select(state, zone, n_households,	n_psu, weighted_population,	median_household_size, mean_household_size) |> distinct()
+
+df_GHS_pop_state_ph <- df_GHS_pop_state_ph |>
+  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
+df_GHS_pop_state_ph <- df_GHS_pop_state_ph |>
+  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
+df_GHS_pop_state_ph['state'][df_GHS_pop_state_ph['state'] == "FCT"] <- "Federal Capital Territory"
+
+df_GHS_pop_state <- left_join(
+  df_GHS_pop_state_pp,
+  df_GHS_pop_state_ph,
+  by = "state"
+) |>
+  rowwise() |>
+  mutate(
+    zone = zone.x,
+    n_households = mean(c(n_households.x, n_households.y), na.rm = T),
+    n_psu = mean(c(n_psu.x, n_psu.y), na.rm = T),
+    weighted_population = mean(
+      c(weighted_population.x, weighted_population.y),
+      na.rm = T
+    ),
+    median_household_size = mean(
+      c(median_household_size.x, median_household_size.y),
+      na.rm = T
+    ),
+    mean_household_size = mean(
+      c(mean_household_size.x, mean_household_size.y),
+      na.rm = T
+    )
+  ) |>
+  rename(
+    n_households_pp = n_households.x,
+    n_households_ph = n_households.y,
+    n_psu_pp = n_psu.x,
+    n_psu_ph = n_psu.y,
+    mean_household_size_pp = mean_household_size.x,
+    mean_household_size_ph = mean_household_size.y,
+    median_household_size_pp = median_household_size.x,
+    median_household_size_ph = median_household_size.y,
+    weighted_population_pp = weighted_population.x,
+    weighted_population_ph = weighted_population.y
+  ) |>
+  select(
+    state,
+    zone,
+    weighted_population_pp,
+    weighted_population_ph,
+    weighted_population,
+    n_households_pp,
+    n_households_ph,
+    n_households,
+    n_psu_pp,
+    n_psu_ph,
+    n_psu,
+    mean_household_size_pp,
+    mean_household_size_ph,
+    mean_household_size,
+    median_household_size_pp,
+    median_household_size_ph,
+    median_household_size
+  )
+
+
+# get the zonal population
+
+df_GHS_pop_zone <- df_GHS_pop_state |>
+  group_by(
+    zone
+  ) |>
+  summarise(
+    weighted_population_zone = sum(weighted_population, na.rm = TRUE),
+    .groups = "drop"
+  ) 
+
+# add zonal population to the state
+
+df_GHS_pop_state <- df_GHS_pop_state |>
+  left_join(df_GHS_pop_zone, by = "zone")
+ 
+
+```
+
+
+```{r}
+#| label: GHS_crop_pop
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_pop_crop_state <- df_GHS_crop_state |>
+  left_join(df_GHS_pop_state, by = c("state")) |>
+    left_join(df_GHS_crop_zone, by = c("zone", "crop")) |>
+rename(
+    crop_equivalent_low_state = crop_equivalent_low.x,
+    crop_equivalent_low_zone = crop_equivalent_low.y,
+    crop_equivalent_kg_person_year_state = crop_equivalent_kg_person_year.x,
+    crop_equivalent_kg_person_year_zone = crop_equivalent_kg_person_year.y,
+    crop_equivalent_high_state = crop_equivalent_high.x,
+    crop_equivalent_high_zone = crop_equivalent_high.y)
+
+```
+
+### Spatial lag to smooth state estimates
+
+```{r}
+#| label: GHS_crop_spatial_lag_1
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 1. INPUTS
+# ============================================================
+
+# Expected columns in df_GHS_pop_crop_state  :
+#
+# crop
+# state
+# zone
+# crop_equivalent_kg_person_year_state       = direct state kg/person/year
+# crop_equivalent_kg_person_year_zone        = survey-supported zone kg/person/year
+# weighted_population     = weighted population of state
+# weighted_population_zone      = weighted population of zone
+#
+# weights_matrix = row-standardised queen spatial weights matrix
+#
+# IMPORTANT:
+# The rows/columns of weights_matrix must correspond to the STATE names
+# used in df_GHS_pop_crop_state.
+# ============================================================
+```
+
+
+```{r}
+#| label: tbl-GHS_crop_spatial_lag_2
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| tbl-cap: "Zone check"
+
+# ============================================================
+# 2. CHECK THE POPULATION / ZONE INFORMATION
+# ============================================================
+
+zone_check <- df_GHS_pop_crop_state |>
+  group_by(crop, zone) |>
+  summarise(
+    crop_equivalent_kg_person_year_zone = first(crop_equivalent_kg_person_year_zone),
+    weighted_population_zone = first(weighted_population_zone),
+
+    sum_weighted_population =
+      sum(weighted_population, na.rm = TRUE),
+
+    n_states = n(),
+
+    .groups = "drop"
+  ) |>
+  mutate(
+    population_difference =
+      sum_weighted_population - weighted_population_zone
+  )
+
+zone_check |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop", "Zone", "Zone crop consumption estimate" ,"weighted population per zone", "sum_weighted_population ", "# States ", "Population Difference "),
+    caption = "Check the Population per zone",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+```
+
+
+```{r}
+#| label: GHS_crop_spatial_lag_3
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 3. CALCULATE THE DIRECT STATE / ZONE RATIO
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  mutate(
+    state_zone_ratio =
+      crop_equivalent_kg_person_year_state / crop_equivalent_kg_person_year_zone
+  )
+```
+
+
+```{r}
+#| label: GHS_crop_spatial_lag_4
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 4. SPATIAL LAG OF THE STATE / ZONE RATIO
+# ============================================================
+
+# Convert weights_matrix to a matrix if necessary.
+#
+# If weights_matrix is already a matrix:
+weights_matrix_mat <- as.matrix(weights_matrix)
+
+# Check dimensions
+stopifnot(
+  nrow(weights_matrix_mat) == ncol(weights_matrix_mat)
+)
+
+# ------------------------------------------------------------
+# IMPORTANT:
+# We need the states in df_GHS_pop_crop_state to be in exactly the same order
+# as the rows/columns of weights_matrix.
+# ------------------------------------------------------------
+
+state_order <- rownames(weights_matrix_mat)
+
+if (is.null(state_order)) {
+  stop(
+    "weights_matrix must have state names as row names."
+  )
+}
+
+
+# Check that every state in df_GHS_pop_crop_state occurs in weights_matrix
+missing_states <- setdiff(
+  unique(df_GHS_pop_crop_state$state),
+  state_order
+)
+
+if (length(missing_states) > 0) {
+
+  stop(
+    "These states are missing from weights_matrix: ",
+    paste(missing_states, collapse = ", ")
+  )
+}
+
+
+# ------------------------------------------------------------
+# Function to calculate spatially lagged ratios
+# ------------------------------------------------------------
+
+spatial_lag_ratio <- function(
+    state_names,
+    values,
+    weights_matrix_mat
+) {
+
+  # Put values into the same order as weights_matrix
+  x <- setNames(
+    values,
+    state_names
+  )
+
+  x_ordered <- x[
+    rownames(weights_matrix_mat)
+  ]
+
+  # Spatial lag
+  lagged <- as.numeric(
+    weights_matrix_mat %*% x_ordered
+  )
+
+  names(lagged) <-
+    rownames(weights_matrix_mat)
+
+  # Return in original state order
+  lagged[state_names]
+}
+
+
+# ------------------------------------------------------------
+# Apply to each crop
+#
+# We calculate the spatial lag separately for each crop.
+# ------------------------------------------------------------
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  group_by(crop) |>
+  mutate(
+    spatial_lag_ratio =
+      spatial_lag_ratio(
+        state,
+        state_zone_ratio,
+        weights_matrix_mat
+      )
+  ) |>
+  ungroup()
+```
+
+
+```{r}
+#| label: GHS_crop_spatial_lag_5
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# ============================================================
+# 5. CREATE THE UNBENCHMARKED SPATIAL ESTIMATE
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  mutate(
+    smoothed_ratio =
+      spatial_lag_ratio,
+
+    smoothed_crop_equivalent_kg_person_year_state =
+      #smoothed_ratio * crop_equivalent_kg_person_year_zone
+      smoothed_ratio * crop_equivalent_kg_person_year_state
+  )
+```
+
+
+```{r}
+#| label: GHS_crop_spatial_lag_6
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# ============================================================
+# 6. CALCULATE THE UNBENCHMARKED STATE TOTAL
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+  mutate(
+    smoothed_state_total =
+      smoothed_crop_equivalent_kg_person_year_state *
+      weighted_population
+  )
+```
+
+
+```{r}
+#| label: GHS_crop_spatial_lag_7
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 7. CALCULATE THE ZONAL BENCHMARK
+# ============================================================
+
+# The benchmark is:
+#
+# zone consumption =
+# zone per-capita consumption × zone population
+#
+# We compare this with the population-weighted total of
+# the spatially smoothed state estimates.
+
+benchmark <- df_GHS_pop_crop_state |>
+  group_by(crop, zone) |>
+  summarise(
+
+    crop_equivalent_kg_person_year_zone =
+      first(crop_equivalent_kg_person_year_zone),
+
+    weighted_population_zone =
+      first(weighted_population_zone),
+
+    zone_total =
+      crop_equivalent_kg_person_year_zone *
+      weighted_population_zone,
+
+    smoothed_state_total =
+      sum(
+        smoothed_state_total,
+        na.rm = TRUE
+      ),
+
+    .groups = "drop"
+  ) |>
+  mutate(
+
+    benchmark_factor =
+      zone_total /
+      smoothed_state_total
+
+  )
+```
+
+
+```{r}
+#| label: GHS_crop_spatial_lag_8
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 8. APPLY THE BENCHMARK
+# ============================================================
+
+df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
+
+  left_join(
+    benchmark |>
+      select(
+        crop,
+        zone,
+        benchmark_factor
+      ),
+    by = c(
+      "crop",
+      "zone"
+    )
+  ) |>
+
+  mutate(
+
+    benchmarked_crop_equivalent_kg_person_year_state =
+      smoothed_crop_equivalent_kg_person_year_state *
+      benchmark_factor,
+
+    benchmarked_state_total =
+      benchmarked_crop_equivalent_kg_person_year_state *
+      weighted_population
+
+  )
+```
+
+
+```{r}
+#| label: tbl-GHS_crop_spatial_lag_9
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| tbl-cap: "Benchmark check"
+
+
+# ============================================================
+# 9. FINAL CHECK
+# ============================================================
+
+benchmark_check <- df_GHS_pop_crop_state |>
+
+  group_by(
+    crop,
+    zone
+  ) |>
+
+  summarise(
+
+    crop_equivalent_kg_person_year_zone =
+      first(crop_equivalent_kg_person_year_zone),
+
+    weighted_population_zone =
+      first(weighted_population_zone),
+
+    zone_total =
+      crop_equivalent_kg_person_year_zone *
+      weighted_population_zone,
+
+    benchmarked_state_total =
+      sum(
+        benchmarked_state_total,
+        na.rm = TRUE
+      ),
+
+    difference =
+      benchmarked_state_total -
+      zone_total,
+
+    percentage_difference =
+      100 *
+      difference /
+      zone_total,
+
+    .groups = "drop"
+
+  )
+
+benchmark_check |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop", "Zone", "Zone crop consumption estimate" ,"weighted population per zone", "Total consumption per zone", "benchmarked_state_total  ", "Consumption Difference ", "% Difference "),
+    caption = "Check the Benchmark",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+```{r}
+#| label: GHS_crop_spatial_lag_10
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# ============================================================
+# 10. SAVE OUTPUTS
+# ============================================================
+
+
+write_csv(
+  df_GHS_pop_crop_state,
+  "tab_data/GHS food per capita outputs/crop_state_results_benchmarked_smoothed.csv"
+)
+
+
+```
+
+
+
+
+### Join back to States dataset
+
+```{r}
+#| label: GHS_crop_consumption_state_benchmarked_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_GHS_crop <- dplyr::left_join(vect_state_geo, df_GHS_pop_crop_state, by = c("adm1_ref_name" = "state"))
+vect_state_geo_GHS_crop |>
+  as.data.frame() |>
+  select(
+    zone,
+    adm1_ref_name,
+    crop,
+    crop_equivalent_kg_person_year_state,
+    crop_equivalent_kg_person_year_zone,
+    benchmarked_crop_equivalent_kg_person_year_state
+  ) |>
+  mutate(
+    crop_equivalent_kg_person_year_state = prettyunits::pretty_round(
+      crop_equivalent_kg_person_year_state,
+      digits = 0
+    ),
+    crop_equivalent_kg_person_year_zone = prettyunits::pretty_round(crop_equivalent_kg_person_year_zone, digits = 0),
+    benchmarked_crop_equivalent_kg_person_year_state = prettyunits::pretty_round(
+      benchmarked_crop_equivalent_kg_person_year_state,
+      digits = 0
+    )
+  ) |>
+  DT::datatable(
+    rownames = F,
+    colnames = c(
+      "Zone",
+      "State",
+      "Crop",
+      "State - Annual Per Capita consumption (kg)",
+      "Zone - Annual Per Capita consumption (kg)",
+      "State Smoothed Benchmarked - Annual Per Capita consumption (kg)"
+    ),
+    caption = "GHS crop consumption zone summary",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+
+### Plot the benchmarked and smoothed consumption results
+
+#### Cassava consumption
+
+```{r}
+#| label: GHS_2023_24_state_cassava_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cassava")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava kg per person per year (smoothed & benchmarked)", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+#### Cocoyam consumption
+
+```{r}
+#| label: GHS_2023_24_state_cocoyam_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cocoyam")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cocoyam kg per person per year (smoothed & benchmarked)", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Cowpea consumption
+
+```{r}
+#| label: GHS_2023_24_state_cowpea_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Cowpea")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea kg per person per year (smoothed & benchmarked)", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Maize consumption
+
+```{r}
+#| label: GHS_2023_24_state_maize_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Maize")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize kg per person per year (smoothed & benchmarked)", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+#### Millet consumption
+
+```{r}
+#| label: GHS_2023_24_state_millet_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Millet")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Millet kg per person per year (smoothed & benchmarked)", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5248,24 +6424,24 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Millet")) +
 #### Potato consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_potato_consumption_map
+#| label: GHS_2023_24_state_potato_consumption_benchmarked_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Potato")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Potato")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 10),
+    limits = c(0, 400),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Potato kg per person per year", fill = "kg") +
+  labs(title = "Potato kg per person per year (smoothed & benchmarked)", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5278,54 +6454,53 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Potato")) +
 #### Plantain consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_plantain_consumption_map
+#| label: GHS_2023_24_state_plantain_consumption_benchmarked_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Plantain")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Plantain")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 40),
+    limits = c(0, 400),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Plantain kg per person per year", fill = "kg") +
+  labs(title = "Plantain kg per person per year (smoothed & benchmarked)", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
     axis.title = element_blank()
   )
 
-
 ```
 
 #### Rice consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_rice_consumption_map
+#| label: GHS_2023_24_state_rice_consumption_benchmarked_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Rice")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Rice")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 50),
+    limits = c(0, 400),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Rice kg per person per year", fill = "kg") +
+  labs(title = "Rice kg per person per year (smoothed & benchmarked)", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5338,24 +6513,24 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Rice")) +
 #### Sorghum consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_sorghum_consumption_map
+#| label: GHS_2023_24_state_sorghum_consumption_benchmarked_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sorghum")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sorghum")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 100),
+    limits = c(0, 400),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Sorghum kg per person per year", fill = "kg") +
+  labs(title = "Sorghum kg per person per year (smoothed & benchmarked)", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5363,28 +6538,29 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sorghum")) +
   )
 
 ```
+
 
 #### Sweet Potato consumption
 
 ```{r}
-#| label: GHS_2023_24_zone_sweet_potato_consumption_map
+#| label: GHS_2023_24_state_sweet_potato_consumption_benchmarked_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sweet potato")) +
-  geom_spatvector(aes(fill = crop_equivalent_kg_person_year)) +
-  geom_spatvector_text(aes(label = round(crop_equivalent_kg_person_year)), size = 2) +
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Sweet potato")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 15),
+    limits = c(0, 400),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Sweet Potato kg per person per year", fill = "kg") +
+  labs(title = "Sweet Potato kg per person per year (smoothed & benchmarked)", fill = "kg") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -5392,6 +6568,69 @@ ggplot(tidyterra::filter(vect_gpz_geo_GHS_crop, crop == "Sweet potato")) +
   )
 
 ```
+
+
+#### Wheat consumption
+
+```{r}
+#| label: GHS_2023_24_state_wheat_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Wheat")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Wheat kg per person per year (smoothed & benchmarked)", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+#### Yam consumption
+
+```{r}
+#| label: GHS_2023_24_state_yam_consumption_benchmarked_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Yam")) +
+  geom_spatvector(aes(fill = benchmarked_crop_equivalent_kg_person_year_state)) +
+  geom_spatvector_text(aes(label = round(benchmarked_crop_equivalent_kg_person_year_state)), size = 2) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 400),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Yam kg per person per year (smoothed & benchmarked)", fill = "kg") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
 
 # Appendix 1: Potential extra checks
 
