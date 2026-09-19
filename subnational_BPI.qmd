@@ -183,7 +183,42 @@ These are only available at the geopolitical zone level in Nigeria, but are pote
 
 ## Assess relationship between consumption data and food baskets 
 
-# Assess smoothing options
+
+# Rescale spatially smoothed benchmarked state-level crop consumption estimates
+
+For each crop we take the minimum and maximum kg per capita per year
+
+
+$$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale} Where: - $V_r$ is the rescaled value - $V_a$ is the actual value - $V_{min}$ is the minimum value - $V_{max}$ is the maximum value
+
+```{r}
+#| label: GHS_crop_consumption_rescale_function
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# custom function to implement min max scaling
+minMax <- function(x) {
+  (x - min(x,
+      na.rm = T)) / (max(x,
+      na.rm = T) - min(x,
+      na.rm = T))
+}
+
+df_GHS_pop_crop_state <- read.csv("tab_data/GHS food per capita outputs/crop_state_results_benchmarked_smoothed.csv")
+
+
+df_GHS_pop_crop_state_wide <- df_GHS_pop_crop_state |> 
+  select(state, crop, benchmarked_crop_equivalent_kg_person_year_state) |> 
+  pivot_wider(names_from = crop, values_from = benchmarked_crop_equivalent_kg_person_year_state)
+
+df_normalised <- as.data.frame(lapply(select(df_GHS_pop_crop_state_wide, -state), minMax))
+head(df_normalised)
+
+df_GHS_pop_crop_state_rescale <- bind_cols(select(df_GHS_pop_crop_state_wide, state), df_normalised)
+
+```
 
 ### Load the States
 
@@ -263,506 +298,374 @@ ggplot(vect_gpz_geo)+
 
 ```
 
-```{r}
-#| label: create_contiguity_matrices
-#| message: false
-#| warning: false
-
-
-# create queen neighbours
-# Find Queen contiguity (default)
-# queen_adj <- adjacent(vect_state_geo, type="queen", pairs=TRUE)
-
-state_names <- vect_state_geo$adm1_ref_name
-sf_polygons <- st_as_sf(vect_state_geo)|> st_make_valid()
-
-# Build neighbour list (Queen contiguity)
-nb_list <- poly2nb(sf_polygons, queen = TRUE)
-
-state_names
-
-# Convert neighbour list to a spatial weights matrix
-weights_list <- nb2listw(nb_list, style = "W",
-  zero.policy = TRUE)
-
-weights_matrix <- listw2mat(weights_list)
-
-rownames(weights_matrix) <- state_names
-colnames(weights_matrix) <- state_names
-
-```
-
-## Load the consumption data
+## Join back to States dataset
 
 ```{r}
-#| label: GHS_crop_consumption_data
+#| label: GHS_crop_rescaled_consumption_state_join
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-df_GHS_crop_state <- read.csv("tab_data/GHS food per capita outputs/crop_state_results.csv")
-df_GHS_crop_state <- df_GHS_crop_state |>
-  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
-
-# change name to match states dataset
-df_GHS_crop_state['state'][df_GHS_crop_state['state'] == "FCT"] <- "Federal Capital Territory"
-
-df_GHS_crop_state$state <- as.factor(df_GHS_crop_state$state) 
-
-cat(paste(levels(df_GHS_crop_state$state), "; ")) # Check levels
-
-df_GHS_crop_zone <- read.csv("tab_data/GHS food per capita outputs/crop_zone_results.csv")
-
-df_GHS_crop_zone <- df_GHS_crop_zone |>
-  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
-
-df_GHS_crop_zone$zone <- as.factor(df_GHS_crop_zone$zone) 
-
-cat(paste(levels(df_GHS_crop_zone$zone), "; ")) # Check levels
+vect_state_geo_GHS_crop_rescale <- dplyr::left_join(vect_state_geo, df_GHS_pop_crop_state_rescale, by = c("adm1_ref_name" = "state"))
 
 ```
 
+## Cassava consumption
+
 ```{r}
-#| label: GHS_population
+#| label: GHS_2023_24_state_cassava_rescaled_consumption_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-df_GHS_pop_state_pp <- read.csv("tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_planting.csv") |> select(state, zone, n_households,	n_psu, weighted_population,	median_household_size, mean_household_size) |> distinct()
-
-df_GHS_pop_state_pp <- df_GHS_pop_state_pp |>
-  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
-df_GHS_pop_state_pp <- df_GHS_pop_state_pp |>
-  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
-
-# change name to match states dataset
-df_GHS_pop_state_pp['state'][df_GHS_pop_state_pp['state'] == "FCT"] <- "Federal Capital Territory"
-
-
-df_GHS_pop_state_ph <- read.csv("tab_data/GHS food per capita outputs/GHS_wave5_food_consumption_state_harvest.csv") |> select(state, zone, n_households,	n_psu, weighted_population,	median_household_size, mean_household_size) |> distinct()
-
-df_GHS_pop_state_ph <- df_GHS_pop_state_ph |>
-  mutate(state = trimws(gsub("[^A-Za-z ]", "", state)))
-df_GHS_pop_state_ph <- df_GHS_pop_state_ph |>
-  mutate(zone = trimws(gsub("[^A-Za-z ]", "", zone)))
-df_GHS_pop_state_ph['state'][df_GHS_pop_state_ph['state'] == "FCT"] <- "Federal Capital Territory"
-
-df_GHS_pop_state <- left_join(
-  df_GHS_pop_state_pp,
-  df_GHS_pop_state_ph,
-  by = "state"
-) |>
-  rowwise() |>
-  mutate(
-    zone = zone.x,
-    n_households = mean(c(n_households.x, n_households.y), na.rm = T),
-    n_psu = mean(c(n_psu.x, n_psu.y), na.rm = T),
-    weighted_population = mean(
-      c(weighted_population.x, weighted_population.y),
-      na.rm = T
-    ),
-    median_household_size = mean(
-      c(median_household_size.x, median_household_size.y),
-      na.rm = T
-    ),
-    mean_household_size = mean(
-      c(mean_household_size.x, mean_household_size.y),
-      na.rm = T
-    )
-  ) |>
-  rename(
-    n_households_pp = n_households.x,
-    n_households_ph = n_households.y,
-    n_psu_pp = n_psu.x,
-    n_psu_ph = n_psu.y,
-    mean_household_size_pp = mean_household_size.x,
-    mean_household_size_ph = mean_household_size.y,
-    median_household_size_pp = median_household_size.x,
-    median_household_size_ph = median_household_size.y,
-    weighted_population_pp = weighted_population.x,
-    weighted_population_ph = weighted_population.y
-  ) |>
-  select(
-    state,
-    zone,
-    weighted_population_pp,
-    weighted_population_ph,
-    weighted_population,
-    n_households_pp,
-    n_households_ph,
-    n_households,
-    n_psu_pp,
-    n_psu_ph,
-    n_psu,
-    mean_household_size_pp,
-    mean_household_size_ph,
-    mean_household_size,
-    median_household_size_pp,
-    median_household_size_ph,
-    median_household_size
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Cassava)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
-
-
-# get the zonal population
-
-df_GHS_pop_zone <- df_GHS_pop_state |>
-  group_by(
-    zone
-  ) |>
-  summarise(
-    weighted_population_zone = sum(weighted_population, na.rm = TRUE),
-    .groups = "drop"
-  ) 
-
-# add zonal population to the state
-
-df_GHS_pop_state <- df_GHS_pop_state |>
-  left_join(df_GHS_pop_zone, by = "zone")
- 
 
 ```
 
+## Cocoyam consumption
 
 ```{r}
-#| label: GHS_crop_pop
+#| label: GHS_2023_24_state_cocoyam_rescaled_consumption_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
-df_GHS_pop_crop_state <- df_GHS_crop_state |>
-  left_join(df_GHS_pop_state, by = c("state")) |>
-    left_join(df_GHS_crop_zone, by = c("zone", "crop")) |>
-rename(
-    crop_equivalent_low_state = crop_equivalent_low.x,
-    crop_equivalent_low_zone = crop_equivalent_low.y,
-    crop_equivalent_kg_person_year_state = crop_equivalent_kg_person_year.x,
-    crop_equivalent_kg_person_year_zone = crop_equivalent_kg_person_year.y,
-    crop_equivalent_high_state = crop_equivalent_high.x,
-    crop_equivalent_high_zone = crop_equivalent_high.y)
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Cocoyam)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cocoyam consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
 
 ```
 
-### Spatial lag to smooth state estimates
+## Cowpea consumption
 
 ```{r}
-# ============================================================
-# 1. INPUTS
-# ============================================================
+#| label: GHS_2023_24_state_cowpea_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-# Expected columns in df_GHS_pop_crop_state  :
-#
-# crop
-# state
-# zone
-# crop_equivalent_kg_person_year_state       = direct state kg/person/year
-# crop_equivalent_kg_person_year_zone        = survey-supported zone kg/person/year
-# weighted_population     = weighted population of state
-# weighted_population_zone      = weighted population of zone
-#
-# weights_matrix = row-standardised queen spatial weights matrix
-#
-# IMPORTANT:
-# The rows/columns of weights_matrix must correspond to the STATE names
-# used in df_GHS_pop_crop_state.
-# ============================================================
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Cowpea)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
 ```
 
+## Maize consumption
 
 ```{r}
-# ============================================================
-# 2. CHECK THE POPULATION / ZONE INFORMATION
-# ============================================================
+#| label: GHS_2023_24_state_maize_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-zone_check <- df_GHS_pop_crop_state |>
-  group_by(crop, zone) |>
-  summarise(
-    crop_equivalent_kg_person_year_zone = first(crop_equivalent_kg_person_year_zone),
-    weighted_population_zone = first(weighted_population_zone),
-
-    sum_weighted_population =
-      sum(weighted_population, na.rm = TRUE),
-
-    n_states = n(),
-
-    .groups = "drop"
-  ) |>
-  mutate(
-    population_difference =
-      sum_weighted_population - weighted_population_zone
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Maize)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
 
-print(zone_check)
 ```
 
+## Millet consumption
 
 ```{r}
-# ============================================================
-# 3. CALCULATE THE DIRECT STATE / ZONE RATIO
-# ============================================================
+#| label: GHS_2023_24_state_millet_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
-  mutate(
-    state_zone_ratio =
-      crop_equivalent_kg_person_year_state / crop_equivalent_kg_person_year_zone
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Millet)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Millet consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
+
 ```
 
+## Potato consumption
 
 ```{r}
-# ============================================================
-# 4. SPATIAL LAG OF THE STATE / ZONE RATIO
-# ============================================================
+#| label: GHS_2023_24_state_potato_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-# Convert weights_matrix to a matrix if necessary.
-#
-# If weights_matrix is already a matrix:
-weights_matrix_mat <- as.matrix(weights_matrix)
-
-# Check dimensions
-stopifnot(
-  nrow(weights_matrix_mat) == ncol(weights_matrix_mat)
-)
-
-# ------------------------------------------------------------
-# IMPORTANT:
-# We need the states in df_GHS_pop_crop_state to be in exactly the same order
-# as the rows/columns of weights_matrix.
-# ------------------------------------------------------------
-
-state_order <- rownames(weights_matrix_mat)
-
-if (is.null(state_order)) {
-  stop(
-    "weights_matrix must have state names as row names."
-  )
-}
-
-
-# Check that every state in df_GHS_pop_crop_state occurs in weights_matrix
-missing_states <- setdiff(
-  unique(df_GHS_pop_crop_state$state),
-  state_order
-)
-
-if (length(missing_states) > 0) {
-
-  stop(
-    "These states are missing from weights_matrix: ",
-    paste(missing_states, collapse = ", ")
-  )
-}
-
-
-# ------------------------------------------------------------
-# Function to calculate spatially lagged ratios
-# ------------------------------------------------------------
-
-spatial_lag_ratio <- function(
-    state_names,
-    values,
-    weights_matrix_mat
-) {
-
-  # Put values into the same order as weights_matrix
-  x <- setNames(
-    values,
-    state_names
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Potato)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Potato consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
 
-  x_ordered <- x[
-    rownames(weights_matrix_mat)
-  ]
-
-  # Spatial lag
-  lagged <- as.numeric(
-    weights_matrix_mat %*% x_ordered
-  )
-
-  names(lagged) <-
-    rownames(weights_matrix_mat)
-
-  # Return in original state order
-  lagged[state_names]
-}
-
-
-# ------------------------------------------------------------
-# Apply to each crop
-#
-# We calculate the spatial lag separately for each crop.
-# ------------------------------------------------------------
-
-df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
-  group_by(crop) |>
-  mutate(
-    spatial_lag_ratio =
-      spatial_lag_ratio(
-        state,
-        state_zone_ratio,
-        weights_matrix_mat
-      )
-  ) |>
-  ungroup()
 ```
 
+## Plantain consumption
 
 ```{r}
-# ============================================================
-# 5. CREATE THE UNBENCHMARKED SPATIAL ESTIMATE
-# ============================================================
+#| label: GHS_2023_24_state_plantain_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
-  mutate(
-    smoothed_ratio =
-      spatial_lag_ratio,
-
-    smoothed_crop_equivalent_kg_person_year_state =
-      #smoothed_ratio * crop_equivalent_kg_person_year_zone
-      smoothed_ratio * crop_equivalent_kg_person_year_state
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Plantain)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
+
 ```
 
+## Rice consumption
 
 ```{r}
-# ============================================================
-# 6. CALCULATE THE UNBENCHMARKED STATE TOTAL
-# ============================================================
+#| label: GHS_2023_24_state_rice_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
-  mutate(
-    smoothed_state_total =
-      smoothed_crop_equivalent_kg_person_year_state *
-      weighted_population
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Rice)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
+
 ```
 
+## Sorghum consumption
 
 ```{r}
-# ============================================================
-# 7. CALCULATE THE ZONAL BENCHMARK
-# ============================================================
+#| label: GHS_2023_24_state_sorghum_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-# The benchmark is:
-#
-# zone consumption =
-# zone per-capita consumption × zone population
-#
-# We compare this with the population-weighted total of
-# the spatially smoothed state estimates.
-
-benchmark <- df_GHS_pop_crop_state |>
-  group_by(crop, zone) |>
-  summarise(
-
-    crop_equivalent_kg_person_year_zone =
-      first(crop_equivalent_kg_person_year_zone),
-
-    weighted_population_zone =
-      first(weighted_population_zone),
-
-    zone_total =
-      crop_equivalent_kg_person_year_zone *
-      weighted_population_zone,
-
-    smoothed_state_total =
-      sum(
-        smoothed_state_total,
-        na.rm = TRUE
-      ),
-
-    .groups = "drop"
-  ) |>
-  mutate(
-
-    benchmark_factor =
-      zone_total /
-      smoothed_state_total
-
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Sorghum)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
+
 ```
 
+## Sweet potato consumption
 
 ```{r}
-# ============================================================
-# 8. APPLY THE BENCHMARK
-# ============================================================
+#| label: GHS_2023_24_state_sweet_potato_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-df_GHS_pop_crop_state <- df_GHS_pop_crop_state |>
-
-  left_join(
-    benchmark |>
-      select(
-        crop,
-        zone,
-        benchmark_factor
-      ),
-    by = c(
-      "crop",
-      "zone"
-    )
-  ) |>
-
-  mutate(
-
-    benchmarked_crop_equivalent_kg_person_year_state =
-      smoothed_crop_equivalent_kg_person_year_state *
-      benchmark_factor,
-
-    benchmarked_state_total =
-      benchmarked_crop_equivalent_kg_person_year_state *
-      weighted_population
-
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Sweet.potato)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet potato consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
+
 ```
 
+## Wheat consumption
 
 ```{r}
-# ============================================================
-# 9. FINAL CHECK
-# ============================================================
+#| label: GHS_2023_24_state_wheat_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-benchmark_check <- df_GHS_pop_crop_state |>
-
-  group_by(
-    crop,
-    zone
-  ) |>
-
-  summarise(
-
-    crop_equivalent_kg_person_year_zone =
-      first(crop_equivalent_kg_person_year_zone),
-
-    weighted_population_zone =
-      first(weighted_population_zone),
-
-    zone_total =
-      crop_equivalent_kg_person_year_zone *
-      weighted_population_zone,
-
-    benchmarked_state_total =
-      sum(
-        benchmarked_state_total,
-        na.rm = TRUE
-      ),
-
-    difference =
-      benchmarked_state_total -
-      zone_total,
-
-    percentage_difference =
-      100 *
-      difference /
-      zone_total,
-
-    .groups = "drop"
-
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Wheat)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Wheat consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
   )
 
-print(benchmark_check)
 ```
 
+## Yam consumption
 
+```{r}
+#| label: GHS_2023_24_state_yam_rescaled_consumption_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_GHS_crop_rescale) +
+  geom_spatvector(aes(fill = Yam)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Yam consumption per state (smoothed, benchmarked & rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Micronutrient Deficiency Index
+
+## Serum retinol (vitamin A) children between 6 and 59 months
+
+
+
+
+## Age standardised DALYs Vitamin A Deficiency (VAD) available at subnational level for 2023
+
+
+
+
+
+
+- Percentage of population at risk of inadequate intake of zinc. This is now available at the subnational level from the 2021 NFCMS as *womens's prevalence of inadequacy of zinc intakes*. A further indicator is also available:  *prevalence of women of reproductive age with zinc deficiency* and *prevalence of children with zinc deficiency*
+These are only available at the geopolitical zone level in Nigeria, but are potentially an improvement on both the global and 2018 subnational indicators
+
+- Prevalence of stunting among children age 6-59 months available at subnational level for 2023-24
+
+- Age-standardized DALYs lost per 100,000 inhabitants to IDA. The IMHE GBD database includes Age standardised DALYs Dietary iron Deficiency - a slightly different indicator, which focuses on the dietary component of anaemia, but is available at the state level
+
+- Proportion of preschool-age children with Hb \< 110 g/l - the NFCMS includes Iron deficiency in children defined as serum ferritin concentration \<15 µg/L corrected for inflammation. Both the NFCMS and NDHS include anaemia for pre-school children - for the NDHS at the state level, and for NFCMS at the zone level. The definition of any anaemia in the NDHS is is when haemoglobin level is <12.0 g/dl. A closer level of Haemoglobin to the global BPI is for moderate and severe anaemia, which combined have an upper limit of 11 g/dl.
