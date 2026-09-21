@@ -1129,7 +1129,12 @@ Because NAERLS compiles its report using data sent in from individual State Agri
 
 - The Double-Counting Trap: If a single field in the FCT was used to grow multiple crops simultaneously (intercropping, such as mixing maize, sorghum, and cowpeas on the same plot), the data collectors likely recorded the full size of that field for each individual crop. When those crop areas were summed together vertically, it generated an inflated "total crop area" that exceeded the physical size of the land.
 - Data Entry and Decimal Errors: A misplaced comma, extra zero, or basic typo during data aggregation can instantly turn a minor regional figure into a national peak.
-- Flawed Projection Baselines: Lacking a real-time satellite mapping infrastructure, local agencies often rely on rough estimates or outdated population multipliers to guess cultivated areas, which completely breaks down when applied to a rapidly developing urban territory like Abuja.
+- Flawed Projection Baselines: Lacking a real-time satellite mapping infrastructure, local agencies often rely on rough estimates or outdated population multipliers to guess cultivated areas, which completely breaks down when applied to a rapidly developing urban territory like FCT.
+
+The Worldcover map, in contrast, gives extremely low cropland cover estimates for the southern states. This may be because the classification algorithm doesn't discriminate well between bushy semi-perennial crops - like cassava, or plantain - and shrub or tree cover, or because the cloud cover did not allow for sufficient satellite imagery.
+
+
+
 
 ## Banana & Plantain
 
@@ -2168,4 +2173,278 @@ vect_spam_spot_2 <- tidyterra::left_join(vect_state_geo, df_spam_spot_2, by =c("
 ```
 
 
+# Crop Area as percentage of total area harvested in the state
 
+
+
+```{r}
+#| label: reload_rename_crop_production_data
+#| message: false
+#| warning: false
+#| cache: true
+
+# # plantain banana 2024
+vect_plantain_banana_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/plantain_banana_2024_naerls.geojson")
+
+df_plantain_banana_2024_rename <- as.data.frame(vect_plantain_banana_2024) |>
+  rename(plantain_banana_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, plantain_banana_Area_2024)
+
+
+# # Cassava 2024
+vect_cassava_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cassava_2024_naerls.geojson")
+
+df_cassava_2024_rename <- as.data.frame(vect_cassava_2024) |>
+  rename(cassava_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, cassava_Area_2024)
+
+
+# # Cowpea 2024
+vect_cowpea_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cowpea_2024_naerls.geojson")
+
+df_cowpea_2024_rename <- as.data.frame(vect_cowpea_2024) |>
+  rename(cowpea_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, cowpea_Area_2024)
+
+
+# # Maize 2024
+vect_maize_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/maize_2024_naerls.geojson" )
+
+df_maize_2024_rename <- as.data.frame(vect_maize_2024) |>
+  rename(maize_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, maize_Area_2024)
+
+
+# # Rice 2024
+vect_rice_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/rice_2024_naerls.geojson")
+
+df_rice_2024_rename <- as.data.frame(vect_rice_2024) |>
+  rename(rice_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, rice_Area_2024)
+
+
+# # Sorghum 2024
+vect_sorghum_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/sorghum_2024_naerls.geojson")
+
+df_sorghum_2024_rename <- as.data.frame(vect_sorghum_2024) |>
+  rename(sorghum_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, sorghum_Area_2024)
+
+
+# Sweet Potato MapSpam 2020
+vect_spam_spot_2 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/spotato_2020_mapspam.geojson")
+
+df_spot_2020_rename <- as.data.frame(vect_spam_spot_2) |>
+  rename(spot_Area_2020 = sum_spot) |> select(adm1_ref_name, spot_Area_2020)
+
+
+```
+
+```{r}
+#| label: combine_crop_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_crop_share_2024 <- left_join(select(df_total_cropped_2024, adm1_ref_name, Area_Ha_2024), df_plantain_banana_2024_rename, by = "adm1_ref_name") |> left_join( df_cassava_2024_rename,by = "adm1_ref_name") |> left_join( df_cowpea_2024_rename,by = "adm1_ref_name") |> left_join( df_maize_2024_rename,by = "adm1_ref_name") |> left_join( df_rice_2024_rename,by = "adm1_ref_name") |> left_join( df_sorghum_2024_rename,by = "adm1_ref_name") |> left_join( df_spot_2020_rename,by = "adm1_ref_name") |> left_join( rename(df_spam_total, Area_Ha_2020 = total),by = c("adm1_ref_name" = "ADM1_NAME"))
+
+df_crop_share_2024 <- df_crop_share_2024 |>
+  mutate(plantain_banana_share_2024 = (plantain_banana_Area_2024/Area_Ha_2024) * 100,
+         cassava_share_2024 = (cassava_Area_2024/Area_Ha_2024) * 100, 
+         cowpea_share_2024 = (cowpea_Area_2024/Area_Ha_2024) * 100, 
+         maize_share_2024 = (maize_Area_2024/Area_Ha_2024) * 100, 
+         rice_share_2024 = (rice_Area_2024/Area_Ha_2024) * 100, 
+         sorghum_share_2024 = (sorghum_Area_2024/Area_Ha_2024) * 100, 
+         spot_share_2020 = (spot_Area_2020/Area_Ha_2020) * 100)
+
+vect_crop_area_share <- dplyr::left_join(vect_state_geo, df_crop_share_2024 , by = c("adm1_ref_name"))
+
+```
+
+
+
+
+## Banana/Plantain crop area share
+
+```{r}
+#| label: NAERLS_24_state_plantain_banana_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = plantain_banana_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Banana/Plantain harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+## Cassava crop area share
+
+```{r}
+#| label: NAERLS_24_state_cassava_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = cassava_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cowpea crop area share
+
+```{r}
+#| label: NAERLS_24_state_cowpea_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = cowpea_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+## Maize crop area share
+
+```{r}
+#| label: NAERLS_24_state_maize_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = maize_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+## Rice crop area share
+
+```{r}
+#| label: NAERLS_24_state_rice_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = rice_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+## Sorghum crop area share
+
+```{r}
+#| label: NAERLS_24_state_sorghum_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = sorghum_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+## Sweet Potato crop area share
+
+```{r}
+#| label: MapSpam_20_state_spot_crop_area_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_crop_area_share) +
+  geom_spatvector(aes(fill = spot_share_2020)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 100),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato harvested area share per state", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
