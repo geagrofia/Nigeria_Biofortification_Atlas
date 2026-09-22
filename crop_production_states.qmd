@@ -27,6 +27,7 @@ library(ggtext)
 library(kableExtra)
 library(DT)
 library(geojsonsf)
+library(scales)
 
 ```
 
@@ -2446,5 +2447,285 @@ ggplot(vect_crop_area_share) +
     legend.title = element_markdown(),
     axis.title = element_blank()
   )
+
+```
+
+
+# Per-capita area harvested
+
+We use the same population data for all crops (regardless of the date of the crop harvested area). For our purposes we are most interested in the differences among geographic units rather than between crops.
+
+We decided to use our extrapolation of population from the NBS figures to 2025.
+
+## 2025 and 2030 state population estimates
+
+```{r}
+#| label: pop_2025
+#| message: false
+#| warning: false
+
+
+df_pop_nbs <- read.csv("tab_data/nigeria_state_population_weights_2025_2030_csv.csv")
+vect_state_geo_nbs <- tidyterra::left_join(vect_state_geo, df_pop_nbs, by = c( "adm1_ref_name" = "state_name"))
+
+```
+
+## Total Population - Extrapolated from NBS 2016
+
+```{r}
+#| label: fig-population_states_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "NBS 2025 estimates of population per state"
+# 
+
+ggplot() +
+  geom_spatvector(data = vect_state_geo_nbs, aes(fill = pop_est_2025), colour = "grey") +
+  scale_fill_distiller(
+        type = "seq",
+        palette = "Blues",
+        direction = 1,
+        limits = c(0, 25000000),
+        labels = label_comma(),
+        guide = "legend"
+      ) +
+  labs(title = "Population per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+```{r}
+#| label: combine_crop_area_per_capita
+#| message: false
+#| warning: false
+#| cache: true
+
+df_crop_per_capita_2024_pc <- left_join(df_crop_share_2024, select(df_pop_nbs, state_name, pop_est_2025 ), by = c("adm1_ref_name" = "state_name"))
+
+df_crop_per_capita_2024_pc <- df_crop_per_capita_2024_pc |>
+  mutate(plantain_banana_pc_2024 = (plantain_banana_Area_2024/pop_est_2025) * 10000,
+         cassava_pc_2024 = (cassava_Area_2024/pop_est_2025) * 10000, 
+         cowpea_pc_2024 = (cowpea_Area_2024/pop_est_2025) * 10000, 
+         maize_pc_2024 = (maize_Area_2024/pop_est_2025) * 10000, 
+         rice_pc_2024 = (rice_Area_2024/pop_est_2025) * 10000, 
+         sorghum_pc_2024 = (sorghum_Area_2024/pop_est_2025) * 10000, 
+         spot_pc_2020 = (spot_Area_2020/pop_est_2025) * 10000)
+
+vect_crop_area_pc <- dplyr::left_join(vect_state_geo, df_crop_per_capita_2024_pc , by = c("adm1_ref_name"))
+
+```
+
+
+## Banana/Plantain crop area per capita
+
+```{r}
+#| label: fig-plantain_banana_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Plantain/Banana 2024/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = plantain_banana_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain/Banana 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Cassava crop area per capita
+
+```{r}
+#| label: fig-cassava_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Cassava 2024/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = cassava_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Cowpea crop area per capita
+
+```{r}
+#| label: fig-cowpea_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Cowpea 2024/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = cowpea_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Maize crop area per capita
+
+```{r}
+#| label: fig-maize_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Maize 2024/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = maize_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Sorghum crop area per capita
+
+```{r}
+#| label: fig-sorghum_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Sorghum 2024/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = sorghum_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Sweet Potato crop area per capita
+
+```{r}
+#| label: fig-spot_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Sweet Potato 2020/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = spot_pc_2020)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato 2020/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: save_bpi_data
+#| message: false
+#| warning: false
+#| cache: true
+
+# crop share
+writeVector(
+  x = vect_crop_area_share,
+  filename = "spatial_data/vect_crop_area_share.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
+# crop per capita
+writeVector(
+  x = vect_crop_area_pc,
+  filename = "spatial_data/vect_crop_area_pc.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
 
 ```
