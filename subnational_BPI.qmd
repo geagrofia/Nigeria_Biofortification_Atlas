@@ -146,6 +146,21 @@ For their subnational BPIs @herringtonSubnationalPrioritizationBiofortification2
 
 ### Production Index
 
+Of the three indicators used to generate the production index only two have data at the subnational level:
+
+- Share of area harvested (%)
+- Per-capita area harvested (m^2)
+
+The production data used are from 2024, apart from sweet potato for which there were no data in the NAERLS report. Instead we used 2020 data from MapSpam.
+
+
+
+The third indicator - Export share - does not have data at the subnational level. Market surveys and market flows do not have sufficient data to create an equivalent dataset, but can be used to validate the production and consumption indices.
+
+
+
+
+
 
 ### Consumption Index
 
@@ -207,137 +222,6 @@ minMax <- function(x) {
 
 ```
 
-
-# Rescale production estimates
-
-
-
-```{r}
-#| label: load_crop_production_data
-#| message: false
-#| warning: false
-#| cache: true
-
-# # plantain banana 2024
-vect_plantain_banana_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/plantain_banana_2024_naerls.geojson")
-
-df_plantain_banana_2024_normalised <- select(as.data.frame(vect_plantain_banana_2024), adm1_ref_name, Production_MT_2024)
-
-df_plantain_banana_2024_rescaled <- lapply(select(df_plantain_banana_2024_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_plantain_banana_2024_rescaled)
-
-df_plantain_banana_2024_rescaled <- bind_cols(as.data.frame(vect_plantain_banana_2024), df_plantain_banana_2024_rescaled)
-
-
-# # Cassava 2024
-vect_cassava_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cassava_2024_naerls.geojson")
-
-df_cassava_2024_normalised <- select(as.data.frame(vect_cassava_2024), adm1_ref_name, Production_MT_2024)
-
-df_cassava_2024_rescaled <- lapply(select(df_cassava_2024_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_cassava_2024_rescaled)
-
-df_cassava_2024_rescaled <- bind_cols(as.data.frame(vect_cassava_2024), df_cassava_2024_rescaled)
-
-
-
-# # Cowpea 2024
-vect_cowpea_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cowpea_2024_naerls.geojson")
-
-df_cowpea_2024_normalised <- select(as.data.frame(vect_cowpea_2024), adm1_ref_name, Production_MT_2024)
-
-df_cowpea_2024_rescaled <- lapply(select(df_cowpea_2024_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_cowpea_2024_rescaled)
-
-df_cowpea_2024_rescaled <- bind_cols(as.data.frame(vect_cowpea_2024), df_cowpea_2024_rescaled)
-
-
-# # Maize 2024
-vect_maize_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/maize_2024_naerls.geojson" )
-
-df_maize_2024_normalised <- select(as.data.frame(vect_maize_2024), adm1_ref_name, Production_MT_2024)
-
-df_maize_2024_rescaled <- lapply(select(df_maize_2024_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_maize_2024_rescaled)
-
-df_maize_2024_rescaled <- bind_cols(as.data.frame(vect_maize_2024), df_maize_2024_rescaled)
-
-
-# # Rice 2024
-vect_rice_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/rice_2024_naerls.geojson")
-
-df_rice_2024_normalised <- select(as.data.frame(vect_rice_2024), adm1_ref_name, Production_MT_2024)
-
-df_rice_2024_rescaled <- lapply(select(df_rice_2024_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_rice_2024_rescaled)
-
-df_rice_2024_rescaled <- bind_cols(as.data.frame(vect_rice_2024), df_rice_2024_rescaled)
-
-
-# # Sorghum 2024
-vect_sorghum_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/sorghum_2024_naerls.geojson")
-
-df_sorghum_2024_normalised <- select(as.data.frame(vect_sorghum_2024), adm1_ref_name, Production_MT_2024)
-
-df_sorghum_2024_rescaled <- lapply(select(df_sorghum_2024_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_sorghum_2024_rescaled)
-
-df_sorghum_2024_rescaled <- bind_cols(as.data.frame(vect_sorghum_2024), df_sorghum_2024_rescaled)
-
-
-# Sweet Potato MapSpam 2020
-vect_spam_spot_2 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/spotato_2020_mapspam.geojson")
-
-df_spot_2020_normalised <- select(as.data.frame(vect_spam_spot_2), adm1_ref_name, sum_spot)
-
-df_spot_2020_rescaled <- lapply(select(df_spot_2020_normalised, -adm1_ref_name), minMax) |> as.data.frame()
-
-head(df_spot_2020_rescaled)
-
-df_spot_2020_rescaled <- bind_cols(as.data.frame(vect_spam_spot_2), df_spot_2020_rescaled)
-
-
-
-
-
-
-
-
-```
-
-
-
-# Rescale spatially smoothed benchmarked state-level crop consumption estimates
-
-
-```{r}
-#| label: GHS_crop_consumption_rescale
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-
-df_GHS_pop_crop_state <- read.csv("tab_data/GHS food per capita outputs/crop_state_results_benchmarked_smoothed.csv")
-
-
-df_GHS_pop_crop_state_wide <- df_GHS_pop_crop_state |> 
-  select(state, crop, benchmarked_crop_equivalent_kg_person_year_state) |> 
-  pivot_wider(names_from = crop, values_from = benchmarked_crop_equivalent_kg_person_year_state)
-
-df_normalised <- as.data.frame(lapply(select(df_GHS_pop_crop_state_wide, -state), minMax))
-head(df_normalised)
-
-df_GHS_pop_crop_state_rescale <- bind_cols(select(df_GHS_pop_crop_state_wide, state), df_normalised)
-
-
-
-```
 
 ### Load the States
 
@@ -414,6 +298,477 @@ ggplot(vect_gpz_geo)+
   geom_spatvector(aes(fill = geopolitical_zone)) +
   geom_spatvector_text(aes(label = geopolitical_zone), size = 3) +
   theme_minimal()
+
+```
+
+
+# Rescale production estimates
+
+## Share of area harvested
+
+```{r}
+#| label: rescale_crop_production_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_crop_area_share <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/vect_crop_area_share.geojson")
+
+df_crop_area_share <- select(as.data.frame(vect_crop_area_share), adm1_ref_name, plantain_banana_share_2024, cassava_share_2024, cowpea_share_2024, maize_share_2024, rice_share_2024, sorghum_share_2024, spot_share_2020)
+
+# convert NA values to 0 so that states with no data (which are equivalent to 0 are actually given this value)
+df_crop_area_share[is.na(df_crop_area_share)] <- 0
+
+df_crop_area_share_normalised <- as.data.frame(lapply(select(df_crop_area_share, -adm1_ref_name), minMax))
+head(df_crop_area_share_normalised)
+
+df_crop_area_share_rescale <- bind_cols(select(df_crop_area_share, adm1_ref_name), df_crop_area_share_normalised)
+
+vect_state_geo_crop_share_rescale <- dplyr::left_join(vect_state_geo, df_crop_area_share_rescale, by = "adm1_ref_name")
+
+```
+
+### Plantain/Banana share of area harvested
+
+```{r}
+#| label: plantain_banana_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = plantain_banana_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain/Banana share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cassava share of area harvested
+
+```{r}
+#| label: cassava_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = cassava_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea share of area harvested
+
+```{r}
+#| label: cowpea_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = cowpea_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize share of area harvested
+
+```{r}
+#| label: maize_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = maize_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Rice share of area harvested
+
+```{r}
+#| label: rice_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = rice_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum share of area harvested
+
+```{r}
+#| label: sorghum_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = sorghum_share_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sweet Potato share of area harvested
+
+```{r}
+#| label: spot_rescaled_crop_share_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_share_rescale) +
+  geom_spatvector(aes(fill = spot_share_2020)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato share of state harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Per-capita area harvested
+
+```{r}
+#| label: rescale_crop_production_per_capita
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_crop_area_pc <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/vect_crop_area_pc.geojson")
+
+df_crop_area_pc <- select(as.data.frame(vect_crop_area_pc), adm1_ref_name, plantain_banana_pc_2024, cassava_pc_2024, cowpea_pc_2024, maize_pc_2024, rice_pc_2024, sorghum_pc_2024, spot_pc_2020)
+
+# convert NA values to 0 so that states with no data (which are equivalent to 0 are actually given this value)
+df_crop_area_pc[is.na(df_crop_area_pc)] <- 0
+
+df_crop_area_pc_normalised <- as.data.frame(lapply(select(df_crop_area_pc, -adm1_ref_name), minMax))
+head(df_crop_area_pc_normalised)
+
+df_crop_area_pc_rescale <- bind_cols(select(df_crop_area_pc, adm1_ref_name), df_crop_area_pc_normalised)
+
+vect_state_geo_crop_pc_rescale <- dplyr::left_join(vect_state_geo, df_crop_area_pc_rescale, by = "adm1_ref_name")
+  
+```
+
+
+### Plantain/Banana per capita area harvested
+
+```{r}
+#| label: plantain_banana_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = plantain_banana_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain/Banana per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cassava per capita area harvested
+
+```{r}
+#| label: cassava_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = cassava_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea per capita area harvested
+
+```{r}
+#| label: cowpea_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = cowpea_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize per capita area harvested
+
+```{r}
+#| label: maize_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = maize_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Rice per capita area harvested
+
+```{r}
+#| label: rice_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = rice_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum per capita area harvested
+
+```{r}
+#| label: sorghum_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = sorghum_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sweet Potato per capita area harvested
+
+```{r}
+#| label: spot_rescaled_crop_pc_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_crop_pc_rescale) +
+  geom_spatvector(aes(fill = spot_pc_2020)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato per capita harvested area (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Rescale spatially smoothed benchmarked state-level crop consumption estimates
+
+
+```{r}
+#| label: GHS_crop_consumption_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_GHS_pop_crop_state <- read.csv("tab_data/GHS food per capita outputs/crop_state_results_benchmarked_smoothed.csv")
+
+
+df_GHS_pop_crop_state_wide <- df_GHS_pop_crop_state |> 
+  select(state, crop, benchmarked_crop_equivalent_kg_person_year_state) |> 
+  pivot_wider(names_from = crop, values_from = benchmarked_crop_equivalent_kg_person_year_state)
+
+df_normalised <- as.data.frame(lapply(select(df_GHS_pop_crop_state_wide, -state), minMax))
+head(df_normalised)
+
+df_GHS_pop_crop_state_rescale <- bind_cols(select(df_GHS_pop_crop_state_wide, state), df_normalised)
+
+
 
 ```
 
@@ -1276,4 +1631,62 @@ ggplot(vect_state_geo_NDHS) +
 
 ```
 
+# Rescale NDHS combined anaemia
 
+```{r}
+#| label: NDHS_anaemia_combined_CH_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NDHS_anaemia_combined_CH <- select(as.data.frame(vect_state_geo_NDHS), adm1_ref_name, CH_anaemia_comb)
+
+df_NDHS_anaemia_combined_CH_normalised <- as.data.frame(lapply(select(df_NDHS_anaemia_combined_CH, -adm1_ref_name), minMax))
+head(df_NDHS_anaemia_combined_CH_normalised)
+
+df_NDHS_anaemia_combined_CH_rescale <- bind_cols(select(df_NDHS_anaemia_combined_CH, adm1_ref_name), df_NDHS_anaemia_combined_CH_normalised)
+
+
+
+```
+
+## Join back to States dataset
+
+```{r}
+#| label: NDHS_anaemia_combined_CH_rescale_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NDHS_anaemia_combined_CH_rescale <- dplyr::left_join(vect_state_geo, df_NDHS_anaemia_combined_CH_rescale, by = "adm1_ref_name")
+
+```
+
+
+```{r}
+#| label: NDHS_anaemia_combined_CH_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+ggplot(vect_state_geo_NDHS_anaemia_combined_CH_rescale) +
+  geom_spatvector(aes(fill = CH_anaemia_comb)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of anaemia (combined) in children between 6 and 59 months (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
