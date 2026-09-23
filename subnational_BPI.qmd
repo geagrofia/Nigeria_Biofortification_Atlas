@@ -1123,9 +1123,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 # Micronutrient Deficiency Index
 
-# NFCMS 2021
-
-## Load the databases
+## Load the NFCMS 2021 databases
 
 The NFCMS data are loaded and there are data available for the following
 zones:
@@ -1227,10 +1225,7 @@ vect_gpz_geo_NFCMS_consumption |> as.data.frame() |>
 
 ```
 
-
-# Institute for Health Metrics and Evaluation (IHME) Global Burden of Disease (GBD) - 2023
-
-## Load the database
+## Load the Institute for Health Metrics and Evaluation (IHME) Global Burden of Disease (GBD) - 2023 database
 
 The IHME data are loaded and there are data available for the following
 zones:
@@ -1284,9 +1279,57 @@ vect_state_geo_IHME |> as.data.frame() |>
 
 ```
 
-## Serum retinol (vitamin A) children between 6 and 59 months
+## Load the NDHS database
 
-### Vitamin A deficiency in children (NFCMS, 2021)
+```{r}
+#| label: NDHS_state_deficiency_data
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NDHS_state <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/NDHS_state_deficiencies.csv")
+# change name to match states dataset
+df_NDHS_state['State'][df_NDHS_state['State'] == "FCT-Abuja"] <- "Federal Capital Territory"
+
+df_NDHS_state$State <- as.factor(df_NDHS_state$State) 
+
+cat(paste(levels(df_NDHS_state$State), "; ")) # Check levels
+
+```
+
+## Join the NDHS database to the state dataset
+
+```{r}
+#| label: NDHS_state_join
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NDHS <- dplyr::left_join(vect_state_geo, df_NDHS_state, by = c("adm1_ref_name"  = "State"))
+vect_state_geo_NDHS |> as.data.frame() |> 
+  DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+
+```
+
+
+# Rescale Serum retinol (vitamin A) children between 6 and 59 months
+
 
 ```{r}
 #| label: NFCMS_vit_A_deficiency_CH
@@ -1316,8 +1359,54 @@ ggplot(vect_gpz_geo_NFCMS) +
 ```
 
 
-## Age standardised DALYs Vitamin A Deficiency (VAD) available at subnational level for 2023
-### Age standardised DALYs Vitamin A Deficiency (IHME, 2023)
+```{r}
+#| label: NFCMS_vit_A_deficiency_CH_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_vit_A_deficiency_CH <- as.data.frame(vect_gpz_geo_NFCMS)
+
+df_NFCMS_vit_A_deficiency_CH_normalised <- as.data.frame(lapply(select(df_NFCMS_vit_A_deficiency_CH, CH_def_vit_A_pc_236 ), minMax))
+
+head(df_NFCMS_vit_A_deficiency_CH_normalised)
+
+df_NFCMS_vit_A_deficiency_CH_rescale <- bind_cols(select(df_NFCMS_vit_A_deficiency_CH, geopolitical_zone), df_NFCMS_vit_A_deficiency_CH_normalised)
+
+
+```
+
+```{r}
+#| label: NFCMS_vit_A_deficiency_CH_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NFCMS_vit_A_deficiency_CH_rescale <- dplyr::left_join(vect_gpz_geo, df_NFCMS_vit_A_deficiency_CH_rescale, by = "geopolitical_zone")
+
+ggplot(vect_state_geo_NFCMS_vit_A_deficiency_CH_rescale) +
+  geom_spatvector(aes(fill = CH_def_vit_A_pc_236)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of vitamin A deficiency in children (rescale)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+# Rescale age standardised DALYs Vitamin A Deficiency (IHME, 2023)
 
 ```{r}
 #| label: IHME_vit_A_DALYs
@@ -1331,7 +1420,7 @@ ggplot(tidyterra::filter(vect_state_geo_IHME, cause_name == "Vitamin A deficienc
   geom_spatvector_text(aes(label = round(val)), colour = "blue", size = 2) +
   scale_fill_stepsn(
     n.breaks = 10,
-    limits = c(0, 100),
+    limits = c(0, 150),
     colours = hcl.colors(palette = "Grays", 10, rev = T),
     guide = "legend",
     na.value = "pink",
@@ -1347,17 +1436,57 @@ ggplot(tidyterra::filter(vect_state_geo_IHME, cause_name == "Vitamin A deficienc
 ```
 
 
+```{r}
+#| label: IHME_vit_A_DALYs_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_IHME_vit_A_DALYs <- as.data.frame(tidyterra::filter(vect_state_geo_IHME, cause_name == "Vitamin A deficiency")) |> select(adm1_ref_name, val)
+
+df_IHME_vit_A_DALYs_normalised <- as.data.frame(lapply(select(df_IHME_vit_A_DALYs, -adm1_ref_name), minMax))
+head(df_IHME_vit_A_DALYs_normalised)
+
+df_IHME_vit_A_DALYs_rescale <- bind_cols(select(df_IHME_vit_A_DALYs, adm1_ref_name), df_IHME_vit_A_DALYs_normalised)
+
+```
+
+```{r}
+#| label: IHME_vit_A_DALYs_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
 
+vect_state_geo_IHME_vit_A_DALYs_rescale <- dplyr::left_join(vect_state_geo, df_IHME_vit_A_DALYs_rescale, by = "adm1_ref_name")
 
+ggplot(vect_state_geo_IHME_vit_A_DALYs_rescale) +
+  geom_spatvector(aes(fill = val)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Age standardised Vitamin A Deficiency (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
 
+```
 
+# Rescale Zinc deficiency
 
 - Percentage of population at risk of inadequate intake of zinc. This is now available at the subnational level from the 2021 NFCMS as *womens's prevalence of inadequacy of zinc intakes*. A further indicator is also available:  *prevalence of women of reproductive age with zinc deficiency* and *prevalence of children with zinc deficiency*
 These are only available at the geopolitical zone level in Nigeria, but are potentially an improvement on both the global and 2018 subnational indicators
 
-
-### Zinc deficiency in women of reproductive age (NFCMS, 2021)
+### Zinc deficiency women of reproductive age (NFCMS, 2021)
 
 ```{r}
 #| label: NFCMS_zinc_deficiency_WRA
@@ -1387,6 +1516,55 @@ ggplot(vect_gpz_geo_NFCMS) +
 
 ```
 
+```{r}
+#| label: NFCMS_zinc_deficiency_WRA_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_zinc_deficiency_WRA <- as.data.frame(vect_gpz_geo_NFCMS)
+
+df_NFCMS_zinc_deficiency_WRA_normalised <- as.data.frame(lapply(select(df_NFCMS_zinc_deficiency_WRA, WRA_def_zinc_pc_252 ), minMax))
+
+head(df_NFCMS_zinc_deficiency_WRA_normalised)
+
+df_NFCMS_zinc_deficiency_WRA_rescale <- bind_cols(select(df_NFCMS_zinc_deficiency_WRA, geopolitical_zone), df_NFCMS_zinc_deficiency_WRA_normalised)
+
+
+```
+
+```{r}
+#| label: NFCMS_zinc_deficiency_WRA_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NFCMS_zinc_deficiency_WRA_rescale <- dplyr::left_join(vect_gpz_geo, df_NFCMS_zinc_deficiency_WRA_rescale, by = "geopolitical_zone")
+
+ggplot(vect_state_geo_NFCMS_zinc_deficiency_WRA_rescale) +
+  geom_spatvector(aes(fill = WRA_def_zinc_pc_252)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of zinc deficiency in women of reproductive age (rescale)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+
 ### Zinc deficiency in children (NFCMS, 2021)
 
 ```{r}
@@ -1409,6 +1587,52 @@ ggplot(vect_gpz_geo_NFCMS) +
     labels = scales::comma
   ) +
   labs(title = "Prevalence of zinc deficiency in children", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: NFCMS_zinc_deficiency_CH_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_zinc_deficiency_CH <- as.data.frame(vect_gpz_geo_NFCMS)
+
+df_NFCMS_zinc_deficiency_CH_normalised <- as.data.frame(lapply(select(df_NFCMS_zinc_deficiency_CH, CH_def_zinc_pc_238 ), minMax))
+
+head(df_NFCMS_zinc_deficiency_CH_normalised)
+
+df_NFCMS_zinc_deficiency_CH_rescale <- bind_cols(select(df_NFCMS_zinc_deficiency_CH, geopolitical_zone), df_NFCMS_zinc_deficiency_CH_normalised)
+
+
+```
+
+```{r}
+#| label: NFCMS_zinc_deficiency_CH_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NFCMS_zinc_deficiency_CH_rescale <- dplyr::left_join(vect_gpz_geo, df_NFCMS_zinc_deficiency_CH_rescale, by = "geopolitical_zone")
+
+ggplot(vect_state_geo_NFCMS_zinc_deficiency_CH_rescale) +
+  geom_spatvector(aes(fill = CH_def_zinc_pc_238)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of zinc deficiency in children (rescale)", fill = "") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -1447,7 +1671,54 @@ ggplot(vect_gpz_geo_NFCMS_consumption) +
 ```
 
 
-- Prevalence of stunting among children age 6-59 months available at subnational level for 2023-24
+```{r}
+#| label: NFCMS_zinc_intake_WRA_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_NFCMS_zinc_intake_WRA <- as.data.frame(vect_gpz_geo_NFCMS_consumption)
+
+df_NFCMS_zinc_intake_WRA_normalised <- as.data.frame(lapply(select(df_NFCMS_zinc_intake_WRA, ZINC_IN_DEF_W_76 ), minMax))
+
+head(df_NFCMS_zinc_intake_WRA_normalised)
+
+df_NFCMS_zinc_intake_WRA_rescale <- bind_cols(select(df_NFCMS_zinc_intake_WRA, geopolitical_zone), df_NFCMS_zinc_intake_WRA_normalised)
+
+
+```
+
+```{r}
+#| label: NFCMS_zinc_intake_WRA_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NFCMS_zinc_intake_WRA_rescale <- dplyr::left_join(vect_gpz_geo, df_NFCMS_zinc_intake_WRA_rescale, by = "geopolitical_zone")
+
+ggplot(vect_state_geo_NFCMS_zinc_intake_WRA_rescale) +
+  geom_spatvector(aes(fill = ZINC_IN_DEF_W_76)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of insufficient zinc intake in women of reproductive age (rescale)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+# Rescale prevalence of stunting among children age 6-59 months
 
 
 ```{r}
@@ -1521,7 +1792,52 @@ ggplot(vect_state_geo_NDHS_stunting) +
 
 ```
 
+```{r}
+#| label: NDHS_stunting_CH_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
+df_NDHS_stunting_CH_normalised <- as.data.frame(lapply(select(df_NDHS_stunting_state, -country, -state, -ihme_location_name, -ihme_location_id, -iso_3166_2), minMax))
+
+head(df_NDHS_stunting_CH_normalised)
+
+df_NDHS_stunting_CH_rescale <- bind_cols(select(df_NDHS_stunting_state, state), df_NDHS_stunting_CH_normalised)
+
+
+```
+
+```{r}
+#| label: NDHS_stunting_CH_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo_NDHS_stunting_rescale <- dplyr::left_join(vect_state_geo, df_NDHS_stunting_CH_rescale, by = c("adm1_ref_name"  = "state"))
+
+ggplot(vect_state_geo_NDHS_stunting_rescale) +
+  geom_spatvector(aes(fill = stunting_ndhs2024_pct)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Prevalence of stunting in children (rescale)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+# Rescale age-standardized DALYs lost to dietary IDA
 
 - Age-standardized DALYs lost per 100,000 inhabitants to IDA. The IMHE GBD database includes Age standardised DALYs Dietary iron Deficiency - a slightly different indicator, which focuses on the dietary component of anaemia, but is available at the state level
 
@@ -1553,53 +1869,54 @@ ggplot(tidyterra::filter(vect_state_geo_IHME, cause_name == "Dietary iron defici
 
 ```
 
+```{r}
+#| label: IHME_iron_DALYs_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
+df_IHME_iron_DALYs <- as.data.frame(tidyterra::filter(vect_state_geo_IHME, cause_name == "Dietary iron deficiency")) |> select(adm1_ref_name, val)
+
+df_IHME_iron_DALYs_normalised <- as.data.frame(lapply(select(df_IHME_iron_DALYs, -adm1_ref_name), minMax))
+head(df_IHME_iron_DALYs_normalised)
+
+df_IHME_iron_DALYs_rescale <- bind_cols(select(df_IHME_iron_DALYs, adm1_ref_name), df_IHME_iron_DALYs_normalised)
+
+```
+
+```{r}
+#| label: IHME_iron_DALYs_rescale_map
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+vect_state_geo_IHME_iron_DALYs_rescale <- dplyr::left_join(vect_state_geo, df_IHME_iron_DALYs_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_IHME_iron_DALYs_rescale) +
+  geom_spatvector(aes(fill = val)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Age standardised Dietary Iron Deficiency (rescaled)", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Rescale NDHS combined anaemia
 
 - Proportion of preschool-age children with Hb \< 110 g/l - the NFCMS includes Iron deficiency in children defined as serum ferritin concentration \<15 µg/L corrected for inflammation. Both the NFCMS and NDHS include anaemia for pre-school children - for the NDHS at the state level, and for NFCMS at the zone level. The definition of any anaemia in the NDHS is is when haemoglobin level is <12.0 g/dl. A closer level of Haemoglobin to the global BPI is for moderate and severe anaemia, which combined have an upper limit of 11 g/dl.
-
-```{r}
-#| label: NDHS_state_deficiency_data
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-
-df_NDHS_state <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/NDHS_state_deficiencies.csv")
-# change name to match states dataset
-df_NDHS_state['State'][df_NDHS_state['State'] == "FCT-Abuja"] <- "Federal Capital Territory"
-
-df_NDHS_state$State <- as.factor(df_NDHS_state$State) 
-
-cat(paste(levels(df_NDHS_state$State), "; ")) # Check levels
-
-```
-
-```{r}
-#| label: NDHS_state_join
-#| message: false
-#| warning: false
-#| cache: false
-#| results: asis
-
-vect_state_geo_NDHS <- dplyr::left_join(vect_state_geo, df_NDHS_state, by = c("adm1_ref_name"  = "State"))
-vect_state_geo_NDHS |> as.data.frame() |> 
-  DT::datatable(
-    rownames = F,
-    filter = "bottom",
-    selection = list(mode = "none"),
-    editable = FALSE,
-    options = list(
-      digits = 0,
-      scrollX = TRUE,
-      scrollCollapse = TRUE,
-      autoWidth = TRUE,
-      fixedColumns = list(leftColumns = 2),
-      lengthMenu = c(15, 40),
-      pageLength = 15
-    ))
-
-
-```
 
 ```{r}
 #| label: NDHS_anaemia_combined_CH
@@ -1631,7 +1948,6 @@ ggplot(vect_state_geo_NDHS) +
 
 ```
 
-# Rescale NDHS combined anaemia
 
 ```{r}
 #| label: NDHS_anaemia_combined_CH_rescale
@@ -1646,8 +1962,6 @@ df_NDHS_anaemia_combined_CH_normalised <- as.data.frame(lapply(select(df_NDHS_an
 head(df_NDHS_anaemia_combined_CH_normalised)
 
 df_NDHS_anaemia_combined_CH_rescale <- bind_cols(select(df_NDHS_anaemia_combined_CH, adm1_ref_name), df_NDHS_anaemia_combined_CH_normalised)
-
-
 
 ```
 
@@ -1690,3 +2004,69 @@ ggplot(vect_state_geo_NDHS_anaemia_combined_CH_rescale) +
   )
 
 ```
+
+# Compute the BPI components
+
+## Production Index
+
+$$PI = {0.5 * PCAH^r}+ {0.5 * SHA^r}$$
+Where: 
+
+- $PI$ is the Production Index for a specific crop
+- $PCAH^r$ is the rescaled Per capita area harvested
+- $SHA^r$ is the rescaled share of the cropland
+
+
+## Consumption Index
+
+Because we are not considering the import share the consumption index is simply the value of the rescaled consumption per capita for each crop.
+
+
+## Micronutrient Indices
+
+There is a separate index for Vitamin A, Zinc and Iron:
+
+$$VAI = (0.5 * SR^r) + (0.5 * VAD^r)$$
+Where: 
+
+- $VAI$ is the Micronutrient Index for Vitamin A
+- $SR^r$ is the rescaled Serum Retinol 0.7
+- $VAD^r$ is the rescaled DALYs by VAD
+
+
+$$FeI = (0.5 * HbD^r) + (0.5 * IDA^r)$$
+Where: 
+
+- $FeI$ is the Micronutrient Index for Iron
+- $HbD^r$ is the rescaled Hb below 110
+- $IDA^r$ is the rescaled DALYs by IDA
+
+
+$$ZnI = (0.5 * ((0.5 * ZnD_{WRA}^r) + (0.5 * ZnD_{CH}^r))) + (0.5 * St^r)$$
+Where: 
+
+- $ZnI$ is the Micronutrient Index for Zinc
+- $ZnD_{WRA}^r$ is the rescaled Zinc deficiency in women of reproductive age
+- $ZnD_{CH}^r$ is the rescaled Zinc deficiency in children between 6-59 months
+- $St^r$ is the rescaled prevalence of stunting among children between 6-59 months
+
+# Final BPI
+
+Crop | micronutrient
+-----|--------------
+Banana/Plantain | Vitamin A
+Cassava | Vitamin A
+Cowpea | Zinc/Iron
+Maize | Vitamin A
+Maize | Zinc
+Rice | Zinc
+Sorghum | Zinc/Iron
+Sweet Potato | Vitamin A
+
+
+
+The Biofortification Priority Index
+is calculated as:
+ (BPI) =
+(√Production Index ✴ Consumption Index) ✴
+√ Micronutrient Deficiency Index
