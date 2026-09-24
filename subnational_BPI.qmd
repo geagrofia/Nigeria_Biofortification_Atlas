@@ -768,6 +768,49 @@ head(df_normalised)
 
 df_GHS_pop_crop_state_rescale <- bind_cols(select(df_GHS_pop_crop_state_wide, state), df_normalised)
 
+# convert NA values to 0 so that states with no data (which are equivalent to 0 are actually given this value)
+df_GHS_pop_crop_state_rescale[is.na(df_GHS_pop_crop_state_rescale)] <- 0
+
+# get median values of the consumption indices
+median_plantain_banana_CI <- median(df_GHS_pop_crop_state_rescale$Plantain)
+cat(paste("Median Plantain/Banana CI = ", median_plantain_banana_CI))
+
+median_cassava_CI <- median(df_GHS_pop_crop_state_rescale$Cassava)
+cat(paste("Median Cassava CI = ", median_cassava_CI))
+
+median_cocoyam_CI <- median(df_GHS_pop_crop_state_rescale$Cocoyam)
+cat(paste("Median Cocoyam CI = ", median_cocoyam_CI))
+
+median_cowpea_CI <- median(df_GHS_pop_crop_state_rescale$Cowpea)
+cat(paste("Median Cowpea CI = ", median_cowpea_CI))
+
+median_groundnut_CI <- median(df_GHS_pop_crop_state_rescale$Groundnut)
+cat(paste("Median Groundnut CI = ", median_groundnut_CI))
+
+median_maize_CI <- median(df_GHS_pop_crop_state_rescale$Maize)
+cat(paste("Median Maize CI = ", median_maize_CI))
+
+median_millet_CI <- median(df_GHS_pop_crop_state_rescale$Millet)
+cat(paste("Median Millet CI = ", median_millet_CI))
+
+median_potato_CI <- median(df_GHS_pop_crop_state_rescale$Potato)
+cat(paste("Median Potato CI = ", median_potato_CI))
+
+median_rice_CI <- median(df_GHS_pop_crop_state_rescale$Rice)
+cat(paste("Median Rice CI = ", median_rice_CI))
+
+median_sorghum_CI <- median(df_GHS_pop_crop_state_rescale$Sorghum)
+cat(paste("Median Sorghum CI = ", median_sorghum_CI))
+
+median_spot_CI <- median(df_GHS_pop_crop_state_rescale$Sweet.potato)
+cat(paste("Median Sweet Potato CI = ", median_spot_CI))
+
+median_wheat_CI <- median(df_GHS_pop_crop_state_rescale$Wheat)
+cat(paste("Median Wheat CI = ", median_wheat_CI))
+
+median_yam_CI <- median(df_GHS_pop_crop_state_rescale$Yam)
+cat(paste("Median Yam CI = ", median_yam_CI))
+
 
 
 ```
@@ -2031,7 +2074,10 @@ df_plantain_banana_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, plantain_banana_pc_2024),
   by = "adm1_ref_name"
 ) |> mutate(plantain_banana_PI = ((plantain_banana_share_2024 * 0.5) + (plantain_banana_pc_2024 * 0.5)))
-  
+
+median_plantain_banana_PI <- median(df_plantain_banana_PI$plantain_banana_PI)
+cat(paste("Median Plantain/Banana PI = ", median_plantain_banana_PI))
+
 vect_state_geo_plantain_banana_PI <- dplyr::left_join(vect_state_geo, df_plantain_banana_PI, by = "adm1_ref_name")
 
 ggplot(vect_state_geo_plantain_banana_PI) +
@@ -2069,7 +2115,10 @@ df_cassava_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, cassava_pc_2024),
   by = "adm1_ref_name"
 ) |> mutate(cassava_PI = ((cassava_share_2024 * 0.5) + (cassava_pc_2024 * 0.5)))
-  
+
+median_cassava_PI <- median(df_cassava_PI$cassava_PI)
+cat(paste("Median Cassava PI = ", median_cassava_PI))
+
 vect_state_geo_cassava_PI <- dplyr::left_join(vect_state_geo, df_cassava_PI, by = "adm1_ref_name")
 
 ggplot(vect_state_geo_cassava_PI) +
@@ -2105,7 +2154,10 @@ df_cowpea_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, cowpea_pc_2024),
   by = "adm1_ref_name"
 ) |> mutate(cowpea_PI = ((cowpea_share_2024 * 0.5) + (cowpea_pc_2024 * 0.5)))
-  
+
+median_cowpea_PI <- median(df_cowpea_PI$cowpea_PI)
+cat(paste("Median Cowpea PI = ", median_cassava_PI))
+
 vect_state_geo_cowpea_PI <- dplyr::left_join(vect_state_geo, df_cowpea_PI, by = "adm1_ref_name")
 
 ggplot(vect_state_geo_cowpea_PI) +
@@ -2141,6 +2193,9 @@ df_maize_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, maize_pc_2024),
   by = "adm1_ref_name"
 ) |> mutate(maize_PI = ((maize_share_2024 * 0.5) + (maize_pc_2024 * 0.5)))
+
+median_maize_PI <- median(df_maize_PI$maize_PI)
+cat(paste("Median Maize PI = ", median_maize_PI))
   
 vect_state_geo_maize_PI <- dplyr::left_join(vect_state_geo, df_maize_PI, by = "adm1_ref_name")
 
@@ -2176,6 +2231,10 @@ df_rice_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, rice_pc_2024),
   by = "adm1_ref_name"
 ) |> mutate(rice_PI = ((rice_share_2024 * 0.5) + (rice_pc_2024 * 0.5)))
+
+median_rice_PI <- median(df_rice_PI$rice_PI)
+cat(paste("Median Rice PI = ", median_rice_PI))
+  
   
 vect_state_geo_rice_PI <- dplyr::left_join(vect_state_geo, df_rice_PI, by = "adm1_ref_name")
 
@@ -2211,6 +2270,10 @@ df_sorghum_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, sorghum_pc_2024),
   by = "adm1_ref_name"
 ) |> mutate(sorghum_PI = ((sorghum_share_2024 * 0.5) + (sorghum_pc_2024 * 0.5)))
+
+median_sorghum_PI <- median(df_sorghum_PI$sorghum_PI)
+cat(paste("Median Sorghum PI = ", median_sorghum_PI))
+  
   
 vect_state_geo_sorghum_PI <- dplyr::left_join(vect_state_geo, df_sorghum_PI, by = "adm1_ref_name")
 
@@ -2248,6 +2311,9 @@ df_spot_PI <- left_join(
   select(df_crop_area_pc_rescale, adm1_ref_name, spot_pc_2020),
   by = "adm1_ref_name"
 ) |> mutate(spot_PI = ((spot_share_2020 * 0.5) + (spot_pc_2020 * 0.5)))
+
+median_spot_PI <- median(df_spot_PI$spot_PI)
+cat(paste("Median Sorghum PI = ", median_spot_PI))
   
 vect_state_geo_spot_PI <- dplyr::left_join(vect_state_geo, df_spot_PI, by = "adm1_ref_name")
 
@@ -2272,7 +2338,7 @@ ggplot(vect_state_geo_spot_PI) +
 
 ## Consumption Index
 
-Because we are not considering the import share the consumption index is simply the value of the rescaled consumption per capita for each crop.
+Because we are not considering the import share the consumption index $CI_i$ for crop $i$ is simply the value of the rescaled consumption per capita for crop $i$.
 
 
 ## Micronutrient Indices
@@ -2304,7 +2370,8 @@ df_VitA_I <- left_join(
     by = "adm1_pcode") |>
   left_join(df_NFCMS_vit_A_deficiency_CH_rescale, by = "geopolitical_zone") |> mutate(VitA_I = ((val * 0.5) + (CH_def_vit_A_pc_236 * 0.5)))
   
-
+median_VitA_I <- median(df_VitA_I$VitA_I)
+cat(paste("Median Vitamin A Deficiency Index = ", median_VitA_I))
 
 vect_state_geo_VitA_I <- dplyr::left_join(vect_state_geo, df_VitA_I, by = "adm1_ref_name")
 
@@ -2347,8 +2414,9 @@ Where:
 df_Fe_I <- left_join(
   df_IHME_iron_DALYs_rescale, df_NDHS_anaemia_combined_CH_rescale,
     by = "adm1_ref_name") |> mutate(Fe_I = ((val * 0.5) + (CH_anaemia_comb * 0.5)))
-  
 
+median_Fe_I <- median(df_Fe_I$Fe_I)
+cat(paste("Median Iron Deficiency Index = ", median_Fe_I))
 
 vect_state_geo_Fe_I <- dplyr::left_join(vect_state_geo, df_Fe_I, by = "adm1_ref_name")
 
@@ -2400,6 +2468,8 @@ df_Zn_I <- left_join(df_NDHS_stunting_CH_rescale, df_state, by = c("state" = "ad
   left_join(df_NFCMS_zinc_deficiency_WRA_rescale, by = "geopolitical_zone")   |> 
   mutate(Zn_I = ((stunting_ndhs2024_pct * 0.5) + (((CH_def_zinc_pc_238 * 0.5) + (WRA_def_zinc_pc_252 * 0.5)) * 0.5)))
   
+median_Zn_I <- median(df_Zn_I$Zn_I)
+cat(paste("Median Zinc Deficiency Index = ", median_Zn_I))
 
 vect_state_geo_Zn_I <- dplyr::left_join(vect_state_geo, df_Zn_I, by = c("adm1_ref_name" = "state"))
 
@@ -2439,7 +2509,7 @@ Sweet Potato | Vitamin A
 
 The Biofortification Priority Index is calculated as:
 
-$$BPI_{ij} = \sqrt{ \sqrt{(PI_i * CI_i)} * MDI_{j})}$$
+$$BPI_{ij} = \sqrt{ \sqrt{(PI_i * CI_i)} * MDI_j)}$$
 Where: 
 
 - $BPI_{ij}$ is the Biofortification Priority Index for crop $i$ and Micronutrient $j$
@@ -2810,6 +2880,505 @@ ggplot(vect_state_geo_spot_VitA_BPI) +
     labels = scales::comma
   ) +
   labs(title = "Sweet Potato Vitamin A BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Rescaled unweighted Biofortification Priority Indices
+
+ @asare-marfoPrioritizingCountriesBiofortifcation2013 make further modificiations to the raw BPIs for each crop/micronutrient combination. They multiply the raw BPI by 100 and then rescale so that the geographical unit with the highest value receives a value of 100 while the lowest receives a value of 0.
+ 
+This is useful for comparing the different units but some information is lost regarding the absolute values and is less useful for comparing different crop/MN combinations.
+
+```{r}
+#| label: BPI_rescale_plot_colours
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+breaks <- c(3, 10, 20, 50, 100)
+
+colors <- c("#6DC700", "#CCFF00", "#FFC800", "#FF6600", "#B00000")
+
+labels = c("Little/no", "Low", "Medium", "High", "Top" )
+
+
+```
+
+
+## Plantain/Banana Vitamin A BPI
+
+
+```{r}
+#| label: plantain_banana_VitA_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_plantain_banana_VitA_BPI_normalised <- as.data.frame(lapply(select(df_plantain_banana_VitA_BPI, plantain_banana_VitA_BPI ), minMax)) |> 
+  mutate(plantain_banana_VitA_BPI_rescale = (plantain_banana_VitA_BPI * 100))
+
+df_plantain_banana_VitA_BPI_rescale <- bind_cols(select(df_plantain_banana_VitA_BPI, adm1_ref_name), select(df_plantain_banana_VitA_BPI_normalised, plantain_banana_VitA_BPI_rescale ))
+
+vect_state_geo_plantain_banana_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_plantain_banana_VitA_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_plantain_banana_VitA_BPI_rescale) +
+  geom_spatvector(aes(fill = plantain_banana_VitA_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Plantain/Banana Vitamin A BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cassava Vitamin A BPI
+
+
+```{r}
+#| label: cassava_VitA_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cassava_VitA_BPI_normalised <- as.data.frame(lapply(select(df_cassava_VitA_BPI, cassava_VitA_BPI ), minMax)) |> 
+  mutate(cassava_VitA_BPI_rescale = (cassava_VitA_BPI * 100))
+
+df_cassava_VitA_BPI_rescale <- bind_cols(select(df_cassava_VitA_BPI, adm1_ref_name), select(df_cassava_VitA_BPI_normalised, cassava_VitA_BPI_rescale ))
+
+vect_state_geo_cassava_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_cassava_VitA_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cassava_VitA_BPI_rescale) +
+  geom_spatvector(aes(fill = cassava_VitA_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Cassava Vitamin A BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cowpea Zinc/Iron BPI
+
+
+```{r}
+#| label: cowpea_Zn_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_Zn_BPI_normalised <- as.data.frame(lapply(select(df_cowpea_Zn_BPI, cowpea_Zn_BPI ), minMax)) |> 
+  mutate(cowpea_Zn_BPI_rescale = (cowpea_Zn_BPI * 100))
+
+df_cowpea_Zn_BPI_rescale <- bind_cols(select(df_cowpea_Zn_BPI, adm1_ref_name), select(df_cowpea_Zn_BPI_normalised, cowpea_Zn_BPI_rescale ))
+
+vect_state_geo_cowpea_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_cowpea_Zn_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Zn_BPI_rescale) +
+  geom_spatvector(aes(fill = cowpea_Zn_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Cowpea Zinc BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+```{r}
+#| label: cowpea_Fe_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_Fe_BPI_normalised <- as.data.frame(lapply(select(df_cowpea_Fe_BPI, cowpea_Fe_BPI ), minMax)) |> 
+  mutate(cowpea_Fe_BPI_rescale = (cowpea_Fe_BPI * 100))
+
+df_cowpea_Fe_BPI_rescale <- bind_cols(select(df_cowpea_Fe_BPI, adm1_ref_name), select(df_cowpea_Fe_BPI_normalised, cowpea_Fe_BPI_rescale ))
+
+vect_state_geo_cowpea_Fe_BPI_rescale <- dplyr::left_join(vect_state_geo, df_cowpea_Fe_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Fe_BPI_rescale) +
+  geom_spatvector(aes(fill = cowpea_Fe_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Cowpea Iron BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Maize Vitamin A BPI
+
+
+```{r}
+#| label: maize_VitA_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_VitA_BPI_normalised <- as.data.frame(lapply(select(df_maize_VitA_BPI, maize_VitA_BPI ), minMax)) |> 
+  mutate(maize_VitA_BPI_rescale = (maize_VitA_BPI * 100))
+
+df_maize_VitA_BPI_rescale <- bind_cols(select(df_maize_VitA_BPI, adm1_ref_name), select(df_maize_VitA_BPI_normalised, maize_VitA_BPI_rescale ))
+
+vect_state_geo_maize_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_maize_VitA_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_VitA_BPI_rescale) +
+  geom_spatvector(aes(fill = maize_VitA_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Maize Vitamin A BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Maize Zinc BPI
+
+
+```{r}
+#| label: maize_Zn_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_Zn_BPI_normalised <- as.data.frame(lapply(select(df_maize_Zn_BPI, maize_Zn_BPI ), minMax)) |> 
+  mutate(maize_Zn_BPI_rescale = (maize_Zn_BPI * 100))
+
+df_maize_Zn_BPI_rescale <- bind_cols(select(df_maize_Zn_BPI, adm1_ref_name), select(df_maize_Zn_BPI_normalised, maize_Zn_BPI_rescale ))
+
+vect_state_geo_maize_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_maize_Zn_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_Zn_BPI_rescale) +
+  geom_spatvector(aes(fill = maize_Zn_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Maize Zinc BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Rice Zinc BPI
+
+
+```{r}
+#| label: rice_Zn_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_rice_Zn_BPI_normalised <- as.data.frame(lapply(select(df_rice_Zn_BPI, rice_Zn_BPI ), minMax)) |> 
+  mutate(rice_Zn_BPI_rescale = (rice_Zn_BPI * 100))
+
+df_rice_Zn_BPI_rescale <- bind_cols(select(df_rice_Zn_BPI, adm1_ref_name), select(df_rice_Zn_BPI_normalised, rice_Zn_BPI_rescale ))
+
+vect_state_geo_rice_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_rice_Zn_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_rice_Zn_BPI_rescale) +
+  geom_spatvector(aes(fill = rice_Zn_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Rice Zinc BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Sorghum Zinc/Iron BPI
+
+```{r}
+#| label: sorghum_Zn_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_Zn_BPI_normalised <- as.data.frame(lapply(select(df_sorghum_Zn_BPI, sorghum_Zn_BPI ), minMax)) |> 
+  mutate(sorghum_Zn_BPI_rescale = (sorghum_Zn_BPI * 100))
+
+df_sorghum_Zn_BPI_rescale <- bind_cols(select(df_sorghum_Zn_BPI, adm1_ref_name), select(df_sorghum_Zn_BPI_normalised, sorghum_Zn_BPI_rescale ))
+
+vect_state_geo_sorghum_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_sorghum_Zn_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Zn_BPI_rescale) +
+  geom_spatvector(aes(fill = sorghum_Zn_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Sorghum Zinc BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: sorghum_Fe_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_Fe_BPI_normalised <- as.data.frame(lapply(select(df_sorghum_Fe_BPI, sorghum_Fe_BPI ), minMax)) |> 
+  mutate(sorghum_Fe_BPI_rescale = (sorghum_Fe_BPI * 100))
+
+df_sorghum_Fe_BPI_rescale <- bind_cols(select(df_sorghum_Fe_BPI, adm1_ref_name), select(df_sorghum_Fe_BPI_normalised, sorghum_Fe_BPI_rescale ))
+
+vect_state_geo_sorghum_Fe_BPI_rescale <- dplyr::left_join(vect_state_geo, df_sorghum_Fe_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Fe_BPI_rescale) +
+  geom_spatvector(aes(fill = sorghum_Fe_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Sorghum Iron BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Sweet Potato Vitamin A BPI
+
+
+```{r}
+#| label: spot_VitA_BPI_rescale
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_spot_VitA_BPI_normalised <- as.data.frame(lapply(select(df_spot_VitA_BPI, spot_VitA_BPI ), minMax)) |> 
+  mutate(spot_VitA_BPI_rescale = (spot_VitA_BPI * 100))
+
+df_spot_VitA_BPI_rescale <- bind_cols(select(df_spot_VitA_BPI, adm1_ref_name), select(df_spot_VitA_BPI_normalised, spot_VitA_BPI_rescale ))
+
+vect_state_geo_spot_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_spot_VitA_BPI_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_spot_VitA_BPI_rescale) +
+  geom_spatvector(aes(fill = spot_VitA_BPI_rescale)) +
+  scale_fill_stepsn(
+    colors = colors,
+    values = scales::rescale(breaks),
+    breaks = breaks,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Sweet Potato Vitamin A BPI (rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Target Area Classification
+
+@herringtonSubnationalPrioritizationBiofortification2018, extended the subnational BPI with a classification of the geographical units according to an alternative combination of the BPI sub components.
+
+They identified states where consumption and micronutrient deficiency levels were lower than average, but where production was higher than average, called *Areas of Intervention*.
+States with consumption and micronutrient deficiency levels above or equal to the national average were classed as *Areas of Impact*.
+States where consumption, production and micronutrient deficiency were all above average were classed as *Areas of Impact and Intervention*.
+
+
+$$
+GIntImp = CI_i > \tilde{C_i} \land  PI_i > \tilde{P_i} \land  MDI_j > \tilde{MD_j}
+$$
+
+
+$$
+GImp = CI_i \geq \tilde{C_i} \land  PI_i \leq \tilde{P_i} \land  MDI_j \geq \tilde{MD_j}
+$$
+
+$$
+GInt = CI_i < \tilde{C_i} \land  PI_i > \tilde{P_i} \land  MDI_j < \tilde{MD_j}
+$$
+Where:
+
+$GIntImp$ are geographical areas for both Intervention and Impact
+$GImp$ are geographical areas for Impact only
+$GInt$ are geographical areas for Intervention only
+$CI_i$ is the consumption index for crop $i$
+$\tilde{C_i}$ is the median consumption for crop $i$
+$PI_i$ is the production index for crop $i$
+$\tilde{P_i}$ is the median production for crop $i$
+$MDI_j$ is the micronutrient deficiency index for micronutrient $j$
+$\tilde{MD_j}$ is the median micronutrient deficiency for micronutrient $j$
+
+These classes are useful for translating the subnational BPI maps into concrete actions on the ground to reduce micronutrient deficiency by biofortification of staple crops. @herringtonSubnationalPrioritizationBiofortification2018 do not give details on how they compare the indices (which are unit less) with the consumption, production and micronutrient deficiency levels.
+
+For our purposes we will not use the actual consumption, production or deficiency values, instead we will compare a state's index with the median index value of all states.
+
+
+$$
+GIntImp = CI_i > \tilde{CI_i} \land  PI_i > \tilde{PI_i} \land  MDI_j > \tilde{MDI_j}
+$$
+
+
+$$
+GImp = CI_i \geq \tilde{CI_i} \land  PI_i \leq \tilde{PI_i} \land  MDI_j \geq \tilde{MDI_j}
+$$
+
+$$
+GInt = CI_i < \tilde{CI_i} \land  PI_i > \tilde{PI_i} \land  MDI_j < \tilde{MDI_j}
+$$
+Where:
+
+$GIntImp$ are geographical areas for both Intervention and Impact
+$GImp$ are geographical areas for Impact only
+$GInt$ are geographical areas for Intervention only
+$CI_i$ is the consumption index for crop $i$
+$\tilde{C_i}$ is the median consumption for crop $i$
+$PI_i$ is the production index for crop $i$
+$\tilde{P_i}$ is the median production for crop $i$
+$MDI_j$ is the micronutrient deficiency index for micronutrient $j$
+$\tilde{MD_j}$ is the median micronutrient deficiency for micronutrient $j$
+
+```{r}
+#| label: target_areas_plot_colours
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+area_colours <- c(
+  "Intervention and Impact Areas"    = "green",
+  "Impact Areas" = "orange",
+  "Intervention Areas"   = "lightblue",
+  "None"       = "white"
+)
+
+area_breaks_target <- c("Intervention and Impact Areas", "Impact Areas", "Intervention Areas", "None")
+
+
+```
+
+## Plantain/Banana Vitamin A Target Areas
+
+
+```{r}
+#| label: plantain_banana_VitA_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_plantain_banana_VitA_BPI <- df_plantain_banana_VitA_BPI |> mutate(plantain_banana_PI_compare = ifelse(((plantain_banana_PI > median_plantain_banana_PI) & (Plantain > median_plantain_banana_CI) & (VitA_I > median_VitA_I)), "Intervention and Impact Areas",
+                                                                          ifelse(((plantain_banana_PI >= median_plantain_banana_PI) & (Plantain <= median_plantain_banana_CI) & (VitA_I >= median_VitA_I)), "Impact Areas",
+               ifelse(((plantain_banana_PI < median_plantain_banana_PI) & (Plantain > median_plantain_banana_CI) & (VitA_I < median_VitA_I)), "Intervention Areas", "None"))))
+
+vect_state_geo_plantain_banana_VitA_BPI <- dplyr::left_join(vect_state_geo, df_plantain_banana_VitA_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_plantain_banana_VitA_BPI) +
+  geom_spatvector(aes(fill = plantain_banana_PI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Plantain/Banana Vitamin A Target Areas", fill = "") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
