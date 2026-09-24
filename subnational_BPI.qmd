@@ -2017,6 +2017,259 @@ Where:
 - $SHA^r$ is the rescaled share of the cropland
 
 
+### Plantain/Banana Production Index
+
+```{r}
+#| label: plantain_banana_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_plantain_banana_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, plantain_banana_share_2024),
+  select(df_crop_area_pc_rescale, adm1_ref_name, plantain_banana_pc_2024),
+  by = "adm1_ref_name"
+) |> mutate(plantain_banana_PI = ((plantain_banana_share_2024 * 0.5) + (plantain_banana_pc_2024 * 0.5)))
+  
+vect_state_geo_plantain_banana_PI <- dplyr::left_join(vect_state_geo, df_plantain_banana_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_plantain_banana_PI) +
+  geom_spatvector(aes(fill = plantain_banana_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain/Banana Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+### Cassava Production Index
+
+```{r}
+#| label: cassava_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cassava_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, cassava_share_2024),
+  select(df_crop_area_pc_rescale, adm1_ref_name, cassava_pc_2024),
+  by = "adm1_ref_name"
+) |> mutate(cassava_PI = ((cassava_share_2024 * 0.5) + (cassava_pc_2024 * 0.5)))
+  
+vect_state_geo_cassava_PI <- dplyr::left_join(vect_state_geo, df_cassava_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cassava_PI) +
+  geom_spatvector(aes(fill = cassava_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea Production Index
+
+```{r}
+#| label: cowpea_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, cowpea_share_2024),
+  select(df_crop_area_pc_rescale, adm1_ref_name, cowpea_pc_2024),
+  by = "adm1_ref_name"
+) |> mutate(cowpea_PI = ((cowpea_share_2024 * 0.5) + (cowpea_pc_2024 * 0.5)))
+  
+vect_state_geo_cowpea_PI <- dplyr::left_join(vect_state_geo, df_cowpea_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_PI) +
+  geom_spatvector(aes(fill = cowpea_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize Production Index
+
+```{r}
+#| label: maize_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, maize_share_2024),
+  select(df_crop_area_pc_rescale, adm1_ref_name, maize_pc_2024),
+  by = "adm1_ref_name"
+) |> mutate(maize_PI = ((maize_share_2024 * 0.5) + (maize_pc_2024 * 0.5)))
+  
+vect_state_geo_maize_PI <- dplyr::left_join(vect_state_geo, df_maize_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_PI) +
+  geom_spatvector(aes(fill = maize_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+### Rice Production Index
+
+```{r}
+#| label: rice_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_rice_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, rice_share_2024),
+  select(df_crop_area_pc_rescale, adm1_ref_name, rice_pc_2024),
+  by = "adm1_ref_name"
+) |> mutate(rice_PI = ((rice_share_2024 * 0.5) + (rice_pc_2024 * 0.5)))
+  
+vect_state_geo_rice_PI <- dplyr::left_join(vect_state_geo, df_rice_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_rice_PI) +
+  geom_spatvector(aes(fill = rice_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+### Sorghum Production Index
+
+```{r}
+#| label: sorghum_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, sorghum_share_2024),
+  select(df_crop_area_pc_rescale, adm1_ref_name, sorghum_pc_2024),
+  by = "adm1_ref_name"
+) |> mutate(sorghum_PI = ((sorghum_share_2024 * 0.5) + (sorghum_pc_2024 * 0.5)))
+  
+vect_state_geo_sorghum_PI <- dplyr::left_join(vect_state_geo, df_sorghum_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_PI) +
+  geom_spatvector(aes(fill = sorghum_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+### Sweet Potato Production Index
+
+
+
+```{r}
+#| label: spot_PI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_spot_PI <- left_join(
+  select(df_crop_area_share_rescale, adm1_ref_name, spot_share_2020),
+  select(df_crop_area_pc_rescale, adm1_ref_name, spot_pc_2020),
+  by = "adm1_ref_name"
+) |> mutate(spot_PI = ((spot_share_2020 * 0.5) + (spot_pc_2020 * 0.5)))
+  
+vect_state_geo_spot_PI <- dplyr::left_join(vect_state_geo, df_spot_PI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_spot_PI) +
+  geom_spatvector(aes(fill = spot_PI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato Production Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
 ## Consumption Index
 
 Because we are not considering the import share the consumption index is simply the value of the rescaled consumption per capita for each crop.
@@ -2024,7 +2277,9 @@ Because we are not considering the import share the consumption index is simply 
 
 ## Micronutrient Indices
 
-There is a separate index for Vitamin A, Zinc and Iron:
+There is a separate index each for Vitamin A, Zinc and Iron:
+
+### Vitamin A deficiency Index
 
 $$VAI = (0.5 * SR^r) + (0.5 * VAD^r)$$
 Where: 
@@ -2034,12 +2289,93 @@ Where:
 - $VAD^r$ is the rescaled DALYs by VAD
 
 
+```{r}
+#| label: VitA_I
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_VitA_I <- left_join(
+  df_IHME_vit_A_DALYs_rescale, df_state,
+    by = "adm1_ref_name") |>
+  left_join(
+   df_gpz,
+    by = "adm1_pcode") |>
+  left_join(df_NFCMS_vit_A_deficiency_CH_rescale, by = "geopolitical_zone") |> mutate(VitA_I = ((val * 0.5) + (CH_def_vit_A_pc_236 * 0.5)))
+  
+
+
+vect_state_geo_VitA_I <- dplyr::left_join(vect_state_geo, df_VitA_I, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_VitA_I) +
+  geom_spatvector(aes(fill = VitA_I)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Vitamin A Deficiency Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Iron deficiency Index
+
 $$FeI = (0.5 * HbD^r) + (0.5 * IDA^r)$$
 Where: 
 
 - $FeI$ is the Micronutrient Index for Iron
 - $HbD^r$ is the rescaled Hb below 110
 - $IDA^r$ is the rescaled DALYs by IDA
+
+
+```{r}
+#| label: Fe_I
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_Fe_I <- left_join(
+  df_IHME_iron_DALYs_rescale, df_NDHS_anaemia_combined_CH_rescale,
+    by = "adm1_ref_name") |> mutate(Fe_I = ((val * 0.5) + (CH_anaemia_comb * 0.5)))
+  
+
+
+vect_state_geo_Fe_I <- dplyr::left_join(vect_state_geo, df_Fe_I, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_Fe_I) +
+  geom_spatvector(aes(fill = Fe_I)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Iron Deficiency Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+
+
+### Zinc deficiency Index
 
 
 $$ZnI = (0.5 * ((0.5 * ZnD_{WRA}^r) + (0.5 * ZnD_{CH}^r))) + (0.5 * St^r)$$
@@ -2050,7 +2386,43 @@ Where:
 - $ZnD_{CH}^r$ is the rescaled Zinc deficiency in children between 6-59 months
 - $St^r$ is the rescaled prevalence of stunting among children between 6-59 months
 
-# Final BPI
+
+```{r}
+#| label: Zn_I
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_Zn_I <- left_join(df_NDHS_stunting_CH_rescale, df_state, by = c("state" = "adm1_ref_name")) |>
+  left_join(df_gpz,by = "adm1_pcode")  |>
+  left_join(df_NFCMS_zinc_deficiency_CH_rescale, by = "geopolitical_zone")   |>
+  left_join(df_NFCMS_zinc_deficiency_WRA_rescale, by = "geopolitical_zone")   |> 
+  mutate(Zn_I = ((stunting_ndhs2024_pct * 0.5) + (((CH_def_zinc_pc_238 * 0.5) + (WRA_def_zinc_pc_252 * 0.5)) * 0.5)))
+  
+
+vect_state_geo_Zn_I <- dplyr::left_join(vect_state_geo, df_Zn_I, by = c("adm1_ref_name" = "state"))
+
+ggplot(vect_state_geo_Zn_I) +
+  geom_spatvector(aes(fill = Zn_I)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Zinc Deficiency Index", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Unweighted Biofortification Priority Indices
 
 Crop | micronutrient
 -----|--------------
@@ -2065,8 +2437,383 @@ Sweet Potato | Vitamin A
 
 
 
-The Biofortification Priority Index
-is calculated as:
- (BPI) =
-(√Production Index ✴ Consumption Index) ✴
-√ Micronutrient Deficiency Index
+The Biofortification Priority Index is calculated as:
+
+$$BPI_{ij} = \sqrt{ \sqrt{(PI_i * CI_i)} * MDI_{j})}$$
+Where: 
+
+- $BPI_{ij}$ is the Biofortification Priority Index for crop $i$ and Micronutrient $j$
+- $PI_i$ is the Production Index for crop $i$
+- $CI_i$ is the Consumption Index for crop $i$
+- $MDI_{j}$ is the Micronutrient Deficiency Index for Micronutrient $j$
+
+
+## Plantain/Banana Vitamin A BPI
+
+
+```{r}
+#| label: plantain_banana_VitA_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_plantain_banana_VitA_BPI <- left_join(df_plantain_banana_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_VitA_I, by = "adm1_ref_name") |> 
+  mutate(plantain_banana_VitA_BPI = sqrt((sqrt(plantain_banana_PI * Plantain)) * VitA_I))
+  
+
+
+vect_state_geo_plantain_banana_VitA_BPI <- dplyr::left_join(vect_state_geo, df_plantain_banana_VitA_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_plantain_banana_VitA_BPI) +
+  geom_spatvector(aes(fill = plantain_banana_VitA_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Plantain/Banana Vitamin A BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cassava Vitamin A BPI
+
+```{r}
+#| label: cassava_VitA_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cassava_VitA_BPI <- left_join(df_cassava_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_VitA_I, by = "adm1_ref_name") |> 
+  mutate(cassava_VitA_BPI = sqrt((sqrt(cassava_PI * Cassava)) * VitA_I))
+  
+
+
+vect_state_geo_cassava_VitA_BPI <- dplyr::left_join(vect_state_geo, df_cassava_VitA_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cassava_VitA_BPI) +
+  geom_spatvector(aes(fill = cassava_VitA_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava Vitamin A BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cowpea Zinc/Iron BPI
+
+
+```{r}
+#| label: cowpea_Zn_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_Zn_BPI <- left_join(df_cowpea_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_Zn_I, c("adm1_ref_name"= "state")) |> 
+  mutate(cowpea_Zn_BPI = sqrt((sqrt(cowpea_PI * Cowpea)) * Zn_I))
+  
+
+
+vect_state_geo_cowpea_Zn_BPI <- dplyr::left_join(vect_state_geo, df_cowpea_Zn_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Zn_BPI) +
+  geom_spatvector(aes(fill = cowpea_Zn_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea Zinc BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: cowpea_Fe_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_Fe_BPI <- left_join(df_cowpea_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_Fe_I, "adm1_ref_name") |> 
+  mutate(cowpea_Fe_BPI = sqrt((sqrt(cowpea_PI * Cowpea)) * Fe_I))
+  
+
+
+vect_state_geo_cowpea_Fe_BPI <- dplyr::left_join(vect_state_geo, df_cowpea_Fe_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Fe_BPI) +
+  geom_spatvector(aes(fill = cowpea_Fe_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea Iron BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Maize Vitamin A BPI
+
+```{r}
+#| label: maize_VitA_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_VitA_BPI <- left_join(df_maize_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_VitA_I, by = "adm1_ref_name") |> 
+  mutate(maize_VitA_BPI = sqrt((sqrt(maize_PI * Maize)) * VitA_I))
+  
+
+
+vect_state_geo_maize_VitA_BPI <- dplyr::left_join(vect_state_geo, df_maize_VitA_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_VitA_BPI) +
+  geom_spatvector(aes(fill = maize_VitA_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize Vitamin A BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Maize Zinc BPI
+
+```{r}
+#| label: maize_Zn_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_Zn_BPI <- left_join(df_maize_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_Zn_I, c("adm1_ref_name"= "state")) |> 
+  mutate(maize_Zn_BPI = sqrt((sqrt(maize_PI * Maize)) * Zn_I))
+  
+
+
+vect_state_geo_maize_Zn_BPI <- dplyr::left_join(vect_state_geo, df_maize_Zn_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_Zn_BPI) +
+  geom_spatvector(aes(fill = maize_Zn_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize Zinc BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Rice Zinc BPI
+
+
+```{r}
+#| label: rice_Zn_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_rice_Zn_BPI <- left_join(df_rice_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_Zn_I, c("adm1_ref_name"= "state")) |> 
+  mutate(rice_Zn_BPI = sqrt((sqrt(rice_PI * Rice)) * Zn_I))
+  
+
+
+vect_state_geo_rice_Zn_BPI <- dplyr::left_join(vect_state_geo, df_rice_Zn_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_rice_Zn_BPI) +
+  geom_spatvector(aes(fill = rice_Zn_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice Zinc BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Sorghum Zinc/Iron BPI
+
+```{r}
+#| label: sorghum_Zn_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_Zn_BPI <- left_join(df_sorghum_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_Zn_I, c("adm1_ref_name"= "state")) |> 
+  mutate(sorghum_Zn_BPI = sqrt((sqrt(sorghum_PI * Sorghum)) * Zn_I))
+  
+
+
+vect_state_geo_sorghum_Zn_BPI <- dplyr::left_join(vect_state_geo, df_sorghum_Zn_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Zn_BPI) +
+  geom_spatvector(aes(fill = sorghum_Zn_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum Zinc BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+```{r}
+#| label: sorghum_Fe_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_Fe_BPI <- left_join(df_sorghum_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_Fe_I, "adm1_ref_name") |> 
+  mutate(sorghum_Fe_BPI = sqrt((sqrt(sorghum_PI * Sorghum)) * Fe_I))
+  
+
+
+vect_state_geo_sorghum_Fe_BPI <- dplyr::left_join(vect_state_geo, df_sorghum_Fe_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Fe_BPI) +
+  geom_spatvector(aes(fill = sorghum_Fe_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sorghum Iron BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Sweet Potato Vitamin A BPI
+
+
+```{r}
+#| label: spot_VitA_BPI
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_spot_VitA_BPI <- left_join(df_spot_PI, df_GHS_pop_crop_state_rescale,
+    by = c("adm1_ref_name"= "state")) |> 
+  left_join(df_VitA_I, by = "adm1_ref_name") |> 
+  mutate(spot_VitA_BPI = sqrt((sqrt(spot_PI * Sweet.potato)) * VitA_I))
+  
+
+
+vect_state_geo_spot_VitA_BPI <- dplyr::left_join(vect_state_geo, df_spot_VitA_BPI, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_spot_VitA_BPI) +
+  geom_spatvector(aes(fill = spot_VitA_BPI)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 1),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato Vitamin A BPI", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
