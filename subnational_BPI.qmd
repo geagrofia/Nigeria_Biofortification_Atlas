@@ -73,7 +73,7 @@ The global BPI uses three variables in the production index (@tbl-global_prod_in
 : Variables Used for the Calculation of the Production Index of the Global BPIs {#tbl-global_prod_index}
 
 ::: {.callout-note title="Rescaling"}
-All variables are rescaled to a range between 0 and 1 by applying the following formula in @eq-rescale1
+All variables are rescaled to a range between 0 and 1 by applying the formula in @eq-rescale1
 
 $$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale1} 
 
@@ -157,7 +157,7 @@ For their subnational BPIs @herringtonSubnationalPrioritizationBiofortification2
 Of the three indicators used to generate the production index only two have data at the subnational level:
 
 - Share of area harvested (%)
-- Per-capita area harvested (m^2)
+- Per-capita area harvested (m^2^)
 
 The production data used are from 2024, apart from sweet potato for which there were no data in the NAERLS report. Instead we used 2020 data from MapSpam.
 
@@ -773,7 +773,7 @@ df_GHS_pop_crop_state_wide <- df_GHS_pop_crop_state |>
   pivot_wider(names_from = crop, values_from = benchmarked_crop_equivalent_kg_person_year_state)
 
 df_normalised <- as.data.frame(lapply(select(df_GHS_pop_crop_state_wide, -state), minMax))
-head(df_normalised)
+#head(df_normalised)
 
 df_GHS_pop_crop_state_rescale <- bind_cols(select(df_GHS_pop_crop_state_wide, state), df_normalised)
 
@@ -3345,15 +3345,12 @@ $$ {#eq-Target_6}
 
 Where:
 
-$GIntImp$ are geographical areas for both Intervention and Impact
-$GImp$ are geographical areas for Impact only
-$GInt$ are geographical areas for Intervention only
-$CI_i$ is the consumption index for crop $i$
-$\tilde{C_i}$ is the median consumption for crop $i$
-$PI_i$ is the production index for crop $i$
-$\tilde{P_i}$ is the median production for crop $i$
-$MDI_j$ is the micronutrient deficiency index for micronutrient $j$
-$\tilde{MD_j}$ is the median micronutrient deficiency for micronutrient $j$
+- $CI_i$ is the consumption index for crop $i$
+- $\tilde{C_i}$ is the median consumption for crop $i$
+- $PI_i$ is the production index for crop $i$
+- $\tilde{P_i}$ is the median production for crop $i$
+- $MDI_j$ is the micronutrient deficiency index for micronutrient $j$
+- $\tilde{MD_j}$ is the median micronutrient deficiency for micronutrient $j$
 
 ```{r}
 #| label: target_areas_plot_colours
@@ -3867,18 +3864,19 @@ $$BPI_w = BPI_r * A * 100$$ {#eq-BPI_w}
 
 Where:
 
-- $BPI_w$ are geographical areas for both Intervention and Impact
-- $BPI_r$ are geographical areas for Impact only
+- $BPI_w$ is the weighted BPI
+- $BPI_r$ is the rescaled BPI
 - $A$ is the weight 
 
 
 $$A = ({P_{ij} / {P_j}) * 100}$$  {#eq-BPI_w1} 
+
 or 
 
 $$A = (({PopCH_{i}} + {PopWRA_{i}) / ({PopCH} + {PopWRA})) * 100}$$ {#eq-BPI_w2} 
+
 Where: 
 
-- $A$ is the weight
 - $P_{ij}$ is the harvest area of crop $j$ in state $i$
 - $P_j$ is the national harvest area of crop $j$  
 - $PopCH_{i}$ is the population of children between 6-59 months in state $i$
