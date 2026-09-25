@@ -51,7 +51,7 @@ The objectives of this short review are to:
 
 (1) identify and assess the data sources used in the 2018 study
 (2) seek more recent equivalent data, or data for alternative indicators
-(3) assess how well the consumption data relate to food baskets and diets of the target populations
+
 
 ## Identify and assess the data sources used in the 2018 study
 
@@ -73,9 +73,17 @@ The global BPI uses three variables in the production index (@tbl-global_prod_in
 : Variables Used for the Calculation of the Production Index of the Global BPIs {#tbl-global_prod_index}
 
 ::: {.callout-note title="Rescaling"}
-All variables are rescaled to a range between 0 and 1 by applying the following formula in @eq-rescale
+All variables are rescaled to a range between 0 and 1 by applying the following formula in @eq-rescale1
 
-$$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale} Where: - $V_r$ is the rescaled value - $V_a$ is the actual value - $V_{min}$ is the minimum value - $V_{max}$ is the maximum value
+$$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale1} 
+
+Where: 
+
+- $V_r$ is the rescaled value 
+- $V_a$ is the actual value 
+- $V_{min}$ is the minimum value 
+- $V_{max}$ is the maximum value
+
 :::
 
 At the subnational level (@tbl-national_prod_index), the export share is not considered explicitly in the index as a separate variable - instead, states exporting a large percentage of production can be targeted with interventions that focus on the market incentives to produce biofortified crops (e.g. agronomic practices, marketing or processing linkages).
@@ -154,11 +162,7 @@ Of the three indicators used to generate the production index only two have data
 The production data used are from 2024, apart from sweet potato for which there were no data in the NAERLS report. Instead we used 2020 data from MapSpam.
 
 
-
 The third indicator - Export share - does not have data at the subnational level. Market surveys and market flows do not have sufficient data to create an equivalent dataset, but can be used to validate the production and consumption indices.
-
-
-
 
 
 
@@ -177,9 +181,6 @@ This was updated using the Wave 5 2023-24 General Household Surveys
 We calculated crop consumption per capita per year at the state and the zone level. The survey sampling strategy is not representative at the state level, but the survey deign allowed us to estimate direct, design-weighted state estimates. For some states the overall number of households was small, and for some food products there were often few responses and as a consequence a large coefficient of variation associated with the estimates.
 
 
-
-
-
 ### Micronutrient Deficiency Index
 
 - Serum retinol (vitamin A) for women of reproductive age and children between 6 and 59 months is available from 2021 (this was not available for 2018 study) 
@@ -196,14 +197,22 @@ These are only available at the geopolitical zone level in Nigeria, but are pote
 - Proportion of preschool-age children with Hb \< 110 g/l - the NFCMS includes Iron deficiency in children defined as serum ferritin concentration \<15 µg/L corrected for inflammation. Both the NFCMS and NDHS include anaemia for pre-school children - for the NDHS at the state level, and for NFCMS at the zone level. The definition of any anaemia in the NDHS is is when haemoglobin level is <12.0 g/dl. A closer level of Haemoglobin to the global BPI is for moderate and severe anaemia, which combined have an upper limit of 11 g/dl.
 
 
-## Assess relationship between consumption data and food baskets 
+# Update subnational BPI for Nigeria:
 
-# Rescale indicators
+## Rescale indicators
 
-For each indicator we take the minimum and maximum value
+For each indicator we apply @eq-rescale2.
 
 
-$$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale} Where: - $V_r$ is the rescaled value - $V_a$ is the actual value - $V_{min}$ is the minimum value - $V_{max}$ is the maximum value
+$$V_r = \frac{V_a – V_{min}} {V_{max} – V_{min}}$$ {#eq-rescale2} 
+
+Where: 
+
+- $V_r$ is the rescaled value 
+- $V_a$ is the actual value 
+- $V_{min}$ is the minimum value 
+- $V_{max}$ is the maximum value
+
 
 ```{r}
 #| label: Rescale_function
@@ -302,9 +311,9 @@ ggplot(vect_gpz_geo)+
 ```
 
 
-# Rescale production estimates
+## Rescale production estimates
 
-## Share of area harvested
+### Share of area harvested
 
 ```{r}
 #| label: rescale_crop_production_area_share
@@ -328,7 +337,7 @@ vect_state_geo_crop_share_rescale <- dplyr::left_join(vect_state_geo, df_crop_ar
 
 ```
 
-### Plantain/Banana share of area harvested
+#### Plantain/Banana share of area harvested
 
 ```{r}
 #| label: plantain_banana_rescaled_crop_share_map
@@ -356,7 +365,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 ```
 
-### Cassava share of area harvested
+#### Cassava share of area harvested
 
 ```{r}
 #| label: cassava_rescaled_crop_share_map
@@ -384,7 +393,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 ```
 
-### Cowpea share of area harvested
+#### Cowpea share of area harvested
 
 ```{r}
 #| label: cowpea_rescaled_crop_share_map
@@ -412,7 +421,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 ```
 
-### Maize share of area harvested
+#### Maize share of area harvested
 
 ```{r}
 #| label: maize_rescaled_crop_share_map
@@ -440,7 +449,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 ```
 
-### Rice share of area harvested
+#### Rice share of area harvested
 
 ```{r}
 #| label: rice_rescaled_crop_share_map
@@ -468,7 +477,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 ```
 
-### Sorghum share of area harvested
+#### Sorghum share of area harvested
 
 ```{r}
 #| label: sorghum_rescaled_crop_share_map
@@ -496,7 +505,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 ```
 
-### Sweet Potato share of area harvested
+#### Sweet Potato share of area harvested
 
 ```{r}
 #| label: spot_rescaled_crop_share_map
@@ -525,7 +534,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 ```
 
 
-## Per-capita area harvested
+### Per-capita area harvested
 
 ```{r}
 #| label: rescale_crop_production_per_capita
@@ -550,7 +559,7 @@ vect_state_geo_crop_pc_rescale <- dplyr::left_join(vect_state_geo, df_crop_area_
 ```
 
 
-### Plantain/Banana per capita area harvested
+#### Plantain/Banana per capita area harvested
 
 ```{r}
 #| label: plantain_banana_rescaled_crop_pc_map
@@ -578,7 +587,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-### Cassava per capita area harvested
+#### Cassava per capita area harvested
 
 ```{r}
 #| label: cassava_rescaled_crop_pc_map
@@ -606,7 +615,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-### Cowpea per capita area harvested
+#### Cowpea per capita area harvested
 
 ```{r}
 #| label: cowpea_rescaled_crop_pc_map
@@ -634,7 +643,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-### Maize per capita area harvested
+#### Maize per capita area harvested
 
 ```{r}
 #| label: maize_rescaled_crop_pc_map
@@ -662,7 +671,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-### Rice per capita area harvested
+#### Rice per capita area harvested
 
 ```{r}
 #| label: rice_rescaled_crop_pc_map
@@ -690,7 +699,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-### Sorghum per capita area harvested
+#### Sorghum per capita area harvested
 
 ```{r}
 #| label: sorghum_rescaled_crop_pc_map
@@ -718,7 +727,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-### Sweet Potato per capita area harvested
+#### Sweet Potato per capita area harvested
 
 ```{r}
 #| label: spot_rescaled_crop_pc_map
@@ -746,7 +755,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 
 ```
 
-# Rescale spatially smoothed benchmarked state-level crop consumption estimates
+## Rescale spatially smoothed benchmarked state-level crop consumption estimates
 
 
 ```{r}
@@ -815,7 +824,7 @@ cat(paste("Median Yam CI = ", median_yam_CI))
 
 ```
 
-## Join back to States dataset
+### Join back to States dataset
 
 ```{r}
 #| label: GHS_crop_rescaled_consumption_state_join
@@ -828,7 +837,7 @@ vect_state_geo_GHS_crop_rescale <- dplyr::left_join(vect_state_geo, df_GHS_pop_c
 
 ```
 
-## Cassava consumption
+### Cassava consumption
 
 ```{r}
 #| label: GHS_2023_24_state_cassava_rescaled_consumption_map
@@ -856,7 +865,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Cocoyam consumption
+### Cocoyam consumption
 
 ```{r}
 #| label: GHS_2023_24_state_cocoyam_rescaled_consumption_map
@@ -884,7 +893,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Cowpea consumption
+### Cowpea consumption
 
 ```{r}
 #| label: GHS_2023_24_state_cowpea_rescaled_consumption_map
@@ -912,7 +921,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Maize consumption
+### Maize consumption
 
 ```{r}
 #| label: GHS_2023_24_state_maize_rescaled_consumption_map
@@ -940,7 +949,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Millet consumption
+### Millet consumption
 
 ```{r}
 #| label: GHS_2023_24_state_millet_rescaled_consumption_map
@@ -968,7 +977,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Potato consumption
+### Potato consumption
 
 ```{r}
 #| label: GHS_2023_24_state_potato_rescaled_consumption_map
@@ -996,7 +1005,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Plantain consumption
+### Plantain consumption
 
 ```{r}
 #| label: GHS_2023_24_state_plantain_rescaled_consumption_map
@@ -1024,7 +1033,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Rice consumption
+### Rice consumption
 
 ```{r}
 #| label: GHS_2023_24_state_rice_rescaled_consumption_map
@@ -1052,7 +1061,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Sorghum consumption
+### Sorghum consumption
 
 ```{r}
 #| label: GHS_2023_24_state_sorghum_rescaled_consumption_map
@@ -1080,7 +1089,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Sweet potato consumption
+### Sweet potato consumption
 
 ```{r}
 #| label: GHS_2023_24_state_sweet_potato_rescaled_consumption_map
@@ -1108,7 +1117,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Wheat consumption
+### Wheat consumption
 
 ```{r}
 #| label: GHS_2023_24_state_wheat_rescaled_consumption_map
@@ -1136,7 +1145,7 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-## Yam consumption
+### Yam consumption
 
 ```{r}
 #| label: GHS_2023_24_state_yam_rescaled_consumption_map
@@ -1164,9 +1173,9 @@ ggplot(vect_state_geo_GHS_crop_rescale) +
 
 ```
 
-# Micronutrient Deficiency Index
+## Micronutrient Deficiency Index
 
-## Load the NFCMS 2021 databases
+### Load the NFCMS 2021 databases
 
 The NFCMS data are loaded and there are data available for the following
 zones:
@@ -1204,7 +1213,7 @@ cat(paste(levels(df_NFCMS_consumption$geopolitical_zone), "; ")) # Check levels
 
 ```
 
-## Join the NFCMS database to the zone dataset
+### Join the NFCMS database to the zone dataset
 
 The NFCMS dataset does not contain codes for the zones - only names.
 Therefore we need to join the two data frames using the name of the
@@ -1237,7 +1246,7 @@ vect_gpz_geo_NFCMS |> as.data.frame() |>
 
 ```
 
-## Join the NFCMS database to the zone dataset
+### Join the NFCMS database to the zone dataset
 
 The NFCMS dataset does not contain codes for the zones - only names. Therefore we need to join the two data frames using the name of the zone - and checking that all zones have data.
 
@@ -1268,7 +1277,7 @@ vect_gpz_geo_NFCMS_consumption |> as.data.frame() |>
 
 ```
 
-## Load the Institute for Health Metrics and Evaluation (IHME) Global Burden of Disease (GBD) - 2023 database
+### Load the Institute for Health Metrics and Evaluation (IHME) Global Burden of Disease (GBD) - 2023 database
 
 The IHME data are loaded and there are data available for the following
 zones:
@@ -1289,7 +1298,7 @@ cat(paste(levels(df_IHME$location_name), "; ")) # Check levels
 
 ```
 
-## Join the IHME database to the state dataset
+### Join the IHME database to the state dataset
 
 The IHME dataset does not contain codes for the states - only names.
 Therefore we need to join the two data frames using the name of the
@@ -1322,7 +1331,7 @@ vect_state_geo_IHME |> as.data.frame() |>
 
 ```
 
-## Load the NDHS database
+### Load the NDHS database
 
 ```{r}
 #| label: NDHS_state_deficiency_data
@@ -1341,7 +1350,7 @@ cat(paste(levels(df_NDHS_state$State), "; ")) # Check levels
 
 ```
 
-## Join the NDHS database to the state dataset
+### Join the NDHS database to the state dataset
 
 ```{r}
 #| label: NDHS_state_join
@@ -1371,7 +1380,7 @@ vect_state_geo_NDHS |> as.data.frame() |>
 ```
 
 
-# Rescale Serum retinol (vitamin A) children between 6 and 59 months
+## Rescale Serum retinol (vitamin A) children between 6 and 59 months
 
 
 ```{r}
@@ -1449,7 +1458,7 @@ ggplot(vect_state_geo_NFCMS_vit_A_deficiency_CH_rescale) +
 ```
 
 
-# Rescale age standardised DALYs Vitamin A Deficiency (IHME, 2023)
+## Rescale age standardised DALYs Vitamin A Deficiency (IHME, 2023)
 
 ```{r}
 #| label: IHME_vit_A_DALYs
@@ -1524,12 +1533,12 @@ ggplot(vect_state_geo_IHME_vit_A_DALYs_rescale) +
 
 ```
 
-# Rescale Zinc deficiency
+## Rescale Zinc deficiency
 
 - Percentage of population at risk of inadequate intake of zinc. This is now available at the subnational level from the 2021 NFCMS as *womens's prevalence of inadequacy of zinc intakes*. A further indicator is also available:  *prevalence of women of reproductive age with zinc deficiency* and *prevalence of children with zinc deficiency*
 These are only available at the geopolitical zone level in Nigeria, but are potentially an improvement on both the global and 2018 subnational indicators
 
-### Zinc deficiency women of reproductive age (NFCMS, 2021)
+#### Zinc deficiency women of reproductive age (NFCMS, 2021)
 
 ```{r}
 #| label: NFCMS_zinc_deficiency_WRA
@@ -1608,7 +1617,7 @@ ggplot(vect_state_geo_NFCMS_zinc_deficiency_WRA_rescale) +
 
 
 
-### Zinc deficiency in children (NFCMS, 2021)
+#### Zinc deficiency in children (NFCMS, 2021)
 
 ```{r}
 #| label: NFCMS_zinc_deficiency_CH
@@ -1684,7 +1693,7 @@ ggplot(vect_state_geo_NFCMS_zinc_deficiency_CH_rescale) +
 
 ```
 
-## Zinc deficient intake
+### Zinc deficient intake
 
 ```{r}
 #| label: NFCMS_ZINC_DEF_WRA
@@ -1761,7 +1770,7 @@ ggplot(vect_state_geo_NFCMS_zinc_intake_WRA_rescale) +
 ```
 
 
-# Rescale prevalence of stunting among children age 6-59 months
+## Rescale prevalence of stunting among children age 6-59 months
 
 
 ```{r}
@@ -1880,7 +1889,7 @@ ggplot(vect_state_geo_NDHS_stunting_rescale) +
 ```
 
 
-# Rescale age-standardized DALYs lost to dietary IDA
+## Rescale age-standardized DALYs lost to dietary IDA
 
 - Age-standardized DALYs lost per 100,000 inhabitants to IDA. The IMHE GBD database includes Age standardised DALYs Dietary iron Deficiency - a slightly different indicator, which focuses on the dietary component of anaemia, but is available at the state level
 
@@ -1957,7 +1966,7 @@ ggplot(vect_state_geo_IHME_iron_DALYs_rescale) +
 
 ```
 
-# Rescale NDHS combined anaemia
+## Rescale NDHS combined anaemia
 
 - Proportion of preschool-age children with Hb \< 110 g/l - the NFCMS includes Iron deficiency in children defined as serum ferritin concentration \<15 µg/L corrected for inflammation. Both the NFCMS and NDHS include anaemia for pre-school children - for the NDHS at the state level, and for NFCMS at the zone level. The definition of any anaemia in the NDHS is is when haemoglobin level is <12.0 g/dl. A closer level of Haemoglobin to the global BPI is for moderate and severe anaemia, which combined have an upper limit of 11 g/dl.
 
@@ -2008,7 +2017,7 @@ df_NDHS_anaemia_combined_CH_rescale <- bind_cols(select(df_NDHS_anaemia_combined
 
 ```
 
-## Join back to States dataset
+### Join back to States dataset
 
 ```{r}
 #| label: NDHS_anaemia_combined_CH_rescale_join
@@ -2048,11 +2057,11 @@ ggplot(vect_state_geo_NDHS_anaemia_combined_CH_rescale) +
 
 ```
 
-# Compute the BPI components
+## Compute the BPI components
 
-## Production Index
+### Production Index
 
-$$PI = {0.5 * PCAH^r}+ {0.5 * SHA^r}$$
+$$PI = {0.5 * PCAH^r}+ {0.5 * SHA^r}$$ {#eq-PI}
 Where: 
 
 - $PI$ is the Production Index for a specific crop
@@ -2060,7 +2069,7 @@ Where:
 - $SHA^r$ is the rescaled share of the cropland
 
 
-### Plantain/Banana Production Index
+#### Plantain/Banana Production Index
 
 ```{r}
 #| label: plantain_banana_PI
@@ -2101,7 +2110,7 @@ ggplot(vect_state_geo_plantain_banana_PI) +
 
 
 
-### Cassava Production Index
+#### Cassava Production Index
 
 ```{r}
 #| label: cassava_PI
@@ -2140,7 +2149,7 @@ ggplot(vect_state_geo_cassava_PI) +
 
 ```
 
-### Cowpea Production Index
+#### Cowpea Production Index
 
 ```{r}
 #| label: cowpea_PI
@@ -2179,7 +2188,7 @@ ggplot(vect_state_geo_cowpea_PI) +
 
 ```
 
-### Maize Production Index
+#### Maize Production Index
 
 ```{r}
 #| label: maize_PI
@@ -2217,7 +2226,7 @@ ggplot(vect_state_geo_maize_PI) +
   )
 
 ```
-### Rice Production Index
+#### Rice Production Index
 
 ```{r}
 #| label: rice_PI
@@ -2256,7 +2265,7 @@ ggplot(vect_state_geo_rice_PI) +
   )
 
 ```
-### Sorghum Production Index
+#### Sorghum Production Index
 
 ```{r}
 #| label: sorghum_PI
@@ -2295,7 +2304,7 @@ ggplot(vect_state_geo_sorghum_PI) +
   )
 
 ```
-### Sweet Potato Production Index
+#### Sweet Potato Production Index
 
 
 
@@ -2336,18 +2345,18 @@ ggplot(vect_state_geo_spot_PI) +
 
 ```
 
-## Consumption Index
+### Consumption Index
 
 Because we are not considering the import share the consumption index $CI_i$ for crop $i$ is simply the value of the rescaled consumption per capita for crop $i$.
 
 
-## Micronutrient Indices
+### Micronutrient Indices
 
 There is a separate index each for Vitamin A, Zinc and Iron:
 
-### Vitamin A deficiency Index
+#### Vitamin A deficiency Index
 
-$$VAI = (0.5 * SR^r) + (0.5 * VAD^r)$$
+$$VAI = (0.5 * SR^r) + (0.5 * VAD^r)$$ {#eq-VitAI}
 Where: 
 
 - $VAI$ is the Micronutrient Index for Vitamin A
@@ -2394,9 +2403,9 @@ ggplot(vect_state_geo_VitA_I) +
 
 ```
 
-### Iron deficiency Index
+#### Iron deficiency Index
 
-$$FeI = (0.5 * HbD^r) + (0.5 * IDA^r)$$
+$$FeI = (0.5 * HbD^r) + (0.5 * IDA^r)$$ {#eq-FeI}
 Where: 
 
 - $FeI$ is the Micronutrient Index for Iron
@@ -2443,10 +2452,10 @@ ggplot(vect_state_geo_Fe_I) +
 
 
 
-### Zinc deficiency Index
+#### Zinc deficiency Index
 
 
-$$ZnI = (0.5 * ((0.5 * ZnD_{WRA}^r) + (0.5 * ZnD_{CH}^r))) + (0.5 * St^r)$$
+$$ZnI = (0.5 * ((0.5 * ZnD_{WRA}^r) + (0.5 * ZnD_{CH}^r))) + (0.5 * St^r)$$ {#eq-ZnI}
 Where: 
 
 - $ZnI$ is the Micronutrient Index for Zinc
@@ -2492,7 +2501,7 @@ ggplot(vect_state_geo_Zn_I) +
 
 ```
 
-# Unweighted Biofortification Priority Indices
+## Unweighted Biofortification Priority Indices
 
 Crop | micronutrient
 -----|--------------
@@ -2509,7 +2518,7 @@ Sweet Potato | Vitamin A
 
 The Biofortification Priority Index is calculated as:
 
-$$BPI_{ij} = \sqrt{ \sqrt{(PI_i * CI_i)} * MDI_j)}$$
+$$BPI_{ij} = \sqrt{ \sqrt{(PI_i * CI_i)} * MDI_j)}$$ {#eq-BPI_1}
 Where: 
 
 - $BPI_{ij}$ is the Biofortification Priority Index for crop $i$ and Micronutrient $j$
@@ -2518,7 +2527,7 @@ Where:
 - $MDI_{j}$ is the Micronutrient Deficiency Index for Micronutrient $j$
 
 
-## Plantain/Banana Vitamin A BPI
+### Plantain/Banana Vitamin A BPI
 
 
 ```{r}
@@ -2556,7 +2565,7 @@ ggplot(vect_state_geo_plantain_banana_VitA_BPI) +
 
 ```
 
-## Cassava Vitamin A BPI
+### Cassava Vitamin A BPI
 
 ```{r}
 #| label: cassava_VitA_BPI
@@ -2593,7 +2602,7 @@ ggplot(vect_state_geo_cassava_VitA_BPI) +
 
 ```
 
-## Cowpea Zinc/Iron BPI
+### Cowpea Zinc BPI
 
 
 ```{r}
@@ -2631,6 +2640,8 @@ ggplot(vect_state_geo_cowpea_Zn_BPI) +
 
 ```
 
+### Cowpea Iron BPI
+
 ```{r}
 #| label: cowpea_Fe_BPI
 #| message: false
@@ -2666,7 +2677,7 @@ ggplot(vect_state_geo_cowpea_Fe_BPI) +
 
 ```
 
-## Maize Vitamin A BPI
+### Maize Vitamin A BPI
 
 ```{r}
 #| label: maize_VitA_BPI
@@ -2703,7 +2714,7 @@ ggplot(vect_state_geo_maize_VitA_BPI) +
 
 ```
 
-## Maize Zinc BPI
+### Maize Zinc BPI
 
 ```{r}
 #| label: maize_Zn_BPI
@@ -2740,7 +2751,7 @@ ggplot(vect_state_geo_maize_Zn_BPI) +
 
 ```
 
-## Rice Zinc BPI
+### Rice Zinc BPI
 
 
 ```{r}
@@ -2778,7 +2789,7 @@ ggplot(vect_state_geo_rice_Zn_BPI) +
 
 ```
 
-## Sorghum Zinc/Iron BPI
+### Sorghum Zinc BPI
 
 ```{r}
 #| label: sorghum_Zn_BPI
@@ -2815,6 +2826,8 @@ ggplot(vect_state_geo_sorghum_Zn_BPI) +
 
 ```
 
+### Sorghum Iron BPI
+
 ```{r}
 #| label: sorghum_Fe_BPI
 #| message: false
@@ -2850,7 +2863,7 @@ ggplot(vect_state_geo_sorghum_Fe_BPI) +
 
 ```
 
-## Sweet Potato Vitamin A BPI
+### Sweet Potato Vitamin A BPI
 
 
 ```{r}
@@ -2888,7 +2901,7 @@ ggplot(vect_state_geo_spot_VitA_BPI) +
 
 ```
 
-# Rescaled unweighted Biofortification Priority Indices
+## Rescaled unweighted Biofortification Priority Indices
 
  @asare-marfoPrioritizingCountriesBiofortifcation2013 make further modificiations to the raw BPIs for each crop/micronutrient combination. They multiply the raw BPI by 100 and then rescale so that the geographical unit with the highest value receives a value of 100 while the lowest receives a value of 0.
  
@@ -2912,7 +2925,7 @@ labels = c("Little/no", "Low", "Medium", "High", "Top" )
 ```
 
 
-## Plantain/Banana Vitamin A BPI
+### Plantain/Banana Vitamin A BPI
 
 
 ```{r}
@@ -2949,7 +2962,7 @@ ggplot(vect_state_geo_plantain_banana_VitA_BPI_rescale) +
 
 ```
 
-## Cassava Vitamin A BPI
+### Cassava Vitamin A BPI
 
 
 ```{r}
@@ -2986,7 +2999,7 @@ ggplot(vect_state_geo_cassava_VitA_BPI_rescale) +
 
 ```
 
-## Cowpea Zinc/Iron BPI
+### Cowpea Zinc BPI
 
 
 ```{r}
@@ -3022,7 +3035,7 @@ ggplot(vect_state_geo_cowpea_Zn_BPI_rescale) +
   )
 
 ```
-
+### Cowpea Iron BPI
 
 ```{r}
 #| label: cowpea_Fe_BPI_rescale
@@ -3058,7 +3071,7 @@ ggplot(vect_state_geo_cowpea_Fe_BPI_rescale) +
 
 ```
 
-## Maize Vitamin A BPI
+### Maize Vitamin A BPI
 
 
 ```{r}
@@ -3095,7 +3108,7 @@ ggplot(vect_state_geo_maize_VitA_BPI_rescale) +
 
 ```
 
-## Maize Zinc BPI
+### Maize Zinc BPI
 
 
 ```{r}
@@ -3132,7 +3145,7 @@ ggplot(vect_state_geo_maize_Zn_BPI_rescale) +
 
 ```
 
-## Rice Zinc BPI
+### Rice Zinc BPI
 
 
 ```{r}
@@ -3169,7 +3182,7 @@ ggplot(vect_state_geo_rice_Zn_BPI_rescale) +
 
 ```
 
-## Sorghum Zinc/Iron BPI
+### Sorghum Zinc BPI
 
 ```{r}
 #| label: sorghum_Zn_BPI_rescale
@@ -3205,6 +3218,8 @@ ggplot(vect_state_geo_sorghum_Zn_BPI_rescale) +
 
 ```
 
+### Sorghum Iron BPI
+
 ```{r}
 #| label: sorghum_Fe_BPI_rescale
 #| message: false
@@ -3239,7 +3254,7 @@ ggplot(vect_state_geo_sorghum_Fe_BPI_rescale) +
 
 ```
 
-## Sweet Potato Vitamin A BPI
+### Sweet Potato Vitamin A BPI
 
 
 ```{r}
@@ -3276,7 +3291,7 @@ ggplot(vect_state_geo_spot_VitA_BPI_rescale) +
 
 ```
 
-# Target Area Classification
+## Target Area Classification
 
 @herringtonSubnationalPrioritizationBiofortification2018, extended the subnational BPI with a classification of the geographical units according to an alternative combination of the BPI sub components.
 
@@ -3286,28 +3301,29 @@ States where consumption, production and micronutrient deficiency were all above
 
 
 $$
-GIntImp = CI_i > \tilde{C_i} \land  PI_i > \tilde{P_i} \land  MDI_j > \tilde{MD_j}
-$$
+GIntImp = CI_i > \tilde{C_i} \land  PI_i > \tilde{P_i} \land  MDI_j > \tilde{MD_j} 
+$$ {#eq-Target_1}
 
 
 $$
 GImp = CI_i \geq \tilde{C_i} \land  PI_i \leq \tilde{P_i} \land  MDI_j \geq \tilde{MD_j}
-$$
+$$ {#eq-Target_2}
 
 $$
 GInt = CI_i < \tilde{C_i} \land  PI_i > \tilde{P_i} \land  MDI_j < \tilde{MD_j}
-$$
+$$ {#eq-Target_3}
+
 Where:
 
-$GIntImp$ are geographical areas for both Intervention and Impact
-$GImp$ are geographical areas for Impact only
-$GInt$ are geographical areas for Intervention only
-$CI_i$ is the consumption index for crop $i$
-$\tilde{C_i}$ is the median consumption for crop $i$
-$PI_i$ is the production index for crop $i$
-$\tilde{P_i}$ is the median production for crop $i$
-$MDI_j$ is the micronutrient deficiency index for micronutrient $j$
-$\tilde{MD_j}$ is the median micronutrient deficiency for micronutrient $j$
+- $GIntImp$ are geographical areas for both Intervention and Impact
+- $GImp$ are geographical areas for Impact only
+- $GInt$ are geographical areas for Intervention only
+- $CI_i$ is the consumption index for crop $i$
+- $\tilde{C_i}$ is the median consumption for crop $i$
+- $PI_i$ is the production index for crop $i$
+- $\tilde{P_i}$ is the median production for crop $i$
+- $MDI_j$ is the micronutrient deficiency index for micronutrient $j$
+- $\tilde{MD_j}$ is the median micronutrient deficiency for micronutrient $j$
 
 These classes are useful for translating the subnational BPI maps into concrete actions on the ground to reduce micronutrient deficiency by biofortification of staple crops. @herringtonSubnationalPrioritizationBiofortification2018 do not give details on how they compare the indices (which are unit less) with the consumption, production and micronutrient deficiency levels.
 
@@ -3315,17 +3331,18 @@ For our purposes we will not use the actual consumption, production or deficienc
 
 
 $$
-GIntImp = CI_i > \tilde{CI_i} \land  PI_i > \tilde{PI_i} \land  MDI_j > \tilde{MDI_j}
-$$
+GIntImp = CI_i > \tilde{CI_i} \land  PI_i > \tilde{PI_i} \land  MDI_j > \tilde{MDI_j} 
+$$ {#eq-Target_4}
 
 
 $$
 GImp = CI_i \geq \tilde{CI_i} \land  PI_i \leq \tilde{PI_i} \land  MDI_j \geq \tilde{MDI_j}
-$$
+$$ {#eq-Target_5}
 
 $$
 GInt = CI_i < \tilde{CI_i} \land  PI_i > \tilde{PI_i} \land  MDI_j < \tilde{MDI_j}
-$$
+$$ {#eq-Target_6}
+
 Where:
 
 $GIntImp$ are geographical areas for both Intervention and Impact
@@ -3357,7 +3374,7 @@ area_breaks_target <- c("Intervention and Impact Areas", "Impact Areas", "Interv
 
 ```
 
-## Plantain/Banana Vitamin A Target Areas
+### Plantain/Banana Vitamin A Target Areas
 
 
 ```{r}
@@ -3367,14 +3384,32 @@ area_breaks_target <- c("Intervention and Impact Areas", "Impact Areas", "Interv
 #| cache: false
 #| results: asis
 
-df_plantain_banana_VitA_BPI <- df_plantain_banana_VitA_BPI |> mutate(plantain_banana_PI_compare = ifelse(((plantain_banana_PI > median_plantain_banana_PI) & (Plantain > median_plantain_banana_CI) & (VitA_I > median_VitA_I)), "Intervention and Impact Areas",
-                                                                          ifelse(((plantain_banana_PI >= median_plantain_banana_PI) & (Plantain <= median_plantain_banana_CI) & (VitA_I >= median_VitA_I)), "Impact Areas",
-               ifelse(((plantain_banana_PI < median_plantain_banana_PI) & (Plantain > median_plantain_banana_CI) & (VitA_I < median_VitA_I)), "Intervention Areas", "None"))))
+df_plantain_banana_VitA_BPI_areas <- df_plantain_banana_VitA_BPI |> mutate(plantain_banana_BPI_compare = ifelse((
+              (Plantain > median_plantain_banana_CI) & 
+    (plantain_banana_PI > median_plantain_banana_PI) & 
+                (VitA_I > median_VitA_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+                  (Plantain >= median_plantain_banana_CI) & 
+        (plantain_banana_PI <= median_plantain_banana_PI) & 
+                    (VitA_I >= median_VitA_I)), 
+  "Impact Areas",
+  
+ifelse((
+                  (Plantain < median_plantain_banana_CI) & 
+        (plantain_banana_PI > median_plantain_banana_PI) & 
+                    (VitA_I < median_VitA_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, plantain_banana_PI, Plantain, VitA_I, plantain_banana_VitA_BPI, plantain_banana_BPI_compare )
 
-vect_state_geo_plantain_banana_VitA_BPI <- dplyr::left_join(vect_state_geo, df_plantain_banana_VitA_BPI, by = "adm1_ref_name")
+
+vect_state_geo_plantain_banana_VitA_BPI <- dplyr::left_join(vect_state_geo, df_plantain_banana_VitA_BPI_areas, by = "adm1_ref_name")
 
 ggplot(vect_state_geo_plantain_banana_VitA_BPI) +
-  geom_spatvector(aes(fill = plantain_banana_PI_compare)) +
+  geom_spatvector(aes(fill = plantain_banana_BPI_compare)) +
   scale_fill_manual(
     values = area_colours,    # Custom Colors
     breaks = area_breaks_target) +     # User-defined Breaks & Display Order
@@ -3386,3 +3421,468 @@ ggplot(vect_state_geo_plantain_banana_VitA_BPI) +
   )
 
 ```
+
+### Cassava Vitamin A Target Areas
+
+
+```{r}
+#| label: cassava_VitA_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cassava_VitA_BPI_areas <- df_cassava_VitA_BPI |> mutate(cassava_BPI_compare = ifelse((
+       (Cassava > median_cassava_CI) & 
+    (cassava_PI > median_cassava_PI) & 
+        (VitA_I > median_VitA_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Cassava >= median_cassava_CI) & 
+    (cassava_PI <= median_cassava_PI) & 
+        (VitA_I >= median_VitA_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Cassava < median_cassava_CI) & 
+    (cassava_PI > median_cassava_PI) & 
+        (VitA_I < median_VitA_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, cassava_PI, Plantain, VitA_I, cassava_VitA_BPI, cassava_BPI_compare )
+
+
+vect_state_geo_cassava_VitA_BPI <- dplyr::left_join(vect_state_geo, df_cassava_VitA_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cassava_VitA_BPI) +
+  geom_spatvector(aes(fill = cassava_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Cassava Vitamin A Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea Zinc Target Areas
+
+
+```{r}
+#| label: cowpea_Zn_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_Zn_BPI_areas <- df_cowpea_Zn_BPI |> mutate(cowpea_BPI_compare = ifelse((
+       (Cowpea > median_cowpea_CI) & 
+    (cowpea_PI > median_cowpea_PI) & 
+        (Zn_I > median_Zn_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Cowpea >= median_cowpea_CI) & 
+    (cowpea_PI <= median_cowpea_PI) & 
+        (Zn_I >= median_Zn_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Cowpea < median_cowpea_CI) & 
+    (cowpea_PI > median_cowpea_PI) & 
+        (Zn_I < median_Zn_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, cowpea_PI, Plantain, Zn_I, cowpea_Zn_BPI, cowpea_BPI_compare )
+
+
+vect_state_geo_cowpea_Zn_BPI <- dplyr::left_join(vect_state_geo, df_cowpea_Zn_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Zn_BPI) +
+  geom_spatvector(aes(fill = cowpea_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Cowpea Zinc Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea Iron Target Areas
+
+
+```{r}
+#| label: cowpea_Fe_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_Fe_BPI_areas <- df_cowpea_Fe_BPI |> mutate(cowpea_BPI_compare = ifelse((
+       (Cowpea > median_cowpea_CI) & 
+    (cowpea_PI > median_cowpea_PI) & 
+        (Fe_I > median_Fe_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Cowpea >= median_cowpea_CI) & 
+    (cowpea_PI <= median_cowpea_PI) & 
+        (Fe_I >= median_Fe_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Cowpea < median_cowpea_CI) & 
+    (cowpea_PI > median_cowpea_PI) & 
+        (Fe_I < median_Fe_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, cowpea_PI, Plantain, Fe_I, cowpea_Fe_BPI, cowpea_BPI_compare )
+
+
+vect_state_geo_cowpea_Fe_BPI <- dplyr::left_join(vect_state_geo, df_cowpea_Fe_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Fe_BPI) +
+  geom_spatvector(aes(fill = cowpea_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Cowpea Iron Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+### Maize Vitamin A Target Areas
+
+
+```{r}
+#| label: maize_VitA_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_VitA_BPI_areas <- df_maize_VitA_BPI |> mutate(maize_BPI_compare = ifelse((
+       (Maize > median_maize_CI) & 
+    (maize_PI > median_maize_PI) & 
+      (VitA_I > median_VitA_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+    (Maize >= median_maize_CI) & 
+    (maize_PI <= median_maize_PI) & 
+      (VitA_I >= median_VitA_I)), 
+  "Impact Areas",
+  
+ifelse((
+    (Maize < median_maize_CI) & 
+    (maize_PI > median_maize_PI) & 
+      (VitA_I < median_VitA_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, maize_PI, Plantain, VitA_I, maize_VitA_BPI, maize_BPI_compare )
+
+
+vect_state_geo_maize_VitA_BPI <- dplyr::left_join(vect_state_geo, df_maize_VitA_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_VitA_BPI) +
+  geom_spatvector(aes(fill = maize_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Maize Vitamin A Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize Zinc Target Areas
+
+
+```{r}
+#| label: maize_Zn_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_Zn_BPI_areas <- df_maize_Zn_BPI |> mutate(maize_BPI_compare = ifelse((
+       (Maize > median_maize_CI) & 
+    (maize_PI > median_maize_PI) & 
+        (Zn_I > median_Zn_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Maize >= median_maize_CI) & 
+    (maize_PI <= median_maize_PI) & 
+        (Zn_I >= median_Zn_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Maize < median_maize_CI) & 
+    (maize_PI > median_maize_PI) & 
+        (Zn_I < median_Zn_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, maize_PI, Plantain, Zn_I, maize_Zn_BPI, maize_BPI_compare )
+
+
+vect_state_geo_maize_Zn_BPI <- dplyr::left_join(vect_state_geo, df_maize_Zn_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_Zn_BPI) +
+  geom_spatvector(aes(fill = maize_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Maize Zinc Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Rice Zinc Target Areas
+
+
+```{r}
+#| label: rice_Zn_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_rice_Zn_BPI_areas <- df_rice_Zn_BPI |> mutate(rice_BPI_compare = ifelse((
+       (Rice > median_rice_CI) & 
+    (rice_PI > median_rice_PI) & 
+        (Zn_I > median_Zn_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Rice >= median_rice_CI) & 
+    (rice_PI <= median_rice_PI) & 
+        (Zn_I >= median_Zn_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Rice < median_rice_CI) & 
+    (rice_PI > median_rice_PI) & 
+        (Zn_I < median_Zn_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, rice_PI, Plantain, Zn_I, rice_Zn_BPI, rice_BPI_compare )
+
+
+vect_state_geo_rice_Zn_BPI <- dplyr::left_join(vect_state_geo, df_rice_Zn_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_rice_Zn_BPI) +
+  geom_spatvector(aes(fill = rice_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Rice Zinc Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum Zinc Target Areas
+
+
+```{r}
+#| label: sorghum_Zn_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_Zn_BPI_areas <- df_sorghum_Zn_BPI |> mutate(sorghum_BPI_compare = ifelse((
+       (Sorghum > median_sorghum_CI) & 
+    (sorghum_PI > median_sorghum_PI) & 
+        (Zn_I > median_Zn_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Sorghum >= median_sorghum_CI) & 
+    (sorghum_PI <= median_sorghum_PI) & 
+        (Zn_I >= median_Zn_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Sorghum < median_sorghum_CI) & 
+    (sorghum_PI > median_sorghum_PI) & 
+        (Zn_I < median_Zn_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, sorghum_PI, Plantain, Zn_I, sorghum_Zn_BPI, sorghum_BPI_compare )
+
+
+vect_state_geo_sorghum_Zn_BPI <- dplyr::left_join(vect_state_geo, df_sorghum_Zn_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Zn_BPI) +
+  geom_spatvector(aes(fill = sorghum_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Sorghum Zinc Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum Iron Target Areas
+
+
+```{r}
+#| label: sorghum_Fe_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_Fe_BPI_areas <- df_sorghum_Fe_BPI |> mutate(sorghum_BPI_compare = ifelse((
+       (Sorghum > median_sorghum_CI) & 
+    (sorghum_PI > median_sorghum_PI) & 
+        (Fe_I > median_Fe_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+      (Sorghum >= median_sorghum_CI) & 
+    (sorghum_PI <= median_sorghum_PI) & 
+        (Fe_I >= median_Fe_I)), 
+  "Impact Areas",
+  
+ifelse((
+      (Sorghum < median_sorghum_CI) & 
+    (sorghum_PI > median_sorghum_PI) & 
+        (Fe_I < median_Fe_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, sorghum_PI, Plantain, Fe_I, sorghum_Fe_BPI, sorghum_BPI_compare )
+
+
+vect_state_geo_sorghum_Fe_BPI <- dplyr::left_join(vect_state_geo, df_sorghum_Fe_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Fe_BPI) +
+  geom_spatvector(aes(fill = sorghum_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Sorghum Iron Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sweet Potato Vitamin A Target Areas
+
+
+```{r}
+#| label: spot_VitA_BPI_target_areas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_spot_VitA_BPI_areas <- df_spot_VitA_BPI |> mutate(spot_BPI_compare = ifelse((
+  (Sweet.potato > median_spot_CI) & 
+       (spot_PI > median_spot_PI) & 
+        (VitA_I > median_VitA_I)), 
+  "Intervention and Impact Areas",
+  
+ ifelse((
+  (Sweet.potato >= median_spot_CI) & 
+       (spot_PI <= median_spot_PI) & 
+        (VitA_I >= median_VitA_I)), 
+  "Impact Areas",
+  
+ifelse((
+  (Sweet.potato < median_spot_CI) & 
+       (spot_PI > median_spot_PI) & 
+        (VitA_I < median_VitA_I)), 
+  "Intervention Areas", 
+  
+  "None"))))  |> 
+  select(adm1_ref_name, spot_PI, Plantain, VitA_I, spot_VitA_BPI, spot_BPI_compare )
+
+
+vect_state_geo_spot_VitA_BPI <- dplyr::left_join(vect_state_geo, df_spot_VitA_BPI_areas, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_spot_VitA_BPI) +
+  geom_spatvector(aes(fill = spot_BPI_compare)) +
+  scale_fill_manual(
+    values = area_colours,    # Custom Colors
+    breaks = area_breaks_target) +     # User-defined Breaks & Display Order
+  labs(title = "Sweet Potato Vitamin A Target Areas", fill = "") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Weighted Biofortification Priority Indices
+
+The Biofortification Priority Indices were designed to be unit less, so as to reduce any bias towards  countries that had a larger population or area - factors that would affect the consumption and production indices if they were measured in units of total consumption or harvested areas.
+
+Nevertheless, there may be reasons for policy makers to require the BPI to be weighted to reflect opportunities for investment where large populations can be reached or where there is a large production that merits investing in breeding efforts, as well as the seed system associated with the diffusion of bioforitified varieties of staple crops [@asare-marfoPrioritizingCountriesBiofortifcation2013].
+
+
+$$BPI_w = BPI_r * A * 100$$ {#eq-BPI_w} 
+
+Where:
+
+- $BPI_w$ are geographical areas for both Intervention and Impact
+- $BPI_r$ are geographical areas for Impact only
+- $A$ is the weight 
+
+
+$$A = ({P_{ij} / {P_j}) * 100}$$  {#eq-BPI_w1} 
+or 
+
+$$A = (({PopCH_{i}} + {PopWRA_{i}) / ({PopCH} + {PopWRA})) * 100}$$ {#eq-BPI_w2} 
+Where: 
+
+- $A$ is the weight
+- $P_{ij}$ is the harvest area of crop $j$ in state $i$
+- $P_j$ is the national harvest area of crop $j$  
+- $PopCH_{i}$ is the population of children between 6-59 months in state $i$
+- $PopWRA_{i}$ is the population of women of reproductive age in state $i$
+- $PopCH$ is the national population of children between 6-59 months
+- $PopWRA$ s the national population of women of reproductive age
+
