@@ -2915,11 +2915,11 @@ This is useful for comparing the different units but some information is lost re
 #| results: asis
 
 
-breaks <- c(3, 10, 20, 50, 100)
+breaks_priority <- c(3, 10, 20, 50, 100)
 
-colors <- c("#6DC700", "#CCFF00", "#FFC800", "#FF6600", "#B00000")
+colours_priority <- c("#6DC700", "#CCFF00", "#FFC800", "#FF6600", "#B00000")
 
-labels = c("Little/no", "Low", "Medium", "High", "Top" )
+labels_priority = c("Little/no", "Low", "Medium", "High", "Top" )
 
 
 ```
@@ -2945,12 +2945,12 @@ vect_state_geo_plantain_banana_VitA_BPI_rescale <- dplyr::left_join(vect_state_g
 ggplot(vect_state_geo_plantain_banana_VitA_BPI_rescale) +
   geom_spatvector(aes(fill = plantain_banana_VitA_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Plantain/Banana Vitamin A BPI (rescaled)", fill = "Priority") +
@@ -2982,12 +2982,12 @@ vect_state_geo_cassava_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_c
 ggplot(vect_state_geo_cassava_VitA_BPI_rescale) +
   geom_spatvector(aes(fill = cassava_VitA_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Cassava Vitamin A BPI (rescaled)", fill = "Priority") +
@@ -3019,12 +3019,12 @@ vect_state_geo_cowpea_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_cowp
 ggplot(vect_state_geo_cowpea_Zn_BPI_rescale) +
   geom_spatvector(aes(fill = cowpea_Zn_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Cowpea Zinc BPI (rescaled)", fill = "Priority") +
@@ -3054,12 +3054,12 @@ vect_state_geo_cowpea_Fe_BPI_rescale <- dplyr::left_join(vect_state_geo, df_cowp
 ggplot(vect_state_geo_cowpea_Fe_BPI_rescale) +
   geom_spatvector(aes(fill = cowpea_Fe_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Cowpea Iron BPI (rescaled)", fill = "Priority") +
@@ -3091,12 +3091,12 @@ vect_state_geo_maize_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_mai
 ggplot(vect_state_geo_maize_VitA_BPI_rescale) +
   geom_spatvector(aes(fill = maize_VitA_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Maize Vitamin A BPI (rescaled)", fill = "Priority") +
@@ -3128,12 +3128,12 @@ vect_state_geo_maize_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_maize
 ggplot(vect_state_geo_maize_Zn_BPI_rescale) +
   geom_spatvector(aes(fill = maize_Zn_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Maize Zinc BPI (rescaled)", fill = "Priority") +
@@ -3165,12 +3165,12 @@ vect_state_geo_rice_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_rice_Z
 ggplot(vect_state_geo_rice_Zn_BPI_rescale) +
   geom_spatvector(aes(fill = rice_Zn_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Rice Zinc BPI (rescaled)", fill = "Priority") +
@@ -3201,12 +3201,12 @@ vect_state_geo_sorghum_Zn_BPI_rescale <- dplyr::left_join(vect_state_geo, df_sor
 ggplot(vect_state_geo_sorghum_Zn_BPI_rescale) +
   geom_spatvector(aes(fill = sorghum_Zn_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Sorghum Zinc BPI (rescaled)", fill = "Priority") +
@@ -3237,12 +3237,12 @@ vect_state_geo_sorghum_Fe_BPI_rescale <- dplyr::left_join(vect_state_geo, df_sor
 ggplot(vect_state_geo_sorghum_Fe_BPI_rescale) +
   geom_spatvector(aes(fill = sorghum_Fe_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Sorghum Iron BPI (rescaled)", fill = "Priority") +
@@ -3274,12 +3274,12 @@ vect_state_geo_spot_VitA_BPI_rescale <- dplyr::left_join(vect_state_geo, df_spot
 ggplot(vect_state_geo_spot_VitA_BPI_rescale) +
   geom_spatvector(aes(fill = spot_VitA_BPI_rescale)) +
   scale_fill_stepsn(
-    colors = colors,
-    values = scales::rescale(breaks),
-    breaks = breaks,
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
     limits = c(0, 100),
     na.value = "grey",
-    labels = labels
+    labels = labels_priority
   ) +
   guides(fill = guide_legend(reverse=T)) +
   labs(title = "Sweet Potato Vitamin A BPI (rescaled)", fill = "Priority") +
@@ -3882,5 +3882,417 @@ Where:
 - $PopCH_{i}$ is the population of children between 6-59 months in state $i$
 - $PopWRA_{i}$ is the population of women of reproductive age in state $i$
 - $PopCH$ is the national population of children between 6-59 months
-- $PopWRA$ s the national population of women of reproductive age
+- $PopWRA$ is the national population of women of reproductive age
 
+
+### Plantain/Banana Vitamin A BPI weighted by state share of national harvest area
+
+```{r}
+#| label: plantain_banana_VitA_BPI_state_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_plantain_banana_national_share <- read.csv("tab_data/plantain_banana_area_national_share.csv")
+
+df_plantain_banana_VitA_BPI_weighted <- left_join(df_plantain_banana_VitA_BPI_rescale, df_plantain_banana_national_share, by = "adm1_ref_name") |>
+  mutate( plantain_banana_VitA_BPI_weight_share = (plantain_banana_VitA_BPI_rescale * plantain_banana_Area_2024_pc))
+
+df_plantain_banana_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_plantain_banana_VitA_BPI_weighted, plantain_banana_VitA_BPI_weight_share ), minMax)) |> 
+  mutate(plantain_banana_VitA_BPI_weight_share_rescale = (plantain_banana_VitA_BPI_weight_share * 100))
+
+df_plantain_banana_VitA_BPI_weighted_rescale <- bind_cols(select(df_plantain_banana_VitA_BPI_weighted, adm1_ref_name), df_plantain_banana_VitA_BPI_weighted_normalised)
+
+vect_state_geo_plantain_banana_VitA_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_plantain_banana_VitA_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_plantain_banana_VitA_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = plantain_banana_VitA_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Plantain/Banana Vitamin A BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Cassava Vitamin A BPI weighted by state share of national harvest area
+
+```{r}
+#| label: cassava_state_VitA_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cassava_national_share <- read.csv("tab_data/cassava_area_national_share.csv")
+
+df_cassava_VitA_BPI_weighted <- left_join(df_cassava_VitA_BPI_rescale, df_cassava_national_share, by = "adm1_ref_name") |>
+  mutate( cassava_VitA_BPI_weight_share = (cassava_VitA_BPI_rescale * cassava_Area_2024_pc))
+
+df_cassava_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_cassava_VitA_BPI_weighted, cassava_VitA_BPI_weight_share ), minMax)) |> 
+  mutate(cassava_VitA_BPI_weight_share_rescale = (cassava_VitA_BPI_weight_share * 100))
+
+df_cassava_VitA_BPI_weighted_rescale <- bind_cols(select(df_cassava_VitA_BPI_weighted, adm1_ref_name), df_cassava_VitA_BPI_weighted_normalised)
+
+vect_state_geo_cassava_VitA_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_cassava_VitA_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cassava_VitA_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = cassava_VitA_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Cassava Vitamin A BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea Zinc BPI weighted by state share of national harvest area
+
+```{r}
+#| label: cowpea_state_Zn_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_national_share <- read.csv("tab_data/cowpea_area_national_share.csv")
+
+df_cowpea_Zn_BPI_weighted <- left_join(df_cowpea_Zn_BPI_rescale, df_cowpea_national_share, by = "adm1_ref_name") |>
+  mutate( cowpea_Zn_BPI_weight_share = (cowpea_Zn_BPI_rescale * cowpea_Area_2024_pc))
+
+df_cowpea_Zn_BPI_weighted_normalised <- as.data.frame(lapply(select(df_cowpea_Zn_BPI_weighted, cowpea_Zn_BPI_weight_share ), minMax)) |> 
+  mutate(cowpea_Zn_BPI_weight_share_rescale = (cowpea_Zn_BPI_weight_share * 100))
+
+df_cowpea_Zn_BPI_weighted_rescale <- bind_cols(select(df_cowpea_Zn_BPI_weighted, adm1_ref_name), df_cowpea_Zn_BPI_weighted_normalised)
+
+vect_state_geo_cowpea_Zn_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_cowpea_Zn_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Zn_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = cowpea_Zn_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Cowpea Zinc BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Cowpea Iron BPI weighted by state share of national harvest area
+
+```{r}
+#| label: cowpea_state_Fe_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_national_share <- read.csv("tab_data/cowpea_area_national_share.csv")
+
+df_cowpea_Fe_BPI_weighted <- left_join(df_cowpea_Fe_BPI_rescale, df_cowpea_national_share, by = "adm1_ref_name") |>
+  mutate( cowpea_Fe_BPI_weight_share = (cowpea_Fe_BPI_rescale * cowpea_Area_2024_pc))
+
+df_cowpea_Fe_BPI_weighted_normalised <- as.data.frame(lapply(select(df_cowpea_Fe_BPI_weighted, cowpea_Fe_BPI_weight_share ), minMax)) |> 
+  mutate(cowpea_Fe_BPI_weight_share_rescale = (cowpea_Fe_BPI_weight_share * 100))
+
+df_cowpea_Fe_BPI_weighted_rescale <- bind_cols(select(df_cowpea_Fe_BPI_weighted, adm1_ref_name), df_cowpea_Fe_BPI_weighted_normalised)
+
+vect_state_geo_cowpea_Fe_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_cowpea_Fe_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_cowpea_Fe_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = cowpea_Fe_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Cowpea Iron BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Maize Vitamin A BPI weighted by state share of national harvest area
+
+```{r}
+#| label: maize_state_VitA_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_national_share <- read.csv("tab_data/maize_area_national_share.csv")
+
+df_maize_VitA_BPI_weighted <- left_join(df_maize_VitA_BPI_rescale, df_maize_national_share, by = "adm1_ref_name") |>
+  mutate( maize_VitA_BPI_weight_share = (maize_VitA_BPI_rescale * maize_Area_2024_pc))
+
+df_maize_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_maize_VitA_BPI_weighted, maize_VitA_BPI_weight_share ), minMax)) |> 
+  mutate(maize_VitA_BPI_weight_share_rescale = (maize_VitA_BPI_weight_share * 100))
+
+df_maize_VitA_BPI_weighted_rescale <- bind_cols(select(df_maize_VitA_BPI_weighted, adm1_ref_name), df_maize_VitA_BPI_weighted_normalised)
+
+vect_state_geo_maize_VitA_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_maize_VitA_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_VitA_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = maize_VitA_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Maize Vitamin A BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Maize Zinc BPI weighted by state share of national harvest area
+
+```{r}
+#| label: maize_state_Zn_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_national_share <- read.csv("tab_data/maize_area_national_share.csv")
+
+df_maize_Zn_BPI_weighted <- left_join(df_maize_Zn_BPI_rescale, df_maize_national_share, by = "adm1_ref_name") |>
+  mutate( maize_Zn_BPI_weight_share = (maize_Zn_BPI_rescale * maize_Area_2024_pc))
+
+df_maize_Zn_BPI_weighted_normalised <- as.data.frame(lapply(select(df_maize_Zn_BPI_weighted, maize_Zn_BPI_weight_share ), minMax)) |> 
+  mutate(maize_Zn_BPI_weight_share_rescale = (maize_Zn_BPI_weight_share * 100))
+
+df_maize_Zn_BPI_weighted_rescale <- bind_cols(select(df_maize_Zn_BPI_weighted, adm1_ref_name), df_maize_Zn_BPI_weighted_normalised)
+
+vect_state_geo_maize_Zn_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_maize_Zn_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_maize_Zn_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = maize_Zn_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Maize Zinc BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Rice Zinc BPI weighted by state share of national harvest area
+
+```{r}
+#| label: rice_state_Zn_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_rice_national_share <- read.csv("tab_data/rice_area_national_share.csv")
+
+df_rice_Zn_BPI_weighted <- left_join(df_rice_Zn_BPI_rescale, df_rice_national_share, by = "adm1_ref_name") |>
+  mutate( rice_Zn_BPI_weight_share = (rice_Zn_BPI_rescale * rice_Area_2024_pc))
+
+df_rice_Zn_BPI_weighted_normalised <- as.data.frame(lapply(select(df_rice_Zn_BPI_weighted, rice_Zn_BPI_weight_share ), minMax)) |> 
+  mutate(rice_Zn_BPI_weight_share_rescale = (rice_Zn_BPI_weight_share * 100))
+
+df_rice_Zn_BPI_weighted_rescale <- bind_cols(select(df_rice_Zn_BPI_weighted, adm1_ref_name), df_rice_Zn_BPI_weighted_normalised)
+
+vect_state_geo_rice_Zn_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_rice_Zn_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_rice_Zn_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = rice_Zn_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Rice Zinc BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum Zinc BPI weighted by state share of national harvest area
+
+```{r}
+#| label: sorghum_state_Zn_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_national_share <- read.csv("tab_data/sorghum_area_national_share.csv")
+
+df_sorghum_Zn_BPI_weighted <- left_join(df_sorghum_Zn_BPI_rescale, df_sorghum_national_share, by = "adm1_ref_name") |>
+  mutate( sorghum_Zn_BPI_weight_share = (sorghum_Zn_BPI_rescale * sorghum_Area_2024_pc))
+
+df_sorghum_Zn_BPI_weighted_normalised <- as.data.frame(lapply(select(df_sorghum_Zn_BPI_weighted, sorghum_Zn_BPI_weight_share ), minMax)) |> 
+  mutate(sorghum_Zn_BPI_weight_share_rescale = (sorghum_Zn_BPI_weight_share * 100))
+
+df_sorghum_Zn_BPI_weighted_rescale <- bind_cols(select(df_sorghum_Zn_BPI_weighted, adm1_ref_name), df_sorghum_Zn_BPI_weighted_normalised)
+
+vect_state_geo_sorghum_Zn_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_sorghum_Zn_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Zn_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = sorghum_Zn_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Sorghum Zinc BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sorghum Iron BPI weighted by state share of national harvest area
+
+```{r}
+#| label: sorghum_state_Fe_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_sorghum_national_share <- read.csv("tab_data/sorghum_area_national_share.csv")
+
+df_sorghum_Fe_BPI_weighted <- left_join(df_sorghum_Fe_BPI_rescale, df_sorghum_national_share, by = "adm1_ref_name") |>
+  mutate( sorghum_Fe_BPI_weight_share = (sorghum_Fe_BPI_rescale * sorghum_Area_2024_pc))
+
+df_sorghum_Fe_BPI_weighted_normalised <- as.data.frame(lapply(select(df_sorghum_Fe_BPI_weighted, sorghum_Fe_BPI_weight_share ), minMax)) |> 
+  mutate(sorghum_Fe_BPI_weight_share_rescale = (sorghum_Fe_BPI_weight_share * 100))
+
+df_sorghum_Fe_BPI_weighted_rescale <- bind_cols(select(df_sorghum_Fe_BPI_weighted, adm1_ref_name), df_sorghum_Fe_BPI_weighted_normalised)
+
+vect_state_geo_sorghum_Fe_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_sorghum_Fe_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_sorghum_Fe_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = sorghum_Fe_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Sorghum Iron BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Sweet Potato Vitamin A BPI weighted by state share of national harvest area
+
+```{r}
+#| label: spot_state_VitA_BPI_weight_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_spot_national_share <- read.csv("tab_data/spot_area_national_share.csv")
+
+df_spot_VitA_BPI_weighted <- left_join(df_spot_VitA_BPI_rescale, df_spot_national_share, by = "adm1_ref_name") |>
+  mutate( spot_VitA_BPI_weight_share = (spot_VitA_BPI_rescale * spot_Area_2020_pc))
+
+df_spot_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_spot_VitA_BPI_weighted, spot_VitA_BPI_weight_share ), minMax)) |> 
+  mutate(spot_VitA_BPI_weight_share_rescale = (spot_VitA_BPI_weight_share * 100))
+
+df_spot_VitA_BPI_weighted_rescale <- bind_cols(select(df_spot_VitA_BPI_weighted, adm1_ref_name), df_spot_VitA_BPI_weighted_normalised)
+
+vect_state_geo_spot_VitA_BPI_weighted_rescale <- dplyr::left_join(vect_state_geo, df_spot_VitA_BPI_weighted_rescale, by = "adm1_ref_name")
+
+ggplot(vect_state_geo_spot_VitA_BPI_weighted_rescale) +
+  geom_spatvector(aes(fill = spot_VitA_BPI_weight_share_rescale)) +
+  scale_fill_stepsn(
+    colors = colours_priority,
+    values = scales::rescale(breaks_priority),
+    breaks = breaks_priority,
+    limits = c(0, 100),
+    na.value = "grey",
+    labels = labels_priority
+  ) +
+  guides(fill = guide_legend(reverse=T)) +
+  labs(title = "Sweet Potato Vitamin A BPI (weighted by crop area, rescaled)", fill = "Priority") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```

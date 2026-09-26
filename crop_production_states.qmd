@@ -2729,3 +2729,169 @@ writeVector(
 )
 
 ```
+
+# Crop area per state as proportion of national total
+
+## Plantain/Banana national area share
+
+```{r}
+#| label: plantain_banana_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+plantain_banana_area_2024_total <-  
+  df_plantain_banana_2024_rename |>
+  dplyr::summarise(total = sum(plantain_banana_Area_2024, na.rm=T)) |> pull(total)
+
+df_plantain_banana_2024_national_share <- df_plantain_banana_2024_rename |> 
+  mutate(plantain_banana_Area_2024_pc = (plantain_banana_Area_2024 / plantain_banana_area_2024_total)) 
+
+df_plantain_banana_2024_national_share[is.na(df_plantain_banana_2024_national_share)] <- 0
+
+write.csv(df_plantain_banana_2024_national_share, "tab_data/plantain_banana_area_national_share.csv")
+
+```
+
+
+## Cassava national area share
+
+```{r}
+#| label: cassava_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+cassava_area_2024_total <-  
+  df_cassava_2024_rename |>
+  dplyr::summarise(total = sum(cassava_Area_2024, na.rm=T)) |> pull(total)
+
+df_cassava_2024_national_share <- df_cassava_2024_rename |> 
+  mutate(cassava_Area_2024_pc = (cassava_Area_2024 / cassava_area_2024_total)) 
+
+df_cassava_2024_national_share[is.na(df_cassava_2024_national_share)] <- 0
+
+write.csv(df_cassava_2024_national_share, "tab_data/cassava_area_national_share.csv")
+
+```
+
+## Cowpea national area share
+
+```{r}
+#| label: cowpea_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+cowpea_area_2024_total <-  
+  df_cowpea_2024_rename |>
+  dplyr::summarise(total = sum(cowpea_Area_2024, na.rm=T)) |> pull(total)
+
+df_cowpea_2024_national_share <- df_cowpea_2024_rename |> 
+  mutate(cowpea_Area_2024_pc = (cowpea_Area_2024 / cowpea_area_2024_total)) 
+
+df_cowpea_2024_national_share[is.na(df_cowpea_2024_national_share)] <- 0
+
+write.csv(df_cowpea_2024_national_share, "tab_data/cowpea_area_national_share.csv")
+
+```
+
+## Maize national area share
+
+```{r}
+#| label: maize_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+maize_area_2024_total <-  
+  df_maize_2024_rename |>
+  dplyr::summarise(total = sum(maize_Area_2024, na.rm=T)) |> pull(total)
+
+df_maize_2024_national_share <- df_maize_2024_rename |> 
+  mutate(maize_Area_2024_pc = (maize_Area_2024 / maize_area_2024_total)) 
+
+df_maize_2024_national_share[is.na(df_maize_2024_national_share)] <- 0
+
+write.csv(df_maize_2024_national_share, "tab_data/maize_area_national_share.csv")
+
+```
+
+## Rice national area share
+
+```{r}
+#| label: rice_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+rice_area_2024_total <-  
+  df_rice_2024_rename |>
+  dplyr::summarise(total = sum(rice_Area_2024, na.rm=T)) |> pull(total)
+
+df_rice_2024_national_share <- df_rice_2024_rename |> 
+  mutate(rice_Area_2024_pc = (rice_Area_2024 / rice_area_2024_total)) 
+
+df_rice_2024_national_share[is.na(df_rice_2024_national_share)] <- 0
+
+write.csv(df_rice_2024_national_share, "tab_data/rice_area_national_share.csv")
+
+```
+
+
+## Sorghum national area share
+
+```{r}
+#| label: sorghum_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+sorghum_area_2024_total <-  
+  df_sorghum_2024_rename |>
+  dplyr::summarise(total = sum(sorghum_Area_2024, na.rm=T)) |> pull(total)
+
+df_sorghum_2024_national_share <- df_sorghum_2024_rename |> 
+  mutate(sorghum_Area_2024_pc = (sorghum_Area_2024 / sorghum_area_2024_total)) 
+
+df_sorghum_2024_national_share[is.na(df_sorghum_2024_national_share)] <- 0
+
+write.csv(df_sorghum_2024_national_share, "tab_data/sorghum_area_national_share.csv")
+
+```
+
+
+## Sweet Potato national area share
+
+```{r}
+#| label: spot_state_area_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+spot_area_2020_total <-  
+  df_spot_2020_rename |>
+  dplyr::summarise(total = sum(spot_Area_2020, na.rm=T)) |> pull(total)
+
+df_spot_2020_national_share <- df_spot_2020_rename |> 
+  mutate(spot_Area_2020_pc = (spot_Area_2020 / spot_area_2020_total)) 
+
+df_spot_2020_national_share[is.na(df_spot_2020_national_share)] <- 0
+
+write.csv(df_spot_2020_national_share, "tab_data/spot_area_national_share.csv")
+
+```
