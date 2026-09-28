@@ -607,6 +607,93 @@ ggplot() +
 
 ```
 
+## Population of women of reproductive age and children between below 5 years
+
+The target population for may biofortification initiatives is for women and young children.
+The population is used to weight the biofortification prioritisation index.
+
+The NBS population estimates for 2025 do not give values for children between 6 and 59 months - instead between 0 and 59 months.
+
+```{r}
+#| label: fig-wom_children_population_states_nbs_2025 
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of women of childbearing age and children per state"  
+
+df_pop_nbs <- df_pop_nbs |>
+  mutate(pop_est_women_15_49_children_0_5_2025 = pop_est_women_15_49_2025 + pop_est_children_0_5_2025)
+
+vect_state_geo_nbs <- tidyterra::left_join(vect_state_geo, df_pop_nbs, by = c( "adm1_ref_name" = "state_name"))
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_women_15_49_children_0_5_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(0, 10000000),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of women of childbearing age and children below 5 years per state (2025 estimate)", fill = "Persons") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+```
+
+```{r}
+#| label: fig-wom_children_population_states_share_nbs_2025
+#| message: false 
+#| warning: false 
+#| cache: false 
+#| results: asis 
+#| fig-cap: "NBS 2025 estimates of share of national women of childbearing age and children per state"  
+
+
+target_population_total <-  
+  df_pop_nbs |> filter(state_name == "NIGERIA TOTAL") |>
+  pull(pop_est_women_15_49_children_0_5_2025)
+
+df_pop_nbs <- df_pop_nbs |> 
+  mutate(pop_est_women_15_49_children_0_5_share_2025 = ((pop_est_women_15_49_children_0_5_2025 / target_population_total) * 100)) 
+
+write.csv(df_pop_nbs, "tab_data/BPI_target_pop_nbs.csv")
+
+vect_state_geo_nbs <- tidyterra::left_join(vect_state_geo, df_pop_nbs, by = c( "adm1_ref_name" = "state_name"))
+
+ggplot() +
+  geom_spatvector(
+    data = vect_state_geo_nbs,
+    aes(fill = pop_est_women_15_49_children_0_5_share_2025),
+    colour = "grey"
+  ) +
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(0, 10),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  labs(title = "Population of women of childbearing age and children below 5 years share per state (2025 estimate)", fill = "%") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+
 # Population estimates for 2030
 
 Use data extrapolated from NBS 2016 estimates, using local growth rates.
