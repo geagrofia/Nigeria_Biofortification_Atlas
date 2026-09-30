@@ -25,6 +25,8 @@ library(readODS)
 library(ggplot2)
 library(ggtext)
 library(tidyr)
+library(stringr)
+library(purrr)
 
 ```
 
@@ -32,11 +34,11 @@ library(tidyr)
 
 The interventions associated with crop biofortification vary depending on the stage of the genetic innovation pipeline [@lungahoFrameworkEmbeddingNutrition2025], from design to delivery.
 
-The spatial components of those interventions are most visible in the product development phase, during the testing of materials, and the delivery phase, where new Varieties, are released and are multiplied within the seed system.
+The spatial components of those interventions are most visible in the product development phase, during the testing of materials, and the delivery phase, where new varieties, are released and are multiplied within the seed system.
 
 Information on testing locations is generally sparse, but the testing regime provides information (e.g. via National Variety Trials) on the geographies for which a new biofortified crop variety is adapted. When the variety is released it can be linked to the zones for which it is adapted and mapped.
 
-# Methods 
+# Methods
 
 ## Extracting released variety information
 
@@ -44,57 +46,57 @@ Variety adaptation is one of the pieces of information contained in the Nigerian
 
 The seed portal contains information about released seed Varieties, or other improved planting material. The portal has information on improved varieties of over 30 crops ( @tbl-cropvar).
 
-+------------------------------------------------+---------------------+
-| Crop                                           | Improved Varieties  |
-+================================================+=====================+
-| Maize                                          | 210                 |
-+------------------------------------------------+---------------------+
-| Rice                                           | 85                  |
-+------------------------------------------------+---------------------+
-| Sorghum                                        | 60                  |
-+------------------------------------------------+---------------------+
-| Cassava                                        | 56                  |
-+------------------------------------------------+---------------------+
-| Cowpea                                         | 44                  |
-+------------------------------------------------+---------------------+
-| Yam                                            | 31                  |
-+------------------------------------------------+---------------------+
-| Groundnut                                      | 29                  |
-+------------------------------------------------+---------------------+
-| Soybean                                        | 28                  |
-+------------------------------------------------+---------------------+
-| Wheat                                          | 26                  |
-+------------------------------------------------+---------------------+
-| Tomato                                         | 24                  |
-+------------------------------------------------+---------------------+
-| Sugarcane                                      | 21                  |
-+------------------------------------------------+---------------------+
-| Pearl Millet                                   | 19                  |
-+------------------------------------------------+---------------------+
-| Cotton                                         | 17                  |
-+------------------------------------------------+---------------------+
-| Rubber, Cocoa                                  | 14                  |
-+------------------------------------------------+---------------------+
-| Forage Legume, Pepper , Sweet Orange           | 11                  |
-+------------------------------------------------+---------------------+
-| Potato (& Irish Potato)                        | 10                  |
-+------------------------------------------------+---------------------+
-| Sweet Potato                                   | 9                   |
-+------------------------------------------------+---------------------+
-| Amaranthus                                     | 8                   |
-+------------------------------------------------+---------------------+
-| Sesame                                         | 7                   |
-+------------------------------------------------+---------------------+
-| Shika Grass, Barley                            | 6                   |
-+------------------------------------------------+---------------------+
-| Oat, Castor, Corchorus                         | 5                   |
-+------------------------------------------------+---------------------+
-| Sunflower, Solanum                             | 4                   |
-+------------------------------------------------+---------------------+
-| Sokoyokoto, Coconut, Kola, Okra, Kenaf         | 3                   |
-+------------------------------------------------+---------------------+
-| Ginger, Melon, Coffee, Cabbage, Acha           | 2                   |
-+------------------------------------------------+---------------------+
++-----------------------------------------------+--------------------+
+| Crop                                          | Improved Varieties |
++===============================================+====================+
+| Maize                                         | 210                |
++-----------------------------------------------+--------------------+
+| Rice                                          | 85                 |
++-----------------------------------------------+--------------------+
+| Sorghum                                       | 60                 |
++-----------------------------------------------+--------------------+
+| Cassava                                       | 56                 |
++-----------------------------------------------+--------------------+
+| Cowpea                                        | 44                 |
++-----------------------------------------------+--------------------+
+| Yam                                           | 31                 |
++-----------------------------------------------+--------------------+
+| Groundnut                                     | 29                 |
++-----------------------------------------------+--------------------+
+| Soybean                                       | 28                 |
++-----------------------------------------------+--------------------+
+| Wheat                                         | 26                 |
++-----------------------------------------------+--------------------+
+| Tomato                                        | 24                 |
++-----------------------------------------------+--------------------+
+| Sugarcane                                     | 21                 |
++-----------------------------------------------+--------------------+
+| Pearl Millet                                  | 19                 |
++-----------------------------------------------+--------------------+
+| Cotton                                        | 17                 |
++-----------------------------------------------+--------------------+
+| Rubber, Cocoa                                 | 14                 |
++-----------------------------------------------+--------------------+
+| Forage Legume, Pepper , Sweet Orange          | 11                 |
++-----------------------------------------------+--------------------+
+| Potato (& Irish Potato)                       | 10                 |
++-----------------------------------------------+--------------------+
+| Sweet Potato                                  | 9                  |
++-----------------------------------------------+--------------------+
+| Amaranthus                                    | 8                  |
++-----------------------------------------------+--------------------+
+| Sesame                                        | 7                  |
++-----------------------------------------------+--------------------+
+| Shika Grass, Barley                           | 6                  |
++-----------------------------------------------+--------------------+
+| Oat, Castor, Corchorus                        | 5                  |
++-----------------------------------------------+--------------------+
+| Sunflower, Solanum                            | 4                  |
++-----------------------------------------------+--------------------+
+| Sokoyokoto, Coconut, Kola, Okra, Kenaf        | 3                  |
++-----------------------------------------------+--------------------+
+| Ginger, Melon, Coffee, Cabbage, Acha          | 2                  |
++-----------------------------------------------+--------------------+
 
 : \# of varieties per crop {#tbl-cropvar}
 
@@ -148,24 +150,24 @@ The links on the list pages contain both `varid` and `cropid`, so the strategy i
 
 The script is a two-stage scraper.
 
-Stage 1 — Collect links loops all 41 list pages and harvests every `varid`= link, then deduplicates them. The detail page URL format is `variety.php?varid=XXX&cropid=YYY&task=view`.
+Stage 1 — Collect links loops all 41 list pages and harvests every `varid`= link, then remove duplicates. The detail page URL format is `variety.php?varid=XXX&cropid=YYY&task=view`.
 
 Stage 2 — Scrape detail pages visits each link and extracts the full set of fields that only appear on the detail page:
 
-| Detail                       | Example                              |
-|------------------------------|--------------------------------------|
-| Crop Name                    | Cowpea                               |
-| National Code                | NGVU-16-34                           |
-| Variety Name                 | FUAMPEA 2                            |
-| Original Name                | UAM09 1051-1                         |
-| Outstanding Characteristics  | Resistance to Striga…                |
-| Agroecological Zones         | Northern Guinea and Sudan Savanna    |
-| Origin/Source                | IAR-ABU, Zaria and IITA              |
-| Developing Institute         | FUAM and IAR-ABU, Zaria              |
-| Breeder(s)/Collaborators     | L.O. Omoigui, L.L. Bello…            |
-| Potential Yield (t/ha)       | 2 (numeric)                          |
-| Year of Release              | 2016                                 |
-| Year of Registration         | 2016                                 |
+| Detail                      | Example                           |
+|-----------------------------|-----------------------------------|
+| Crop Name                   | Cowpea                            |
+| National Code               | NGVU-16-34                        |
+| Variety Name                | FUAMPEA 2                         |
+| Original Name               | UAM09 1051-1                      |
+| Outstanding Characteristics | Resistance to Striga…             |
+| Agroecological Zones        | Northern Guinea and Sudan Savanna |
+| Origin/Source               | IAR-ABU, Zaria and IITA           |
+| Developing Institute        | FUAM and IAR-ABU, Zaria           |
+| Breeder(s)/Collaborators    | L.O. Omoigui, L.L. Bello…         |
+| Potential Yield (t/ha)      | 2 (numeric)                       |
+| Year of Release             | 2016                              |
+| Year of Registration        | 2016                              |
 
 : Details of variety
 
@@ -173,7 +175,7 @@ The scraper further parses the results after scraping to assign flags depending 
 
 (1) Add a new column called ‘zinc’. If the ‘outstanding characteristic’ column includes the words ‘Zinc’ or ‘Zn’ then code the zinc column as 1, otherwise 0
 
-(2) Add a new column called ‘vit_A’. If the ‘outstanding characteristic’ column includes the words ‘vitamin A’ or ‘vit A’ or ‘beta carotene’ , then code the vit_A column as 1, otherwise 0.
+(2) Add a new column called ‘vit_A’. If the ‘outstanding characteristic’ column includes the words ‘vitamin A’ or ‘vit A’, or 'vit. A' or any word containing ‘carot’ , then code the vit_A column as 1, otherwise 0.
 
 (3) Add a new column called ‘iron’. If the ‘outstanding characteristic’ column includes the words ‘Iron’ or ‘Fe’ then code the iron column as 1, otherwise 0 .
 
@@ -199,35 +201,35 @@ The scraper further parses the results after scraping to assign flags depending 
 
 (14) Add a new column called ‘all’ . If the ‘Agroecological Zones’ column includes the word ‘all’ then code the ‘all’ column as 1, otherwise 0 . In all cases ignore the case of the word and also include parts of words.
 
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| Column                                                      | Logic                                                                     |
-+=============================================================+===========================================================================+
-| zinc                                                        | “zinc” or “Zn” in characteristics                                         |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| vit_A                                                       | “vitamin A”, “vit A”, or “beta carotene”                                  |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| iron                                                        | “iron” or “Fe”                                                            |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| n_guinea                                                    | northern guinea / N guinea / northern / plain “guinea” / plain “savanna”  |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| s_guinea                                                    | southern guinea / S guinea / southern / plain “guinea” / plain “savanna”  |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| sudan                                                       | sudan / sudano / plain “savanna”                                          |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| derived                                                     | “derived” or “transition”                                                 |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| forest                                                      | “forest”                                                                  |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| mid_alt                                                     | “mid altitude” or “mid alt”                                               |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| lowland                                                     | “lowland” or “low”                                                        |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| sahel                                                       | “sahel” or “sahelian”                                                     |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
-| all_zones                                                   | “all”                                                                     |
-|                                                             |                                                                           |
-| (named all_zones to avoid conflict with R’s built-in all()) |                                                                           |
-+-------------------------------------------------------------+---------------------------------------------------------------------------+
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| Column                                                      | Logic                                                                    |
++=============================================================+==========================================================================+
+| zinc                                                        | “zinc” or “Zn” in characteristics                                        |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| vit_A                                                       | “vitamin A”, “vit A”, or “beta carotene”                                 |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| iron                                                        | “iron” or “Fe”                                                           |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| n_guinea                                                    | northern guinea / N guinea / northern / plain “guinea” / plain “savanna” |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| s_guinea                                                    | southern guinea / S guinea / southern / plain “guinea” / plain “savanna” |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| sudan                                                       | sudan / sudano / plain “savanna”                                         |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| derived                                                     | “derived” or “transition”                                                |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| forest                                                      | “forest”                                                                 |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| mid_alt                                                     | “mid altitude” or “mid alt”                                              |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| lowland                                                     | “lowland” or “low”                                                       |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| sahel                                                       | “sahel” or “sahelian”                                                    |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
+| all_zones                                                   | “all”                                                                    |
+|                                                             |                                                                          |
+| (named all_zones to avoid conflict with R’s built-in all()) |                                                                          |
++-------------------------------------------------------------+--------------------------------------------------------------------------+
 
 : extraction logic
 
@@ -265,23 +267,23 @@ The agro-ecological zones used in Nigeria do not map exactly onto the harvest ch
 
 For this analysis I use the following criteria and thresholds
 
-+----------------------------+-------------------+------------------------------------------------------------------+
-| AEZ Name                   | LGP (2020) (days) | Elevation (masl)[@reuterEvaluationVoidfillingInterpolation2007]  |
-+============================+===================+==================================================================+
-| Sahel Savanna              | \<= 90            | \< 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
-| Sudan Savanna              | 90 - 150          | \< 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
-| Northern Guinea Savanna    | 150 - 181         | \< 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
-| Southern Guinea Savanna    | 181 - 211         | \< 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
-| Derived/Transition Savanna | 211 - 270         | \< 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
-| Forest                     | \> 270            | \< 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
-| Mid-Altitude zones         |                   | \> 800                                                           |
-+----------------------------+-------------------+------------------------------------------------------------------+
++----------------------------+-------------------+-----------------------------------------------------------------+
+| AEZ Name                   | LGP (2020) (days) | Elevation (masl)[@reuterEvaluationVoidfillingInterpolation2007] |
++============================+===================+=================================================================+
+| Sahel Savanna              | \<= 90            | \< 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
+| Sudan Savanna              | 90 - 150          | \< 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
+| Northern Guinea Savanna    | 150 - 181         | \< 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
+| Southern Guinea Savanna    | 181 - 211         | \< 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
+| Derived/Transition Savanna | 211 - 270         | \< 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
+| Forest                     | \> 270            | \< 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
+| Mid-Altitude zones         |                   | \> 800                                                          |
++----------------------------+-------------------+-----------------------------------------------------------------+
 
 # Load the Agro-Ecological Zones
 
@@ -319,7 +321,7 @@ df_aez <- as.data.frame(vect_aez_geo)
 
 # Load the Variety data
 
-## Load the Nigeria Seed Portal variety database
+## Load the Nigerian Seed Portal variety database
 
 ```{r}
 #| label: nsp_variety_data
@@ -350,8 +352,8 @@ biofort_crop_list <- as.list(unique(df_nsp_biofort$Crop.Name))
 df_nsp_biofort_zinc <- dplyr::filter(df_nsp, zinc == 1)
 paste("Number of varieties Bio-fortified with zinc =", nrow(df_nsp_biofort_zinc))
 
-df_nsp_biofort_crop_zinc_sum <- df_nsp_biofort_zinc %>%
-  group_by(Crop.Name) %>%
+df_nsp_biofort_crop_zinc_sum <- df_nsp_biofort_zinc |>
+  group_by(Crop.Name) |>
   summarise(across(
     c(
       n_guinea,
@@ -388,8 +390,8 @@ df_nsp_biofort_crop_zinc_sum |>
 df_nsp_biofort_iron <- dplyr::filter(df_nsp, iron == 1)
 paste("Number of varieties Bio-fortified with iron =", nrow(df_nsp_biofort_iron))
 
-df_nsp_biofort_crop_iron_sum  <- df_nsp_biofort_iron %>%
-  group_by(Crop.Name) %>%
+df_nsp_biofort_crop_iron_sum  <- df_nsp_biofort_iron |>
+  group_by(Crop.Name) |>
   summarise(across(
     c(
       n_guinea,
@@ -426,8 +428,8 @@ df_nsp_biofort_crop_iron_sum |>
 df_nsp_biofort_vit_A <- dplyr::filter(df_nsp, vit_A == 1)
 paste("Number of varieties Bio-fortified with vitamin A =", nrow(df_nsp_biofort_vit_A))
 
-df_nsp_biofort_crop_vit_A_sum <- df_nsp_biofort_vit_A %>%
-  group_by(Crop.Name) %>%
+df_nsp_biofort_crop_vit_A_sum <- df_nsp_biofort_vit_A |>
+  group_by(Crop.Name) |>
   summarise(across(
     c(
       n_guinea,
@@ -463,6 +465,407 @@ df_nsp_biofort_crop_vit_A_sum |>
 
 ```
 
+
+## Load the HarvestPlus database of biofortified crops
+
+An alternative source of information on biofortified crops released in Nigeria is the HarvestPlus database of Biofortified Crops Released (https://bcr.harvestplus.org/varieties_released_list#).
+
+
+```{r}
+#| label: hp_variety_data
+#| message: false
+#| warning: false
+
+df_hp <- read.csv("tab_data/hp_ListofCrops.csv")
+
+
+```
+
+## Filter Varieties in Nigeria
+
+There are 498 varieties in the database (as of 29/09/2026), but this is a global list, so we need to filter and extract only those varieties released in Nigeria.
+
+The HarvestPlus database records 31 released biofortified varieties in Nigeria, over half of which are Vitamin A rich Maize (@tbl-filter_nigeria_hp). This is fewer than the 41 varieties recorded in the Nigerian Seed Portal database.
+
+```{r}
+#| label: tbl-filter_nigeria_hp
+#| message: false
+#| warning: false
+
+df_hp_ng <- dplyr::filter(df_hp, Country == "Nigeria")
+
+paste("Number of Bio-fortified varieties in Nigeria =", nrow(df_hp_ng))
+hp_biofort_crop_list_ng <- as.list(unique(df_hp_ng$Biofortified_crop_name))
+
+df_hp_ng_count <- df_hp_ng |>
+  group_by(Biofortified_crop_name) |>
+  summarise(num_vars = n())
+
+df_hp_ng_count |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop", "Number of varieties"),
+    caption = "Number of biofortified varieties per Crop in Nigeria in the HP database",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 10
+    ))
+
+
+```
+
+The HarvestPlus database has less information about the varieties than the Nigerian Seed Portal, but in many cases it does include the micronutrient concentration.
+
+It is therefore worthwhile attempting to merge the two databases.
+
+# Merge variety databases
+
+To merge the databases it is necessary to find variables that are common to both the HarvestPlus and the Nigerian Seed Portal databases.
+
+
+
+```{r}
+#| label: tbl-common_variables
+#| message: false
+#| warning: false
+#| tbl-cap: Two tables
+#| tbl-subcap: ["Nigerian Seed Portal", "HarvestPlus"]
+#| layout-ncol: 2
+
+as.data.frame(colnames(df_nsp)) |>
+    DT::datatable(
+    rownames = F,
+    caption = "NSP database variables",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+as.data.frame(colnames(df_hp)) |>
+    DT::datatable(
+    rownames = F,
+    caption = "HP database variables",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+```
+
+
+From (@tbl-common_variables) it is clear that some of the variables are common, but care will need to be taken in how the records are matched.
+
+
+
+| NSP |   HP    | Comments |
+|-----|---------|----------|
+| `Crop.Name`   | `Biofortified_crop_name`        | would require extraction of crop name from HP |
+| `Variety.Name` | `Variety_Name`       | |
+| `Variety.Name` | `Other_or_Local_name`       | to account for differences in variety name |
+| `Original.Name` | `Other_or_Local_name`       | |
+| `Original.Name` | `Variety_Name`       | to account for differences in variety name |
+| `Year.of.Release` | `Year_Released`       | |
+| `oc` | `Micronutrient_concentratio`       | would require extraction of micronutrient concentrations from `oc` variable in NSP |
+| `Summary.Yield..t.ha.` | `Yield`       | NSP has two values for yield |
+| `Potential.Yield..t.ha.` | `Yield`       | NSP has two values for yield |
+| `zinc` | `Biofortified_crop_name`       | previously extracted from `oc` variable in NSP |
+| `vit_A` | `Biofortified_crop_name`       | previously extracted from `oc` variable in NSP |
+| `iron` | `Biofortified_crop_name`       | previously extracted from `oc` variable in NSP |
+: Common Variables in Nigerian Seed Portal (NSP) and HarvestPlus (HP) databases
+
+## Merge by variety name
+
+Merging by the variety name only provides matches for 17 of the 47 records in the NSP database of biofortified varieties and in the 31 records in the HP database of varieties released in Nigeria.
+
+The varieties which are matched are exclusively Vitamin A rich Cassava and Maize varieties.
+
+
+```{r}
+#| label: tbl-merge_by_varname
+#| message: false
+#| warning: false
+
+df_merge_varname <- inner_join(df_nsp_biofort, df_hp_ng, by = c("Variety.Name" = "Variety_Name"))
+
+df_merge_varname |> select(Crop.Name, Biofortified_crop_name, Variety.Name, Year.of.Release, Year_Released ) |>
+  arrange(is.na(Biofortified_crop_name), desc(Crop.Name)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)" , "Variety Name", "Year Released (NSP)", "Year Released (HP)"),
+    caption = "Merge by variety name",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+
+```
+
+Even when the full databases are merged - HP for all countries, and NSP for biofort and non-biofort varieties - the situation does not improve, and indeed a Sweet Potato variety from Madagascar called "Gloria" is matched with the Nigerian Cabbage variety of the same name.
+
+```{r}
+#| label: tbl-merge_full_by_varname
+#| message: false
+#| warning: false
+
+df_merge_full_varname <- inner_join(df_nsp, df_hp, by = c("Variety.Name" = "Variety_Name"))
+
+
+```
+
+Some variety names are very similar, but differ due to extra or missing spaces, dashes etc. between the text. Other examples are where a variety name in either of the databases has an extra name added.
+
+We can simplify the variety names and join using a cleaned key variable. This increases the number of matches to 23, and now includes Iron biofortified Pearl Millet and Zinc Rice varieties.
+
+By matching the full name from one database with a partial match in the other we capture an additional three records, giving 26 matches.
+
+
+```{r}
+#| label: tbl-merge_by_varname_clean
+#| message: false
+#| warning: false
+
+# Helper to normalize whitespace
+clean_key <- function(x) {
+  x |>
+    str_replace_all("[^\\p{L}\\p{N}]+", "") |>  # keep only letters and digits (any language)
+    str_to_lower()
+}
+
+add_segments <- function(df, col) {
+  df |>
+    mutate(
+      .id = row_number(),
+      segment = map(.data[[col]], \(x) c(x, str_split_1(x, "[()/\\[\\]]")))  # full value + each piece
+    ) |>
+    unnest(segment) |>
+    mutate(key = clean_key(segment)) |>
+    filter(key != "") |>
+    distinct(.id, key, .keep_all = TRUE)
+}
+
+df_segmented_nsp <- add_segments(df_nsp_biofort, "Variety.Name")
+df_segmented_hp <- add_segments(df_hp_ng, "Variety_Name")
+
+df_matches <- inner_join(
+  df_segmented_nsp |> select(.id1 = .id, key),
+  df_segmented_hp |> select(.id2 = .id, key),
+  by = "key",
+  relationship = "many-to-many"
+) |>
+  distinct(.id1, .id2)   # one row per matching record pair
+
+df_merge_varname_clean <- df_matches |>
+  left_join(df_nsp_biofort |> mutate(.id1 = row_number()), by = ".id1") |>
+  left_join(df_hp_ng |> mutate(.id2 = row_number()), by = ".id2", suffix = c("_nsp", "_hp")) |>
+  select(-.id1, -.id2)
+
+# 
+# 
+# df_nsp_biofort_clean <- df_nsp_biofort |> mutate(Variety_Name_clean = clean_key(Variety.Name))
+# df_hp_ng_clean <- df_hp_ng |> mutate(Variety_Name_clean = clean_key(Variety_Name))
+# 
+# 
+# df_merge_varname_clean <- inner_join(df_nsp_biofort_clean, df_hp_ng_clean, by = "Variety_Name_clean")
+
+df_merge_varname_clean |> select(Crop.Name, Biofortified_crop_name, Variety_Name, Variety.Name, Year.of.Release, Year_Released ) |>
+  arrange(is.na(Biofortified_crop_name), desc(Crop.Name)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)" , "Variety Name (NSP)", "Variety Name (HP)", "Year Released (NSP)", "Year Released (HP)"),
+    caption = "Merge by variety name",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+```
+
+
+```{r}
+#| label: tbl-merge_by_varname_clean_alternative
+#| message: false
+#| warning: false
+
+segment_keys <- function(df, col) {
+  df |>
+    mutate(.id = row_number()) |>                      # assign IDs BEFORE filtering so they match df_id later
+    filter(!is.na(.data[[col]])) |>                    # drop NAs so str_split_1() never sees one
+    mutate(
+      segment = map(.data[[col]], \(x) c(x, str_split_1(x, "[()/\\[\\]]")))
+    ) |>
+    unnest(segment) |>
+    mutate(key = clean_key(segment)) |>
+    filter(key != "") |>
+    distinct(.id, key)
+}
+
+
+# Keys from several columns, labelled by source column
+segment_keys_multi <- function(df, cols) {
+  map(cols, \(col) segment_keys(df, col) |> mutate(col = col)) |>
+    list_rbind()
+}
+
+df_nsp_keys <- segment_keys_multi(df_nsp_biofort, c("Variety.Name", "Original.Name"))
+df_hp_keys <- segment_keys_multi(df_hp_ng, c("Variety_Name", "Other_or_Local_name"))
+
+# Every record should appear with a sensible number of keys
+df_nsp_keys |> count(col)                       # keys per source column
+df_nsp_keys |> summarise(records = n_distinct(.id))
+
+df_hp_keys |> count(col)                       # keys per source column
+df_hp_keys |> summarise(records = n_distinct(.id))
+
+
+# Records that produced no keys at all (both columns NA or punctuation-only)
+df_nsp_biofort |> mutate(.id = row_number()) |> anti_join(df_nsp_keys, by = ".id")
+
+# Records that produced no keys at all (both columns NA or punctuation-only)
+df_hp_ng |> mutate(.id = row_number()) |> anti_join(df_hp_keys, by = ".id")
+
+
+df_matches_detail <- inner_join(
+  df_nsp_keys |> rename(.id1 = .id, df1_col = col),
+  df_hp_keys |> rename(.id2 = .id, df2_col = col),
+  by = "key",
+  relationship = "many-to-many"
+)
+
+# One row per matching record pair
+df_matches <- df_matches_detail |> distinct(.id1, .id2)
+
+df_match_summary <- df_matches_detail |>
+  group_by(.id1, .id2) |>
+  summarise(
+    matched_on = paste(unique(paste(df1_col, df2_col, sep = " -> ")), collapse = "; "),
+    n_col_pairs = n_distinct(paste(df1_col, df2_col)),
+    .groups = "drop"
+  )
+
+df_nsp_biofort_id <- df_nsp_biofort |> mutate(.id1 = row_number())
+df_hp_ng_id <- df_hp_ng |> mutate(.id2 = row_number())
+
+df_result <- df_match_summary |>
+  inner_join(df_nsp_biofort_id, by = ".id1") |>
+  inner_join(df_hp_ng_id, by = ".id2", suffix = c("_nsp", "_hp")) |>
+  select(-.id1, -.id2)
+
+df_unmatched_nsp <- df_nsp_biofort_id |> anti_join(df_matches, by = ".id1")
+df_unmatched_hp <- df_hp_ng_id |> anti_join(df_matches, by = ".id2")
+
+```
+
+
+
+When we review the unmatched records from both databases, and show alternative names for the varieties, we can see if there are any other possible matches (@tbl-missing_links).
+
+Potential matches are for two hybrid maize varieties which have similar names but not exact matches. 
+There are no sweet potato varieties that are common in the databases, "UMUSPO/4 Solo-Gold" in the NSP database almost matches two entries in the HarvestPlus database: 	"Solo Gold", and "UMUSPO 4" (as an alternative name to a different entry).
+
+These kind of matches can only really be made manually. 
+
+```{r}
+#| label: tbl-missing_links
+#| message: false
+#| warning: false
+#| tbl-cap: Two tables
+#| tbl-subcap: ["Nigerian Seed Portal", "HarvestPlus"]
+#| layout-ncol: 2
+
+df_nsp_biofort_id <- df_nsp_biofort |> mutate(.id1 = row_number())
+df_hp_ng_id <- df_hp_ng |> mutate(.id2 = row_number())
+
+# Records in df1 with no match in df2
+df_unmatched_nsp <- df_nsp_biofort_id |> anti_join(df_matches, by = ".id1")
+
+# Records in df2 with no match in df1
+df_unmatched_hp <- df_hp_ng_id |> anti_join(df_matches, by = ".id2")
+
+
+df_unmatched_nsp |> select(Crop.Name, Variety.Name, National.Code, Year.of.Release) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name", "Variety Name", "National Code", "Year Released"),
+    caption = "NSP varieties without a match",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+df_unmatched_hp |> select(Biofortified_crop_name, Variety_Name, Other_or_Local_name, Year_Released) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name", "Variety Name", "Other or Local Name", "Year Released"),
+    caption = "HP varieties without a match",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+```
+
+
 # Map the varieties in each AEZ
 
 ## Step 1: Reshape varieties data to long format by AEZ
@@ -487,11 +890,11 @@ aez_map <- c(
 # For each AEZ class, count varieties per crop & micronutrient
 # A variety "belongs" to an AEZ if its AEZ column value == 1
 
-df_nsp_biofort_long <- df_nsp_biofort %>%
+df_nsp_biofort_long <- df_nsp_biofort |>
   pivot_longer(cols = c(sahel, sudan, n_guinea, s_guinea, derived, forest, mid_alt),
                names_to = "aez_name",
-               values_to = "in_aez") %>%
-  filter(in_aez == 1) %>%                         # keep only varieties present in that AEZ
+               values_to = "in_aez") |>
+  filter(in_aez == 1) |>                         # keep only varieties present in that AEZ
   mutate(AEZ = as.character(match(aez_name,        # convert name back to AEZ class number
                                    c("sahel","sudan","n_guinea",
                                      "s_guinea","derived","forest","mid_alt"))))
@@ -507,12 +910,12 @@ df_nsp_biofort_long <- df_nsp_biofort %>%
 
 micronutrients <- c("zinc", "iron", "vit_A")
 
-df_nsp_biofort_counts <- df_nsp_biofort_long %>%
+df_nsp_biofort_counts <- df_nsp_biofort_long |>
   pivot_longer(cols = all_of(micronutrients),
                names_to  = "micronutrient",
-               values_to = "has_trait") %>%
-  filter(has_trait == 1) %>%                       # keep only varieties with that micronutrient
-  group_by(Crop.Name, micronutrient, AEZ) %>%
+               values_to = "has_trait") |>
+  filter(has_trait == 1) |>                       # keep only varieties with that micronutrient
+  group_by(Crop.Name, micronutrient, AEZ) |>
   summarise(n_varieties = n(), .groups = "drop")
 
 df_nsp_biofort_counts |> 
@@ -549,8 +952,8 @@ df_nsp_biofort_counts |>
 
 
 # Join counts to spatial data
-vect_aez_geo_joined <- vect_aez_geo %>%
-  mutate(AEZ = as.character(AEZ)) %>%
+vect_aez_geo_joined <- vect_aez_geo |>
+  mutate(AEZ = as.character(AEZ)) |>
   left_join(df_nsp_biofort_counts, by = "AEZ", relationship = "many-to-many")
 
 vect_aez_geo_joined <- vect_aez_geo_joined |> 
@@ -558,24 +961,70 @@ vect_aez_geo_joined <- vect_aez_geo_joined |>
   filter(!is.na(Crop.Name))
 
 
+# # create a separate spatvector for the labels just for visualisation
+
+# rec_id    = column identifying a record (constant across all its polygons)
+# label_var = the number to display
+# facet_row / facet_col = your facet_grid variables
+grp <- c("AEZ", "n_varieties", "Crop.Name", "micronutrient")
+
+# 1. Merge all rows/polygons belonging to the same record within each facet
+vect_agg <- aggregate(vect_aez_geo_joined, by = grp)
+
+# 2. Split into contiguous parts and keep the largest per record per facet
+vect_parts <- disagg(vect_agg)
+vect_parts$area <- expanse(vect_parts)
+vect_parts <- vect_parts[order(vect_parts$area, decreasing = TRUE), ]
+vect_parts <- vect_parts[!duplicated(as.data.frame(vect_parts)[, c("AEZ", "Crop.Name", "micronutrient")]), ]
+
+# 3. One point per record, guaranteed inside its polygon
+vect_pts <- centroids(vect_parts, inside = TRUE)
+
+
+
 # Plot: one facet per Crop x Micronutrient combination
 ggplot(vect_aez_geo_joined) +
-  geom_spatvector(data = vect_aez_geo, fill = "lightgrey", color = "lightgrey", linewidth = 0.2) +
-  geom_spatvector(aes(fill = n_varieties), color = "lightgrey", linewidth = 0.2) +
-  scale_fill_viridis_c(option = "blues", na.value = "lightgrey",
-                       name = "# Varieties", direction = -1) +
+  geom_spatvector(
+    data = vect_aez_geo,
+    fill = "lightgrey",
+    color = "lightgrey",
+    linewidth = 0.2
+  ) +
+  geom_spatvector(
+    aes(fill = n_varieties),
+    color = "lightgrey",
+    linewidth = 0.2
+  ) +
+  scale_fill_viridis_c(
+    option = "blues",
+    na.value = "lightgrey",
+    name = "# Varieties",
+    direction = -1
+  ) +
+  geom_spatvector_text(
+    data = vect_pts,
+    aes(label = n_varieties),
+    color = "black",
+    size = 2
+  ) +
   facet_grid(Crop.Name ~ micronutrient, drop = TRUE) +
-  labs(title = "Number of biofortified varieties per AEZ",
-       caption = "Grey = no varieties for that crop/nutrient/AEZ combination") +
+  labs(
+    title = "Number of biofortified varieties per AEZ",
+    caption = "Grey = no varieties for that crop/nutrient/AEZ combination"
+  ) +
   theme_minimal() +
   theme(
-    axis.text    = element_blank(),
-    axis.ticks   = element_blank(),
-    panel.grid   = element_blank(),
-    strip.text   = element_text(face = "bold", size = 16),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    strip.text = element_text(face = "bold", size = 16),
     legend.position = "bottom",
     panel.spacing = unit(0.1, "lines"),
     plot.margin = margin(0, 0, 0, 0, "cm")
   )
 
 ```
+
+
+
