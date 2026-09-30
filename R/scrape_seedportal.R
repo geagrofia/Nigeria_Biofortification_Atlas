@@ -246,7 +246,7 @@ cat(sprintf("\n✅ Scraping done! %d varieties collected.\n\n", nrow(df)))
 write.csv(df, "seedportal_varieties_preprocessing.csv", row.names = FALSE)
 write_xlsx(df, "seedportal_varieties_preprocessing.xlsx")
 
-df <- read.csv("seedportal_varieties_preprocessing.csv")
+df <- read.csv("tab_data/seedportal_varieties_preprocessing.csv")
 
 
 cat("=== STEP 3: Post-processing ===\n")
@@ -257,12 +257,12 @@ flag <- function(x, pattern) {
 
 df <- df |>
   mutate(
-    oc = coalesce(`Outstanding Characteristics`, ""),
-    agro = coalesce(`Agroecological Zones`, ""),
+    oc = coalesce(Outstanding.Characteristics, ""),
+    agro = coalesce(Agroecological.Zones, ""),
 
     # ── Nutrient indicators (from Outstanding Characteristics) ──
     zinc = flag(oc, "zinc|\\bZn\\b"),
-    vit_A = flag(oc, "vitamin\\s*a|vit\\s*a|beta.?carotene"),
+    vit_A = flag(oc, "vitamin\\s*a|\\bvit\\s*a\\b|vit.\\s*a|carot"),
     iron = flag(oc, "\\biron\\b|\\bFe\\b"),
 
     # ── Agroecological zone indicators ──────────────────────────
@@ -314,10 +314,10 @@ cat("Post-processing complete.\n\n")
 print(
   df |>
     select(
-      `Crop Name`,
-      `Variety Name`,
-      `Summary Yield (t/ha)`,
-      `Potential Yield (t/ha)`,
+      Crop.Name,
+      Variety.Name,
+      Summary.Yield..t.ha.,
+      Potential.Yield..t.ha.,
       zinc,
       vit_A,
       iron,
