@@ -1,0 +1,75 @@
+{
+  "variety": "BRRI dhan32",
+  "parent_variety": "BR4363-3-8-1-2-4",
+  "variety_type": "Inbred",
+  "countries_origin": "Bangladesh",
+  "variety_description": "High yielding, late maturity, tall, medium bold variety suitable for cultivation under rainfed lowland conditions. Developed by BRRI and released in 1994 for planting in all over Bangladesh in Aman season. Tolerant to major leaf diseases and Tungro virus. Susceptible to lodging. Low protein content",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/BRRI_dhan32.jpg",
+  "ms_shortname": {},
+  "ms_longname": {},
+  "ms_othername": "-",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Not Recommended",
+  "rl": "Recommended",
+  "upland": "Not Recommended",
+  "ril": "",
+  "rrl": "BR25",
+  "rup": "",
+  "cil": "",
+  "crl": "BRRI dhan87",
+  "cup": "",
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Tungro<\/td><td>Tolerant to Tungro<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial leaf streak <\/td><td>Tolerant to major leaf diseases <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield <\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Late maturity        <\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Medium bold <\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Tolerant to major leaf diseases <\/td><\/tr>",
+  "considerations": "<tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Susceptible to lodging  <\/td><\/tr><tr><td>Grain Quality traits<\/td><td>High nutritive value (Fe, Zn, Protein)<\/td><td>Low protein<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Tall<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">BRRI dhan32<\/td><td>5000<\/td><td>10<\/td><td>145<\/td><td>120<\/td><td>Susceptible<\/td><td><\/td><td>20<\/td><td>-<\/td><td>-<\/td><td>26.3<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">BRRI dhan25<\/td><td>4500<\/td><td>-<\/td><td>135<\/td><td>135-140<\/td><td>Susceptible<\/td><td><\/td><td>22.1<\/td><td>-<\/td><td>-<\/td><td>25.9<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Tungro<\/th><th>Sheath blight<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">BRRI dhan32<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>-<\/td><td>-<\/td><\/tr><tr><td class=\"must-benchmark1-value\">BRRI dhan25<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>-<\/td><td>-<\/td><\/tr>",
+  "variety_kg": "2024",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Advance",
+  "remarks": "Released for cultivation in Aman season in all over Bangladesh                                                           Zonal check in BRRI yield trials",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 52
+  }
+}

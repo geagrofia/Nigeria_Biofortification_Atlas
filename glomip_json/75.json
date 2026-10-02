@@ -1,0 +1,75 @@
+{
+  "variety": "Gontra Bidhan-1",
+  "parent_variety": "Selection from Assam Rice Collection",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "An early maturity, semi-dwarf, medium-slender grain variety grown extensively in east India. Developed by UBKV and released in 2008. Sturdy stem, good grain quality. Suitable for low and medium lands in the irrigated and rainfed ecosystems. Recommended for planting in both wet and dry seasons.  This is a preferred variety with successive vegetable crops. It has the good grain and cooking quality.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog",
+  "ms_shortname": "Rice Indica SA MS00307",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Early",
+  "ms_othername": "TEM-I, TEM-R",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Recommended",
+  "upland": "Not Recommended",
+  "ril": "MTU 1010",
+  "rrl": "MTU 1010",
+  "rup": {},
+  "cil": "IR64, NDR359",
+  "crl": "IR64, NDR359",
+  "cup": {},
+  "key_strengths": "<tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Good cooking quality<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Tolerant<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Semi dwarf<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturity <\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Medium slender grain<\/td><\/tr>",
+  "considerations": "<tr><td>Biotic stress<\/td><td>Neck blast<\/td><td>Susceptible <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Average yield potential<\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Susceptible <\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Gontra Bidhan-1<\/td><td>4500-5000<\/td><td>10<\/td><td>115-118<\/td><td>95-100<\/td><td>Tolerant<\/td><td><\/td><td>23.2<\/td><td><\/td><td>59.8<\/td><td>24.1<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">MTU 1010<\/td><td>4000-4500<\/td><td><\/td><td>115-120<\/td><td>105-108<\/td><td>Tolerant<\/td><td><\/td><td>24.3<\/td><td><\/td><td>57<\/td><td>22.6<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Gontra Bidhan-1<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">MTU 1010<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "1800-2000",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Punjab, West Bengal.                                                                                                                                   National check for Irrigated mid-early varietal trials conducted by IIRR, India.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 75
+  }
+}

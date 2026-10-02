@@ -1,0 +1,75 @@
+{
+  "variety": "Binadhan-10",
+  "parent_variety": "IR64197-3B-14-2*",
+  "variety_type": "Inbred",
+  "countries_origin": "Bangladesh",
+  "variety_description": "Exceedingly high yielding, medium maturity, medium tall, medium long slender variety suitable for transplanted under irrigated lowland conditions in Boro season. Developed by BINA and released in 2012 for planting in saline prone areas. Sturdy stem with erect plant type. Lodging and shattering tolerant. Moderately tolerant to major diseases and insect pests.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Binadhan-101.jpg",
+  "ms_shortname": "Rice Indica SA MS00307",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Early",
+  "ms_othername": "TEM-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Binadhan-8",
+  "rrl": {},
+  "rup": {},
+  "cil": "BRRI dhan47",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Medium long slender <\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity       <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Medium tall  <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Abiotic stress<\/td><td>Salinity (Reproductive)<\/td><td>Salt tolerant up to 12 ds/m of salinity <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Lodging and shattering tolerant <\/td><\/tr>",
+  "considerations": "<tr><td colspan=\"3\">No Considerations data.<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Binadhan-10<\/td><td>7500<\/td><td>6.6<\/td><td>125-130<\/td><td>105<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>24.5<\/td><td>-<\/td><td>-<\/td><td>26<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Binadhan-8<\/td><td>7000<\/td><td><\/td><td>135<\/td><td>95-100<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>26.7<\/td><td>-<\/td><td>-<\/td><td>25<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Stemborer<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Binadhan-10<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>-<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Binadhan-8<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>-<\/td><\/tr>",
+  "variety_kg": "3000",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Applicable",
+  "remarks": "Released for cultivation in saline prone areas in Boro season in Bangladesh Zonal check in BRRI yield trials. Good for planting in Aman season as well.\r\n\r\nSource: http://www.bina.gov.bd",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 64
+  }
+}

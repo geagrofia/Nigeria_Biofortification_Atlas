@@ -1,0 +1,75 @@
+{
+  "variety": "Pusa Basmati-1509",
+  "parent_variety": "Pusa 1301 x Pusa 1121",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Early maturity, semi-dwarf, extra long slender, high yielding, aromatic and widely adaptable variety grown in India under irrigated lowland conditions. Developed by IARI and released in 2013 for cultivation in the Basmati grown belt of North India. First early maturing Basmati rice around 25 days earlier than popular variety Pusa Basmati-1. Tolerant to lodging and grain shattering at maturity. Excellent grain and eating quality. Premum quality rice for export. Susceptible to major diseases.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/pb1509.PNG",
+  "ms_shortname": "Rice Indica SA MS00307",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Early",
+  "ms_othername": "TEL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Pusa Basmati-1121",
+  "rrl": {},
+  "rup": {},
+  "cil": "Pusa Basmati-1401",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Excellent cooking & eating quality<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Chalkiness<\/td><td>Less chalkiness<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Aroma<\/td><td>Aromatic<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Premium export quality grain <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturity (shortest duration basmati) <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Early and uniform emergence (aerobic)<\/td><td>Sturdy stem; Non-lodging<\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Extra long grain<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Non-shattering<\/td><\/tr>",
+  "considerations": "<tr><td>Other key traits<\/td><td>Other<\/td><td>Organic practices recommended (for export)<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Sensitive to high temperature<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Amylose content<\/td><td>Moderate HRR; Manual dehulling prefered<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Susecptible to leaf blast, leaf blight, Bakanae<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Pusa Basmati-1509<\/td><td>5000-5500<\/td><td>10<\/td><td>115-120<\/td><td>95-100<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>27.7<\/td><td>-<\/td><td>56.4<\/td><td>21.2<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Pusa Basmati-1121<\/td><td>4500-5000<\/td><td>-<\/td><td>140-145<\/td><td>110-120<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>27.0<\/td><td>-<\/td><td>54.5<\/td><td>21.5<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath Blight<\/th><th>Bakanae<\/th><th>High Temperature<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Pusa Basmati-1509<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>-<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Pusa Basmati-1121<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>-<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "1800-2000",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Punjab, Haryana, Delhi, Uttar Pradesh, Uttarakhand, Jammu &amp;amp; Kashmir.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 55
+  }
+}

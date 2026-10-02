@@ -1,0 +1,75 @@
+{
+  "variety": "PUSA 44",
+  "parent_variety": "IARI-5901-2 x IR-8*)",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A medium maturity, medium tall, good yielding variety. Developed by IARI, New Delhi and released in 1994 for irrigated areas of Karnataka and Kerala. It has a long slender non-aromatic grain. Non-lodging and non-shattering.  Exhibits good tolerance to major diseases.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Pusa_44.jpg",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Kavya",
+  "rrl": {},
+  "rup": {},
+  "cil": "PR 126",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Medium Height<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long slender<\/td><\/tr>",
+  "considerations": "<tr><td colspan=\"3\">No Considerations data.<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">PUSA 44<\/td><td>5000-5500<\/td><td>11<\/td><td>120-125<\/td><td>95-110<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>24.2<\/td><td><\/td><td>66<\/td><td>22.8<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Kavya<\/td><td>4500-5000<\/td><td><\/td><td>130-135<\/td><td>90-95<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>23.9<\/td><td><\/td><td>59<\/td><td>25<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Brown Spot<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">PUSA 44<\/td><td>Resistant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Kavya<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2200",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Suitbale for cultivation in irrigated belt of Karnataka and Kerala.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 89
+  }
+}

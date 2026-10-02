@@ -1,0 +1,75 @@
+{
+  "variety": "DRR Dhan 42 (IR-64 DRT-1)",
+  "parent_variety": "IR 77298-14-1-2-10* x IR 77298-5-6-11*",
+  "variety_type": "",
+  "countries_origin": "Philippines",
+  "variety_description": "Early maturity, medium height, long slender, high yielding and widely adaptable variety grown in India under irrigated lowland and upland conditions. Drought tolerant variety with good adaptability in water scarce conditions. Yield advantage of around 1.0 mt/ha over other varieties of similar maturity under drought stress conditions. Developed by IIRR &amp;amp; IRRI and released in 2016 for cultivation in the Southern and Central India. Tolerant to lodging and grain shattering. Excellent grain and eating quality.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/DRR_dhan422.png",
+  "ms_shortname": {},
+  "ms_longname": {},
+  "ms_othername": "-",
+  "ptr": "Recommended",
+  "dsr": "Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Recommended",
+  "ril": "Sahbhagi Dhan",
+  "rrl": "None",
+  "rup": "IR64",
+  "cil": "CR Dhan 500",
+  "crl": "None",
+  "cup": "DRR dhan 44",
+  "key_strengths": "<tr><td>Hybrid traits<\/td><td>Other<\/td><td>High yield, drought tolerant, Long slender grain, Early maturity; Non-lodging; non-shattering, Excellent eating quality, Resistant to leaf blast<\/td><\/tr>",
+  "considerations": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Sensitive to low temperature, Susceptible to Sheath blight, Moderate HRR<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">DRR Dhan 42 (IR-64 DRT-1)<\/td><td>5500-6000<\/td><td>33<\/td><td>115-120<\/td><td>100-105<\/td><td>Tolerant<\/td><td><\/td><td>26.4<\/td><td><\/td><td>56.4<\/td><td>24.1<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Sahbhagi Dhan<\/td><td>3800-4500<\/td><td><\/td><td>100<\/td><td>85-90<\/td><td>Tolerant<\/td><td><\/td><td>22.3<\/td><td><\/td><td>64.7<\/td><td>24.7<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Brown spot<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">DRR Dhan 42 (IR-64 DRT-1)<\/td><td>Resistant<\/td><td>Tolerant<\/td><td><\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Sahbhagi Dhan<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr>",
+  "variety_kg": "2200-2400",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Released for cultivation in Telangana, Tamilnadu, Andhra Pradesh, Madhya Pradesh, Chhattisgarh, Jharkhand",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 96
+  }
+}

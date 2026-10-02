@@ -1,0 +1,75 @@
+{
+  "variety": "NSIC Rc 334",
+  "parent_variety": "PSB Rc88/IR64680-81-2-2-1-3",
+  "variety_type": "Inbred",
+  "countries_origin": "Philippines",
+  "variety_description": "-",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog",
+  "ms_shortname": {},
+  "ms_longname": {},
+  "ms_othername": "-",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Not Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": {},
+  "rrl": {},
+  "rup": {},
+  "cil": {},
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Grain Quality traits<\/td><td>Other<\/td><td>Good grain and eating quality<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturing<\/td><\/tr><tr><td>Biotic stress<\/td><td>Green leafhopper<\/td><td>-<\/td><\/tr><tr><td>Biotic stress<\/td><td>Brown planthopper<\/td><td>Moderate Brown planthopper<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Leaf blight<\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Moderate Leaf blast<\/td><\/tr><tr><td>Abiotic stress<\/td><td>Salinity<\/td><td>Moderate Salinity<\/td><\/tr><tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Soft<\/td><\/tr>",
+  "considerations": "<tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>-<\/td><\/tr><tr><td>Biotic stress<\/td><td>Tungro<\/td><td>-<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">NSIC Rc 334<\/td><td>2500 - 4700<\/td><td><\/td><td>Early (114-116 days)<\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\"><\/td><td>1700<\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">NSIC Rc 334<\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\"><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": {},
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": {},
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 158
+  }
+}

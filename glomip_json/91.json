@@ -1,0 +1,75 @@
+{
+  "variety": "NDR 97",
+  "parent_variety": "Nagina 22 x Ratna",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "NDUAT, Faizabad, developed this variety in 1992 and recommended for UP, Odisha, and West Bengal. Early in maturity, dwarf with long slender grain, is ideal for direct-seeded rice in rainfed and upland growing environments. Low yield with low HRR. Because of its suitability in water deficit areas, this variety is quite popular in large tracts of UP and Madhya Pradesh. Tolerant to major diseases and insect pests",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/NDR_97.png",
+  "ms_shortname": "Rice Indica SA MS00303",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Upland | Direct Seeded | Early",
+  "ms_othername": "DEL-U, DEL-R",
+  "ptr": "Not Recommended",
+  "dsr": "Recommended",
+  "il": "Not Recommended",
+  "rl": "Recommended",
+  "upland": "Recommended",
+  "ril": {},
+  "rrl": "Narendra dhan 118",
+  "rup": "Narendra dhan 118",
+  "cil": {},
+  "crl": "NDR 359",
+  "cup": "NDR 359",
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and pests<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturity <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Dwarf<\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long slender grain<\/td><\/tr>",
+  "considerations": "<tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Moderate HRR<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Average yield potential<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">NDR 97<\/td><td>2500-3500<\/td><td><\/td><td>90-95<\/td><td>75-80<\/td><td>Tolerant<\/td><td><\/td><td>21.3<\/td><td><\/td><td>48.2<\/td><td>24.6<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Narendra dhan 118<\/td><td>3000-3500<\/td><td><\/td><td>85-90<\/td><td>85<\/td><td>Tolerant<\/td><td><\/td><td>22<\/td><td><\/td><td>48<\/td><td>25<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Brown Spot<\/th><th>Stem borer<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">NDR 97<\/td><td>Resistant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Narendra dhan 118<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr>",
+  "variety_kg": "1200",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Recommended for UP, Punjab, Haryana and Madhya Pradesh\r\n Check in zone III &amp;amp; IV (E, NE) for Initial varietal trials conducted by IIII, India",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 91
+  }
+}

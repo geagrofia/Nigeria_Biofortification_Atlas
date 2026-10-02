@@ -1,0 +1,301 @@
+"catalog_id","status","variety"
+1,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+2,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+3,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+4,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+5,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+6,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+7,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+8,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+9,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+10,"success","DRR dhan 45"
+11,"success","Ranjit Sub-1"
+12,"success","BRRI dhan92"
+13,"success","BRRI dhan47"
+14,"success","BRRI dhan46"
+15,"success","Pusa Basmati-1718"
+16,"success","DRR Dhan 42 (IR-64 DRT-1)"
+17,"success","DRR Dhan 42 (IR-64 DRT-1)"
+18,"success","BRRI dhan87"
+19,"success","BRRI dhan51"
+20,"success","BRRI dhan84"
+21,"success","BRRI dhan50"
+22,"success","BRRI dhan81"
+23,"success","BRRI dhan80"
+24,"success","BRRI dhan88"
+25,"success","BRRI dhan49"
+26,"success","BRRI dhan77 "
+27,"success","BRRI dhan48"
+28,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+29,"success","DRR Dhan 42 (IR-64 DRT-1)"
+30,"success","BRRI dhan75"
+31,"success","Pusa Basmati 1637"
+32,"success","BRRI dhan74"
+33,"success","BRRI dhan72 "
+34,"success","Tarangini (MTU-1156)"
+35,"success","BRRI dhan71"
+36,"success","BRRI dhan39"
+37,"success","BRRI dhan67"
+38,"success","Kunaram Sannalu"
+39,"success","PR 126"
+40,"success","Bathukamma (JGL 18047)"
+41,"success","PR 124"
+42,"success","CO 51"
+43,"success","DRR dhan 44"
+44,"success","DRR dhan 44"
+45,"success","DRR dhan 44"
+46,"success","Telangana Sona"
+47,"success","BRRI dhan34"
+48,"success","Sabour Shree"
+49,"success","BRRI dhan63"
+50,"success","BRRI dhan58"
+51,"success","BRRI dhan52"
+52,"success","BRRI dhan32"
+53,"success","Binadhan-11"
+54,"success","Shobini"
+55,"success","Pusa Basmati-1509"
+56,"success","PR 121"
+57,"success","IGKVR-1244 (Maheshwari)"
+58,"success","CR dhan500"
+59,"success","Rajendra Bhagvati"
+60,"success","IGKVR-1"
+61,"success","IGKVR-2 (Durgashewari)"
+62,"success","Swarna sub 1"
+63,"success","Binadhan-7"
+64,"success","Binadhan-10"
+65,"success","Karjat 7"
+66,"success","Binadhan-17"
+67,"success","Binadhan-19"
+68,"success","BR11"
+69,"success","BR26"
+70,"success","BRRI dhan28"
+71,"success","BRRI dhan29"
+72,"success","BRRI dhan30"
+73,"success","Sahbhagi dhan"
+74,"success","Binadhan-8"
+75,"success","Gontra Bidhan-1"
+76,"success","DRR dhan 37 (Sampada)"
+77,"success","Pushyami (MTU 1075)"
+78,"success","Rajendra Mahshuri-1"
+79,"success","Samaleshwari"
+80,"success","Pusa Sugandh-5"
+81,"success","CSR 36"
+82,"success","Vandana"
+83,"success","Cottondora Sannalu (MTU-1010)"
+84,"success","Satabdi"
+85,"success","Pooja"
+86,"success","PR 113"
+87,"success","Vijetha (MTU 1001)"
+88,"success","Mahamaya"
+89,"success","PUSA 44"
+90,"success","NDR 359"
+91,"success","NDR 97"
+92,"success","IR-64"
+93,"success","Samba Mahsuri (BPT-5204)"
+94,"success","Swarana (MTU-7029)"
+95,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+96,"success","DRR Dhan 42 (IR-64 DRT-1)"
+97,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+98,"success","PSB Rc 18"
+99,"success","PSB Rc 82"
+100,"success","NSIC Rc 122"
+101,"success","NSIC Rc 152"
+102,"success","NSIC Rc 158"
+103,"success","NSIC Rc 160"
+104,"success","NSIC Rc 212"
+105,"success","NSIC Rc 214"
+106,"success","NSIC Rc 216"
+107,"success","NSIC Rc 222"
+108,"success","NSIC Rc 224"
+109,"success","NSIC Rc 226"
+110,"success","NSIC Rc 238"
+111,"success","NSIC Rc 298"
+112,"success","NSIC Rc 300"
+113,"success","NSIC Rc 302"
+114,"success","NSIC Rc 308"
+115,"success","NSIC Rc 352"
+116,"success","NSIC Rc 354"
+117,"success","NSIC Rc 356"
+118,"success","NSIC Rc 358"
+119,"success","NSIC Rc 360"
+120,"success","NSIC Rc 394"
+121,"success","NSIC Rc 396"
+122,"success","NSIC Rc 398"
+123,"success","NSIC Rc 402"
+124,"success","NSIC Rc 436"
+125,"success","NSIC Rc 438"
+126,"success","NSIC Rc 440"
+127,"success","NSIC Rc 442"
+128,"success","NSIC Rc 506"
+129,"success","NSIC Rc 508"
+130,"success","NSIC Rc 512"
+131,"success","NSIC Rc 514"
+132,"success","NSIC Rc 128SR"
+133,"success","NSIC Rc 218SR"
+134,"success","NSIC Rc 342SR"
+135,"success","NSIC Rc 344SR"
+136,"success","NSIC Rc 242SR"
+137,"success","NSIC Rc 460"
+138,"success","NSIC Rc 194"
+139,"success","PSB Rc 68"
+140,"success","NSIC Rc 282"
+141,"success","NSIC Rc 284"
+142,"success","NSIC Rc 286"
+143,"success","NSIC Rc 346"
+144,"success","NSIC Rc 348"
+145,"success","NSIC Rc 418"
+146,"success","NSIC Rc 420"
+147,"success","NSIC Rc 422"
+148,"success","NSIC Rc 424"
+149,"success","NSIC Rc 430"
+150,"success","NSIC Rc 476"
+151,"success","NSIC Rc 478"
+152,"success","NSIC Rc 480"
+153,"success","NSIC Rc 27"
+154,"success","NSIC Rc 29"
+155,"success","NSIC Rc 294"
+156,"success","NSIC Rc 328"
+157,"success","NSIC Rc 330"
+158,"success","NSIC Rc 334"
+159,"success","NSIC Rc 338"
+160,"success","NSIC Rc 390"
+161,"success","NSIC Rc 392"
+162,"success","NSIC Rc 464"
+163,"success","NSIC Rc 532"
+164,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+165,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+166,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+167,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+168,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+169,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+170,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+171,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+172,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+173,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+174,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+175,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+176,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+177,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+178,"success","PSB Rc 10"
+179,"success","NSIC Rc 400"
+180,"success","NSIC Rc 13"
+181,"success","NSIC Rc 15"
+182,"success","NSIC Rc 17"
+183,"success","NSIC Rc 21SR"
+184,"success","NSIC Rc 31SR"
+185,"success","NSIC Rc 192"
+186,"success","NSIC Rc 288"
+187,"success","NSIC Rc 416"
+188,"success","NSIC Rc 11"
+189,"success","NSIC Rc 23"
+190,"success","NSIC Rc 25"
+191,"success","NSIC Rc 27"
+192,"success","NSIC Rc 29"
+193,"success","NSIC Rc 296"
+194,"success","NSIC Rc 528"
+195,"success","NSIC Rc 534"
+196,"success","PSB Rc 10"
+197,"success","NSIC Rc 130"
+198,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+199,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+200,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+201,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+202,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+203,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+204,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+205,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+206,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+207,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+208,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+209,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+210,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+211,"success","FACAGRO904"
+212,"success","[Test] FACAGRO904"
+213,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+214,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+215,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+216,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+217,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+218,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+219,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+220,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+221,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+222,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+223,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+224,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+225,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+226,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+227,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+228,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+229,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+230,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+231,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+232,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+233,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+234,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+235,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+236,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+237,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+238,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+239,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+240,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+241,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+242,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+243,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+244,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+245,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+246,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+247,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+248,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+249,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+250,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+251,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+252,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+253,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+254,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+255,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+256,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+257,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+258,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+259,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+260,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+261,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+262,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+263,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+264,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+265,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+266,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+267,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+268,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+269,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+270,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+271,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+272,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+273,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+274,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+275,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+276,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+277,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+278,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+279,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+280,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+281,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+282,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+283,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+284,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+285,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+286,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+287,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+288,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+289,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+290,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+291,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+292,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+293,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+294,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+295,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+296,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+297,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+298,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+299,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA
+300,"failed: [38;5;246mHTTP 500 Internal Server Error.[39m",NA

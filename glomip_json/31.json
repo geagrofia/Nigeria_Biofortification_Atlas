@@ -1,0 +1,75 @@
+{
+  "variety": "Pusa Basmati 1637",
+  "parent_variety": "Pusa Basmati 1/ IRBL 9-W //Pusa Basmati 1*3",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high yielding, medium maturity, semi-dwarf, extra long slender grain variety grown extensively in northern India. Developed by IARI, New Delhi and released in 2016. Near isogenic line of Pusa Basmati 1 derived by marker assisted breeding. Resistant to leaf blast. Erect plant type, sturdy stem. Aromatic (Basmati) variety with superior grain quality.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Pusa_basmati_1637.PNG",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Pusa Basmati 1",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "Pusa Basmati 1509",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Other key traits<\/td><td>Other<\/td><td>Semi-dwarf<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Extra long slender grain <\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Chalkiness<\/td><td>less chalkiness<\/td><\/tr><tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Good cooking quality<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Aroma<\/td><td>Strong aroma<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Good yield<\/td><\/tr><tr><td>Biotic stress<\/td><td>Gall Midge (% infected tillers)<\/td><td>Tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Stem borer (Dead heart % 10 days after flowering)<\/td><td>Tolerant<\/td><\/tr>",
+  "considerations": "<tr><td>Other key traits<\/td><td>Other<\/td><td>Sensitive to high temperature<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Moderate HRR<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Pusa Basmati 1637<\/td><td>4500-5000<\/td><td>-<\/td><td>120-135<\/td><td>90-100<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>23.2<\/td><td>-<\/td><td>54.5<\/td><td>22.8<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Pusa Basmati-1<\/td><td>4500-5000<\/td><td>-<\/td><td>125-135<\/td><td>85-95<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>25.6<\/td><td>-<\/td><td>49.1<\/td><td>22.0<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath Blight<\/th><th>Galll Midge<\/th><th>Stem Borer<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Pusa Basmati 1637<\/td><td>Resistant<\/td><td>Tolerant<\/td><td><\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Susceptible<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Pusa Basmati-1<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "1800-2000",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Delhi, Punjab, Haryana, Uttar Pradesh, Uttarakhand.                                                                                                                                     National check for Basmati varietal trials conducted by IIRR, India",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 31
+  }
+}

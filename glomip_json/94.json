@@ -1,0 +1,75 @@
+{
+  "variety": "Swarana (MTU-7029)",
+  "parent_variety": "Vasista x Mahsuri",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high yielding, late maturity, short-bold, semi-dwarf, widely adaptable variety extensively grown in India under Irrigated lowland conditions. Developed by ANGRAU (Maruteru) and released in 1980 for planting in the states of Southern and Eastern India. Low nitrogen responsive with tolerance to low soil phosphorus level. Excellent grain and eating quality with low glycemic index. High HRR. Resistant to leaf blight. Susceptible to leaf blast, sheath blight, BPH &amp; gall midge.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/swarna-masuri-paddy-rice-500x500.jpg",
+  "ms_shortname": "Rice Indica SA MS00309",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Small Firm | White | Lowlands | Transplanted; Irrigated | Late",
+  "ms_othername": "TLaS-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Anamika",
+  "rrl": {},
+  "rup": {},
+  "cil": "Savitri",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Semi dwarf<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Good cooking quality<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Resistant to leaf blight<\/td><\/tr>",
+  "considerations": "<tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Susceptible <\/td><\/tr><tr><td>Abiotic stress<\/td><td>Submergence<\/td><td>Susceptible <\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Other<\/td><td>Low grain weight<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Susceptible <\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Susceptible <\/td><\/tr><tr><td>Biotic stress<\/td><td>Brown Plant Hopper  (vegetative to maturity stage)<\/td><td>Susceptible <\/td><\/tr><tr><td>Biotic stress<\/td><td>Gall Midge (% infected tillers)<\/td><td>Susceptible <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Poor panicle initiation in late planting<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Swarana (MTU-7029)<\/td><td>5500-6000<\/td><td>33<\/td><td>135-140<\/td><td>85-90<\/td><td>Susceptible<\/td><td><\/td><td>15.9<\/td><td><\/td><td>69<\/td><td>26.1<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Anamika<\/td><td>4500-5000<\/td><td><\/td><td>145-150<\/td><td>100-110<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><td><\/td><td>23<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Gall Midge<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Swarana (MTU-7029)<\/td><td>Susceptible<\/td><td>Resistant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Suscepetible<\/td><td><\/td><td>Susceptible<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Anamika<\/td><td>Susceptible<\/td><td>Resistant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td><\/td><td>Susceptible<\/td><td><\/td><\/tr>",
+  "variety_kg": "2200-2400",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Andhra Pradesh, Telangana, Karnataka, Odisha &amp;amp; west Bengal \r\nNational check in advance varietal trial (late) conducted by IIRR, India.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 94
+  }
+}

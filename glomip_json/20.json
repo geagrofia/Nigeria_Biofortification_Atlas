@@ -1,0 +1,75 @@
+{
+  "variety": "BRRI dhan84",
+  "parent_variety": "(BR 29/IR68144*/BRRI dhan28///BR11)",
+  "variety_type": "Inbred",
+  "countries_origin": "Bangladesh",
+  "variety_description": "A high yielding, medium maturity, medium height, long slender variety suitable for cultivation across country under irrigated lowland growing conditions. Developed by BRRI and released in 2017 for planting in Boro season having higher yield and zinc content than commonly grown variety BRRI dhan28. Moderately tolerant to leaf blight. Cold sensitive. Derived from a breeding cross involving IRRI line IR68144.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/84.jpg",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "BRRI dhan28",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "BRRI dhan74",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Amylose content<\/td><td>Acceptable Amylose content <\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long sender<\/td><\/tr><tr><td>Cooking quality<\/td><td>Other<\/td><td>Good taste   <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Medium height<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>High nutritive value (Fe, Zn, Protein)<\/td><td>High Protein and Zinc content<\/td><\/tr>",
+  "considerations": "<tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Low HRR %<\/td><\/tr><tr><td>Abiotic stress<\/td><td>Cold (reproductive)<\/td><td>Cold sensitive at reproductive stage<\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Susceptible to leaf blast <\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">BRRI dhan84<\/td><td>6500<\/td><td>8<\/td><td>140-145<\/td><td>96<\/td><td>Susceptible<\/td><td><\/td><td>22.8<\/td><td><\/td><td>53.0<\/td><td>25.9<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">BRRI dhan28<\/td><td>6000<\/td><td><\/td><td>140-145<\/td><td>90-95<\/td><td>Tolerant<\/td><td><\/td><td>21.1<\/td><td><\/td><td>62.1<\/td><td>28.0<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Protein %<\/th><th>Cold<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">BRRI dhan84<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>9.7<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><\/tr><tr><td class=\"must-benchmark1-value\">BRRI dhan28<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>8.6<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "2600",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Released for cultivation in Boro season in all over Bangladesh                                                       National check in BRRI yield trials",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 20
+  }
+}

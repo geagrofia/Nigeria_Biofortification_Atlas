@@ -1,0 +1,75 @@
+{
+  "variety": "Vandana",
+  "parent_variety": "C22 x Kalakeri",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "An early maturity, medium height variety, developed by CRURRS, Hazaribagh in 2002 and recommended for direct seeding under upland and rainfed conditions. It has long bold grain and average grain yield. Suitable for drought prone and acidic soil areas, especially in Odisha, Jharkhand and Bihar. Tolerant to major diseases, lodging and shattering.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Vandana.jpg",
+  "ms_shortname": "Rice Indica SA MS00303",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Upland | Direct Seeded | Early",
+  "ms_othername": "DEL-U, DEL-R",
+  "ptr": "Not Recommended",
+  "dsr": "Recommended",
+  "il": "Not Recommended",
+  "rl": "Recommended",
+  "upland": "Recommended",
+  "ril": "Kalinga III",
+  "rrl": {},
+  "rup": {},
+  "cil": "Khandagiri, Parijat",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long bold grain<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Maturity<\/td><td>Other<\/td><td>Extra early maturity <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging<\/td><\/tr><tr><td>Abiotic stress<\/td><td>Drought (reproductive)<\/td><td>Drought tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and pests<\/td><\/tr>",
+  "considerations": "<tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Low yield<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Vandana<\/td><td>3500<\/td><td>17<\/td><td>90-95<\/td><td>95-100<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>24<\/td><td><\/td><td>60<\/td><td>25<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Kalinga III<\/td><td>3000<\/td><td><\/td><td>80<\/td><td>100<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>58<\/td><td>25<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Brown Spot<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Vandana<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Kalinga III<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "1400",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": {},
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 82
+  }
+}

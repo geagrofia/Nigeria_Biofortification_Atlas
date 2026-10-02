@@ -1,0 +1,75 @@
+{
+  "variety": "NDR 359",
+  "parent_variety": "BG90-2-4 x 08677",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Medium duration, medium height variety developed at NDUAT, Faizabad in 1994 and released for cultivation in irrigated lowland of Uttar Pradesh, Bihar, and Odisha. Long bold heavy grains. High amylose content makes it excellent in cooking quality. Tolerant to lodging. Resistant to leaf blast and leaf blight.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/ndr_39.jpg",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "IR-64",
+  "rrl": {},
+  "rup": {},
+  "cil": "Sarju 52",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Resistant to leaf blast<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Amylose content<\/td><td>High amylose content<\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long bold grain<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Medium Height<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Tolerant to leaf blight<\/td><\/tr>",
+  "considerations": "<tr><td colspan=\"3\">No Considerations data.<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">NDR 359<\/td><td>5000<\/td><td>16<\/td><td>125-135<\/td><td>100-110<\/td><td>Tolerant<\/td><td><\/td><td>26<\/td><td><\/td><td>67.5<\/td><td>27<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">IR-64<\/td><td>4000-4300<\/td><td><\/td><td>115-120<\/td><td>100-105<\/td><td>Tolerant<\/td><td><\/td><td>23.1<\/td><td><\/td><td>67.2<\/td><td>24.5<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">NDR 359<\/td><td>Resistant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">IR-64<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr>",
+  "variety_kg": "2200",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Recommended for irrigated medium ecologies of UP, Bihar and Odisha.\r\nNational check in irrigated medium varietal trials conducted by IIRR, India.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 90
+  }
+}

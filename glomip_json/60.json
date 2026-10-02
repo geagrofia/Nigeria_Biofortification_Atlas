@@ -1,0 +1,75 @@
+{
+  "variety": "IGKVR-1",
+  "parent_variety": "R320-300 x Cheptignemati",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Released by IGKVV, Raipur in 2010 for the irrigated areas of Chattisgarh, Madhya Pradesh and Odisha. Medium maturity, semi-dwarf variety with long bold grain. Tolerant to gall midge biotypes 1 and 6 and leaf blast which are major concerns in these rice growing environments. Rainfed areas of medium to heavy soils of Chhattisgarh are also suitable for this variety. Widely used for making good quality “poha” and puffed rice.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/igkvr1.PNG",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Mahamaya",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "IR 64",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and insect pests<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>non-shattering<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging <\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Long bold heavy grain<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Semi-dwarf<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Good yield<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Preferred for making beaten and puffed rice<\/td><\/tr>",
+  "considerations": "<tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Low HRR<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">IGKVR-1<\/td><td>5500<\/td><td>-<\/td><td>120-125<\/td><td>90-95<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>28.0<\/td><td>-<\/td><td>45.0<\/td><td>24.6<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Mahamaya<\/td><td>4500-5500<\/td><td>-<\/td><td>125-130<\/td><td>85-95<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>26.9<\/td><td>-<\/td><td>64.4<\/td><td>24.8<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Brown Spot<\/th><th>Stem Borer<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">IGKVR-1<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Mahamaya<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr>",
+  "variety_kg": "2200",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Not Data",
+  "remarks": "Irrigated areas of Chattisgarh, MP and Odisha. \r\nExcellent for making puffed and beaten rice",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 60
+  }
+}

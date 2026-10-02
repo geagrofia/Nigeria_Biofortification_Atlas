@@ -1,0 +1,75 @@
+{
+  "variety": "DRR dhan 37 (Sampada)",
+  "parent_variety": "Vijaya x C 14-8",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high-yielding, medium-duration, semi-dwarf, short slender grain variety, grown extensively in central, west, and southern India. Developed by ICAR-IIRR and released in 2008. Highly adapted to irrigated lowlands. Good grain quality. Due to low glycemic index (51%) popularly known as ‘Tiffen Rice’ and targeted for type-2 diabetic patients. High HRR. Tolerant to major diseases and insect pests.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Sampada1.png",
+  "ms_shortname": "Rice Indica SA MS00587",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Mid",
+  "ms_othername": "TMeS-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Swarna Mashuri",
+  "rrl": {},
+  "rup": {},
+  "cil": "Pratikshya, MTU-1075",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Preferred for rice based meals<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and pests<\/td><\/tr>",
+  "considerations": "<tr><td>Grain Quality traits<\/td><td>Other<\/td><td>Low grain weight<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">DRR dhan 37 (Sampada)<\/td><td>5500-6500<\/td><td>0<\/td><td>135-140<\/td><td>90-100<\/td><td>Tolerant<\/td><td><\/td><td>15.4<\/td><td><\/td><td>70.1<\/td><td>23<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Swarna Mashuri<\/td><td>5500-6500<\/td><td><\/td><td>135-140<\/td><td>80-90<\/td><td>Tolerant<\/td><td><\/td><td>22.6<\/td><td><\/td><td>65.2<\/td><td>22.5<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Tungro<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">DRR dhan 37 (Sampada)<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Swarna Mashuri<\/td><td>Resistant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2000-2400",
+  "variety_nick": "Sampada",
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Bihar, Chhattisgarh, Maharashtra, Tamil Nadu, Kerala.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 76
+  }
+}

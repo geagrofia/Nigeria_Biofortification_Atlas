@@ -1,0 +1,75 @@
+{
+  "variety": "Rajendra Mahshuri-1",
+  "parent_variety": "BR 51-46 x Mahasuri",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high-yielding, late maturity, medium height, medium slender grain variety, grown extensively in eastern India. With profuse tillering, the plant grows up to  30 cm water depth. Developed by Rajendra Agricultural University, Bihar, and released in 2007. Sturdy stem, good grain quality. Suitable for irrigated shallow medium and low lands ecosystem. Cultivated mainly in the wet season.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Rajendra_Mahsuri.png",
+  "ms_shortname": "Rice Indica SA MS00305",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Firm | White | Lowlands | Transplanted; Irrigated | Late",
+  "ms_othername": "TLaM-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Samba Mahsuri",
+  "rrl": {},
+  "rup": {},
+  "cil": "Nata Mahsuri",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Brown Plant Hopper  (vegetative to maturity stage)<\/td><td>Tolerant<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Medium Height<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Late maturity<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf folder (% affected plants)<\/td><td>Tolerant<\/td><\/tr>",
+  "considerations": "<tr><td>Abiotic stress<\/td><td>Submergence<\/td><td>Susceptible <\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Susceptible <\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Rajendra Mahshuri-1<\/td><td>5500-6000<\/td><td>0<\/td><td>140-150<\/td><td>100-110<\/td><td>Tolerant<\/td><td><\/td><td>23.2<\/td><td><\/td><td>60<\/td><td>24.1<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Samba Mahsuri<\/td><td>5500-6500<\/td><td><\/td><td>135-140<\/td><td>80-90<\/td><td>Tolerant<\/td><td><\/td><td>22.6<\/td><td><\/td><td>65.2<\/td><td>22.5<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Leaf folder<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Rajendra Mahshuri-1<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Samba Mahsuri<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "2200-2400",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Released for cultivation in Bihar, Odisha, and Andhra Pradesh under shallow / low land ecosystem.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 78
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "variety": "Bathukamma (JGL 18047)",
+  "parent_variety": "MTU-1010 x JGL 13595",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Developed in 2016 by PJTSAU, Hyderabad as a medium maturity, medium height, long slender variety for irrigated lowlands of Andhra Pradesh, Telangana, Karnataka and other eastern states. Similar to MTU 1010 in grain type and maturity duration. Potential replacement of MTU-1010 in many rice growing areas. Resistant to major diseases and insect pests.  Cold tolerant. Good cooking quality grain.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/bathu.PNG",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "MTU-1010",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "MTU-1153, MTU-1156",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Resistant to major diseases and pests<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Long slender grain<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Cold tolerant<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Low shattering than MTU-1010<\/td><\/tr>",
+  "considerations": "<tr><td>Agronomic traits<\/td><td>Other<\/td><td>Three-week dormancy<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Bathukamma (JGL 18047)<\/td><td>6000-7000<\/td><td>55<\/td><td>120-125<\/td><td>95-100<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>23.2<\/td><td>-<\/td><td>59.0<\/td><td>22.5<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">MTU-1010<\/td><td>4000-4500<\/td><td><\/td><td>115-120<\/td><td>105-108<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>24.3<\/td><td>-<\/td><td>57.0<\/td><td>22.6<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Gall Midge<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Bathukamma (JGL 18047)<\/td><td>Resistant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Resistant<\/td><td><\/td><td>Susceptible<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">MTU-1010<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td>Susceptible<\/td><td><\/td><\/tr>",
+  "variety_kg": "2400-2800",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Not Applicable",
+  "remarks": "Suitable to grow in wet and dry seasons in AP, Telangana, Odisha, and West Bengal. Potential replacement of older variety MTU 1010.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 40
+  }
+}

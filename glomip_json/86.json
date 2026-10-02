@@ -1,0 +1,75 @@
+{
+  "variety": "PR 113",
+  "parent_variety": "IR8//RP2151-173-18 x IR8*4*",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high-yielding, late maturity, medium height, short bold grain variety, grown extensively in north India. Developed by PAU and released in 1998. Highly adapted to irrigated lowlands. This variety is beneficial to the farmers on account of its higher yield, suitable growth duration, and better disease resistance.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/PR_113.png",
+  "ms_shortname": "Rice Indica SA MS00309",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Small Firm | White | Lowlands | Transplanted; Irrigated | Late",
+  "ms_othername": "TLaS-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "PR 111",
+  "rrl": {},
+  "rup": {},
+  "cil": "PR 115",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to leaf blight<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Medium Height<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging<\/td><\/tr>",
+  "considerations": "<tr><td>Grain Quality traits<\/td><td>Amylose content<\/td><td>Low amylose content<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Susceptible <\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">PR 113<\/td><td>7000<\/td><td>4<\/td><td>140-145<\/td><td>95-105<\/td><td>Tolerant<\/td><td><\/td><td>24.9<\/td><td><\/td><td>55<\/td><td>16.4<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">PR 111<\/td><td>6750<\/td><td><\/td><td>135-140<\/td><td>95-100<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">PR 113<\/td><td>Susceptible<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">PR 111<\/td><td>Susceptible<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2800",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Punjab and Haryana.                                                                                                                                     Zonal II (N) check in advance varietal trials conducted by IIRR, India.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 86
+  }
+}

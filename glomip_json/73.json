@@ -1,0 +1,75 @@
+{
+  "variety": "Sahbhagi dhan",
+  "parent_variety": "IR 55419-4*2* x WAY RAREM",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Early maturity, semi-dwarf, long-bold grain,  widely adaptable variety mainly grown as direct seeded under rainfed and upland  conditions. Developed by CRRI, Hajaribag &amp;amp; IRRI and released in 2008 for Jharkhand and Odhisa. Tolerant to drought and highly adaptable to water scarce and upland environments. Excellent grain and eating quality with low glycemic index.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Sahabhagi_dhan.jpg",
+  "ms_shortname": "Rice Indica SA MS00303",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Upland | Direct Seeded | Early",
+  "ms_othername": "DEL-U, TEL-R",
+  "ptr": "Recommended",
+  "dsr": "Recommended",
+  "il": "Not Recommended",
+  "rl": "Recommended",
+  "upland": "Recommended",
+  "ril": {},
+  "rrl": "IR-64",
+  "rup": "IR-64",
+  "cil": {},
+  "crl": "Samba Mashuri, DRR dhan 42",
+  "cup": "DRR dhan 42",
+  "key_strengths": "<tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Good cooking quality<\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf folder (% affected plants)<\/td><td>Tolerant<\/td><\/tr><tr><td>Abiotic stress<\/td><td>Drought (reproductive)<\/td><td>Early maturity drought tolerant <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Semi dwarf, Profuse tillering and High straw yield<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturity <\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Tolerant<\/td><\/tr>",
+  "considerations": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Susceptible to leaf blight<\/td><\/tr><tr><td>Abiotic stress<\/td><td>Cold (reproductive)<\/td><td>Susceptible <\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Sahbhagi dhan<\/td><td>3800-4500<\/td><td>5<\/td><td>100<\/td><td>85-90<\/td><td>Tolerant<\/td><td><\/td><td>22.3<\/td><td><\/td><td>64.7<\/td><td>24.7<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">IR-64<\/td><td>4000-4300<\/td><td><\/td><td>115-120<\/td><td>100-105<\/td><td>Tolerant<\/td><td><\/td><td>23.1<\/td><td><\/td><td>49.1<\/td><td>24.5<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Leaf blight<\/th><th>Sheath blight<\/th><th>Stem borer<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Sahbhagi dhan<\/td><td>Tolerant<\/td><td><\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">IR-64<\/td><td>Tolerant<\/td><td><\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "1500-1800",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Released for cultivation in Odhisa, Madhya Pradesh, Andhra Pradesh, Jharkhand, Chhattisgarh, Bihar, \r\n  West Bengal, Assam, UttarPradesh.\r\nNational check in varietal trial (Early direct seeded) conducted by IIRR, India.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 73
+  }
+}

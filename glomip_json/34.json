@@ -1,0 +1,75 @@
+{
+  "variety": "Tarangini (MTU-1156)",
+  "parent_variety": "MTU-1010 x MTU-1081",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Tarangini, also known as MTU-1156, is a high yielding, medium maturity,  long slender, tall variety released in 2016 by RARS, Maruteru. Widely recommended for medium fertility areas in wet season and in irrigated areas in dry season.  Besides having high yield potential, this variety has distinct advantages of high HRR, non-lodging, low shattering and tolerant to major diseases and insect pests.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/tarangini.PNG",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Lalat",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "MTU-1153, BINA dhan11",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Other key traits<\/td><td>Other<\/td><td>High fertilizer responsive<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Long slender grain<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and insect pests <\/td><\/tr>",
+  "considerations": "<tr><td>Other key traits<\/td><td>Other<\/td><td>Dormancy for about 2 weeks<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Tall<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Tarangini (MTU-1156)<\/td><td>6500<\/td><td>30<\/td><td>115-120<\/td><td>130<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>22.5<\/td><td>-<\/td><td>68.0<\/td><td>23.8<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Lalat<\/td><td>5000<\/td><td><\/td><td>130<\/td><td>100-105<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>24.0<\/td><td>-<\/td><td>58.0<\/td><td>25.0<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Brown Spot<\/th><th>Sheath Rot<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Tarangini (MTU-1156)<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Lalat<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2600",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Not Data",
+  "remarks": "For planting in both kharif and rabi seasons in irrigated areas of Andhra Pradesh, Telangana, &amp; Odisha",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 34
+  }
+}

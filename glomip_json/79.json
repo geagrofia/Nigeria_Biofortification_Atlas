@@ -1,0 +1,75 @@
+{
+  "variety": "Samaleshwari",
+  "parent_variety": "R 310-37 x R 308-6",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Early maturity, semi-dwarf variety with average grain yield was developed by IGKVV, Raipur, and released in 2007. Recommended for direct seeding in upland and in rainfed lowland bunded ecology of Chhattisgarh plains. Popular among farmers due to its medium slender heavy grain, resistance to gall midge, and tolerance to leaf blast and brown spot. It has high amylose content, medium gel consistency, and desirable alkali spreading value.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/Samelswari.gif",
+  "ms_shortname": "Rice Indica SA MS00308",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Direct Seeded; Rainfed | Early",
+  "ms_othername": "DEM-R, DEM-U",
+  "ptr": "Not Recommended",
+  "dsr": "Recommended",
+  "il": "Not Recommended",
+  "rl": "Recommended",
+  "upland": "Recommended",
+  "ril": {},
+  "rrl": "Ananda",
+  "rup": {},
+  "cil": {},
+  "crl": "MTU 1010",
+  "cup": {},
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and pests<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Suitability for both rainfed and upland areas<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturity <\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Medium slender grain<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Semi dwarf<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Amylose content<\/td><td>High amylose content<\/td><\/tr>",
+  "considerations": "<tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Average yield potential<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Moderate HRR<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Samaleshwari<\/td><td>3000-3500<\/td><td>0<\/td><td>105-112<\/td><td>85-90<\/td><td>Tolerant<\/td><td><\/td><td>24<\/td><td><\/td><td>55.2<\/td><td>26.8<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Ananda<\/td><td>3000-3500<\/td><td><\/td><td>110-112<\/td><td>90-95<\/td><td>Tolerant<\/td><td><\/td><td>23.3<\/td><td><\/td><td>42.1<\/td><td>22.8<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Gall Midge<\/th><th>Stem borer<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Samaleshwari<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Tolerant<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Ananda<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "1400",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Direct seeding in rainfed upland and bunded ecology of Chattisgarh",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 79
+  }
+}

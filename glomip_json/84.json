@@ -1,0 +1,75 @@
+{
+  "variety": "Satabdi",
+  "parent_variety": "CR10-114 x CR10-115",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Mid-early duration, medium height variety with long slender grain suitable for the irrigated medium ecosystem. Developed and released by NRRI, Cuttack in 2000 for cultivation in West Bengal.  Vast seasonal adaptability and can be grown under all rice growing seasons. Being early in maturity, good grain size, and better cooking quality, it is a preferred variety to grow in West Bengal. Tolerant to lodging and major leaf and sheath diseases.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/satabdi.png",
+  "ms_shortname": "Rice Indica SA MS00307",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Early",
+  "ms_othername": "TEL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Khitish",
+  "rrl": {},
+  "rup": {},
+  "cil": "Lalat",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long slender grain<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Sheath Rot<\/td><td>Tolerant<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Tolerant<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Adaptable to different planting season<\/td><\/tr>",
+  "considerations": "<tr><td>Grain Quality traits<\/td><td>Other<\/td><td>Low grain weight<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Low HRR<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Satabdi<\/td><td>4000-4500<\/td><td>12<\/td><td>115-120<\/td><td>95-105<\/td><td>Tolerant<\/td><td><\/td><td>18<\/td><td><\/td><td>44<\/td><td>23.8<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Khitish<\/td><td>4000<\/td><td><\/td><td>120<\/td><td>80-100<\/td><td>Susceptible<\/td><td><\/td><td>18.2<\/td><td><\/td><td>61<\/td><td>23.7<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Sheath rot<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Satabdi<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Khitish<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "1800",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Suitable for both kharif and rabi (boro) seasons.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 84
+  }
+}

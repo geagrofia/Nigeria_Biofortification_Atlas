@@ -1,0 +1,75 @@
+{
+  "variety": "CR dhan500",
+  "parent_variety": "Ravana x Mahsuri",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A long duration variety suitable for deep water ecology in wet season. Released by NRRI, Cuttack in 2011 for growing in irrigated lowland areas of Odisha and UP. Medium slender grain with average yield potential under normal conditions.  Tolerant to leaf blast, sheath rot, brown spot, thrips and leaf folder. Non-lodging and non-shattering.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/crdhan500.PNG",
+  "ms_shortname": "Rice Indica SA MS00305",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Firm | White | Lowlands | Transplanted; Irrigated | Late",
+  "ms_othername": "TLaM-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Varsha dhan",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "CR502, CR503",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Grain shape<\/td><td>Other<\/td><td>Medium slender grain<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield in deep water ecology<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Tolerant to lodging <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Tolerant to shattering<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Responsive to high fertilization<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and insect pests<\/td><\/tr>",
+  "considerations": "<tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Long duration<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Average yield in normal condition<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Tall<\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Susceptible to Leaf blight<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>Low HRR<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">CR dhan500<\/td><td>4500<\/td><td>12<\/td><td>160<\/td><td>140-155<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>24.0<\/td><td>-<\/td><td>50.0<\/td><td>25.0<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Varsha dhan<\/td><td>4000<\/td><td>-<\/td><td>160<\/td><td>150<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>24.0<\/td><td>-<\/td><td>50.0<\/td><td>24.0<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath Rot<\/th><th>Brown Spot<\/th><th>Thrips<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">CR dhan500<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>-<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>Tolerant<\/td><td>-<\/td><\/tr><tr><td class=\"must-benchmark1-value\">Varsha dhan<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>-<\/td><td>Susceptible<\/td><td>-<\/td><td>Susceptible<\/td><td>-<\/td><td>Tolerant<\/td><td>-<\/td><\/tr>",
+  "variety_kg": "1800",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Not Data",
+  "remarks": "National check in Deep water trials conducted by IIRR, India                                                                    \r\nSuitable for low land ecology of Odisha and Uttar Pradesh",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 58
+  }
+}

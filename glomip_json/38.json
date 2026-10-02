@@ -1,0 +1,75 @@
+{
+  "variety": "Kunaram Sannalu",
+  "parent_variety": "KNM 118",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "High yielding, mid-early maturity, medium height, with medium slender grain. Developed by PJTSAU, Hyderabad and released in 2015 as an alternative to MTU-1010 which of late has developed susceptibility to major pests and diseases. Recommended for transplanting in irrigated lowland ecosystem. High HRR and test weight. Less prone to grain shattering and lodging during harvest.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/KS.PNG",
+  "ms_shortname": "Rice Indica SA MS00307",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Early",
+  "ms_othername": "TEM-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "MTU-1010",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "MTU-1153",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Mid-early maturity<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Resistant to Sheath blight and Sheath rot<\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Long slender grain<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Suitable for late sowing in rainy season<\/td><\/tr>",
+  "considerations": "<tr><td colspan=\"3\">No Considerations data.<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Kunaram Sannalu<\/td><td>6000-6500<\/td><td>44<\/td><td>115-120<\/td><td>100-106<\/td><td>Tolerant<\/td><td>-<\/td><td>23.6<\/td><td>-<\/td><td>63.4<\/td><td>21.3<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">MTU-1010<\/td><td>4000-4500<\/td><td><\/td><td>115-120<\/td><td>105-108<\/td><td>Tolerant<\/td><td>-<\/td><td>24.3<\/td><td>-<\/td><td>57.0<\/td><td>22.6<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath Blight<\/th><th>Sheath Rot<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Kunaram Sannalu<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Resistant<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">MTU-1010<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2500",
+  "variety_nick": "-",
+  "variety_fm": "-",
+  "recommendation": "Not Data",
+  "remarks": "For planting in both seasons in AP, Telangana, Odisha, and Karnataka",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 38
+  }
+}

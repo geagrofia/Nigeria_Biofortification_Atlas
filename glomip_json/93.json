@@ -1,0 +1,75 @@
+{
+  "variety": "Samba Mahsuri (BPT-5204)",
+  "parent_variety": "GEB24 x T(N)1 x Mahasuri",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high-yielding, late maturity, semi-dwarf, short slender grain variety,  grown extensively in southern &amp; eastern India. Developed by ARS, Bapatla and released in 1989 for rainfed shallow lowland areas. Excellent productive tillering and erect, sturdy stem with good grain quality. Highly popular variety. Ideal genotype for identifying mutational changes and varietal improvements with traits of agronomic importance.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog",
+  "ms_shortname": "Rice Indica SA MS00310",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Small Firm | White | Lowlands | Transplanted; Rainfed | Late",
+  "ms_othername": "TLaS-R",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Not Recommended",
+  "rl": "Recommended",
+  "upland": "Not Recommended",
+  "ril": {},
+  "rrl": "IR-36",
+  "rup": {},
+  "cil": {},
+  "crl": "Padmini, Moti",
+  "cup": {},
+  "key_strengths": "<tr><td>Agronomic traits<\/td><td>Plant height<\/td><td>Semi dwarf<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield potential<\/td><\/tr><tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Good cooking quality<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>High tillering<\/td><\/tr>",
+  "considerations": "<tr><td>Biotic stress<\/td><td>Brown Plant Hopper  (vegetative to maturity stage)<\/td><td>Susceptible <\/td><\/tr><tr><td>Agronomic traits<\/td><td>Other<\/td><td>Problem of incomplete panicle emergence <\/td><\/tr><tr><td>Biotic stress<\/td><td>Bacterial blight<\/td><td>Susceptible to leaf blight<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Samba Mahsuri (BPT-5204)<\/td><td>5500-6500<\/td><td>38<\/td><td>140-145<\/td><td>80-90<\/td><td>Tolerant<\/td><td><\/td><td>22.6<\/td><td><\/td><td>65.2<\/td><td>22.5<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">IR-36<\/td><td>3000-4000<\/td><td><\/td><td>105-110<\/td><td>95-100<\/td><td>Susceptible<\/td><td><\/td><td>21<\/td><td><\/td><td>48.6<\/td><td>26.7<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Gall Midge<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Samba Mahsuri (BPT-5204)<\/td><td>Resistant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">IR-36<\/td><td>Tolerant<\/td><td>Resistant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2200-2600",
+  "variety_nick": "Samba Mahsuri",
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Released for cultivation in Telangana, Andhra Pradesh, Karnataka.                                                                                                                                         National check for medium slender, late maturity, bio-fortified varietal trials.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 93
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "variety": "CO 51",
+  "parent_variety": "ADT 43 x RR 272-1745",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "High yielding, early maturity, semi-dwarf, medium slender variety developed by TNAU, Coimbatore and released in 2015 for cultivation in irrigated lowland areas of Tamil Nadu. It has broad dark green leaves, and lengthy panicles of 23 to 28 cm with white fine grains. Tolerant to lodging and shattering. Tolerant to major diseases and insect pests.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/co51.PNG",
+  "ms_shortname": "Rice Indica SA MS00307",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Medium Soft | White | Lowlands | Transplanted; Irrigated | Early",
+  "ms_othername": "TEM-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "ADT 43",
+  "rrl": "None",
+  "rup": "None",
+  "cil": "ADT 45",
+  "crl": "None",
+  "cup": "None",
+  "key_strengths": "<tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and insect pests<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Early maturity<\/td><\/tr><tr><td>Grain shape<\/td><td>Other<\/td><td>Medium slender white grain<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Planting season adaptability <\/td><\/tr>",
+  "considerations": "<tr><td>Abiotic stress<\/td><td>Drought (reproductive)<\/td><td>Susceptible<\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Other<\/td><td>Low test weight<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">CO 51<\/td><td>6000<\/td><td>9<\/td><td>110-115<\/td><td>90-100<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>18.0<\/td><td>-<\/td><td>63.0<\/td><td>21.8<\/td><td>-<\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">ADT 43<\/td><td>5500<\/td><td>-<\/td><td>105-110<\/td><td>80-100<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td>15.5<\/td><td>-<\/td><td>65.3<\/td><td>23.2<\/td><td>-<\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Brown Plant Hopper<\/th><th>Stem Borer<\/th><th>Gall midge<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">CO 51<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>Tolerant<\/td><td>Susceptible<\/td><\/tr><tr><td class=\"must-benchmark1-value\">ADT 43<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>-<\/td><td>Susceptible<\/td><td>Susceptible<\/td><\/tr>",
+  "variety_kg": "2400",
+  "variety_nick": {},
+  "variety_fm": {},
+  "recommendation": "Not Data",
+  "remarks": "Suitable for all early duration rice cultivation areas of Tamil Nadu in both seasons.\r\nNational check in early transplanted yield trials conducted by IIRR, India",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 42
+  }
+}

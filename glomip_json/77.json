@@ -1,0 +1,75 @@
+{
+  "variety": "Pushyami (MTU 1075)",
+  "parent_variety": "MTU-2716 x MTU-1010",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "A high-yielding, late-maturity, medium-tall, long slender grain variety is grown extensively in South India. Developed by MARUTERU, and released in 2008. Highly adapted to irrigated lowlands. Good cooking quality. Tolerant to important diseases and insect pests. Moderate HRR. Good grain weight.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/1075.png",
+  "ms_shortname": "Rice Basmati SA MS00943",
+  "ms_longname": "Rice - Basmati | Non-Hybrid | SA | Food; Long Soft | White | Lowlands | Transplanted; Irrigated | Late",
+  "ms_othername": "TLaL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "Swarna",
+  "rrl": {},
+  "rup": {},
+  "cil": "MTU 1010",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>Good yield potential<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Tolerant to major diseases and pests<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Lodging<\/td><td>Non-lodging<\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Ling slender grain<\/td><\/tr><tr><td>Cooking quality<\/td><td>Cooked quality (grain texture)<\/td><td>Good cooking quality<\/td><\/tr>",
+  "considerations": "<tr><td>Biotic stress<\/td><td>Sheath blight<\/td><td>Susceptible <\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">Pushyami (MTU 1075)<\/td><td>5500-6000<\/td><td>0<\/td><td>140-145<\/td><td>105-108<\/td><td>Tolerant<\/td><td><\/td><td>21.5<\/td><td><\/td><td>69.3<\/td><td>23.9<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Swarna<\/td><td>5500-6000<\/td><td><\/td><td>135-140<\/td><td>100-105<\/td><td>Susceptible<\/td><td><\/td><td>15.9<\/td><td><\/td><td>69<\/td><td>26.1<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><th>Sheath blight<\/th><th>Leaf folder<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">Pushyami (MTU 1075)<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>Susceptible<\/td><td>Tolerant<\/td><td><\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">Swarna<\/td><td>Susceptible<\/td><td>Resistant<\/td><td>Susceptible<\/td><td>Susceptible<\/td><td><\/td><td><\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2200-2400",
+  "variety_nick": "Pushyami",
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Released for cultivation in Andhra Pradesh, Telangana, Odisha.                                                                                                                                    Zonal VII (S) check for Initial varietal trials conducted by IIRR, India.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 77
+  }
+}

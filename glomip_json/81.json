@@ -1,0 +1,75 @@
+{
+  "variety": "CSR 36",
+  "parent_variety": "CSR13 x Panvel-2xIR-36*)",
+  "variety_type": "Inbred",
+  "countries_origin": "India",
+  "variety_description": "Developed and released by CSSRI, Karnal in 2005 for irrigated alkaline areas. Semi-tall variety with the long slender grain is tolerant to alkalinity and moderately tolerant to zinc deficiency. Tolerant to leaf blast and leaf blight. High yield under normal soil conditions and around 4 ton per ha. in alkalinity prone areas. High HRR and grain weight. Non-lodging and non-shattering.",
+  "variety_img_src": "https://glomip.cgiar.org/uploads/product_catalog/CSR_36.png",
+  "ms_shortname": "Rice Indica SA MS00299",
+  "ms_longname": "Rice - Indica | Non-Hybrid | SA | Food; Long Soft | White | Lowlands; Drought Prone | Transplanted; Rainfed | Mid",
+  "ms_othername": "TMeL-I",
+  "ptr": "Recommended",
+  "dsr": "Not Recommended",
+  "il": "Recommended",
+  "rl": "Not Recommended",
+  "upland": "Not Recommended",
+  "ril": "CSR 13",
+  "rrl": {},
+  "rup": {},
+  "cil": "CSR 46",
+  "crl": {},
+  "cup": {},
+  "key_strengths": "<tr><td>Biotic stress<\/td><td>Leaf blast<\/td><td>Tolerant<\/td><\/tr><tr><td>Maturity<\/td><td>Maturity duration<\/td><td>Medium maturity<\/td><\/tr><tr><td>Agronomic traits<\/td><td>Yield Potential<\/td><td>High yield under normal soil conditions<\/td><\/tr><tr><td>Other key traits<\/td><td>Other<\/td><td>Tolerant to alkalinity and zinc deficiency <\/td><\/tr><tr><td>Grain Quality traits<\/td><td>Head Rice Recovery<\/td><td>High HRR<\/td><\/tr><tr><td>Grain shape<\/td><td>Grain shape (L:B)<\/td><td>Long slender<\/td><\/tr><tr><td>Biotic stress<\/td><td>Other<\/td><td>Leaf blight tolerant<\/td><\/tr>",
+  "considerations": "<tr><td colspan=\"3\">No Considerations data.<\/td><\/tr>",
+  "gyat_head": "<tr><th rowspan=\"2\">Variety<\/th>\n                    <th colspan=\"2\">Grain Yield<\/th>\n                    <th rowspan=\"2\">Maturity (days)<\/th>\n                    <th rowspan=\"2\">Plant height (cm)<\/th>\n                    <th rowspan=\"2\">Lodging<\/th>\n                    <th rowspan=\"2\">Shattering<\/th>\n                    <th rowspan=\"2\">1000 grain weight (g)<\/th>\n                    <th rowspan=\"2\">Panicle Threshability<\/th>\n                    <th rowspan=\"2\">HRR (%)<\/th>\n                    <th rowspan=\"2\">Amylose content (%)<\/th>\n                    <th rowspan=\"2\">Special Trait<\/th>\n                    <th rowspan=\"2\">Tillering<\/th><\/tr><tr><th>(kg/ha)<\/th><th>(% Adv)<\/th><\/tr>",
+  "gyat": "<tr><td class=\"must-variety-value\">CSR 36<\/td><td>6500<\/td><td>8<\/td><td>135-140<\/td><td>110<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>29.5<\/td><td><\/td><td>67.5<\/td><td>25<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">CSR 13<\/td><td>6000<\/td><td><\/td><td>145<\/td><td>115<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td>25.6<\/td><td><\/td><td>61.9<\/td><td>22.7<\/td><td><\/td><td><\/td><\/tr>",
+  "bas_head": "<th>Variety<\/th><th>Leaf blast<\/th><th>Bacterial leaf blight<\/th><th>Brown plant hopper<\/th><td>Salinity<\/td><td>Submergence<\/td><td>Drought<\/td>",
+  "bas": "<tr><td class=\"must-variety-value\">CSR 36<\/td><td>Tolerant<\/td><td>Tolerant<\/td><td><\/td><td>Resistant<\/td><td><\/td><td><\/td><\/tr><tr><td class=\"must-benchmark1-value\">CSR 13<\/td><td>Resistant<\/td><td>Tolerant<\/td><td><\/td><td>Resistant<\/td><td><\/td><td><\/td><\/tr>",
+  "variety_kg": "2800",
+  "variety_nick": "Naina",
+  "variety_fm": {},
+  "recommendation": "Advance",
+  "remarks": "Rice growing ecologies characterized by high level of soil   salinity and alkalinity in Haryana and Uttar Pradesh.",
+  "pm_image": "assets/img/pc-evidence/planting-method_alt.png",
+  "pm_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  },
+  "eco_image": "assets/img/pc-evidence/ecosystem_alt.png",
+  "eco_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  },
+  "pos_image": "assets/img/pc-evidence/positioning_alt.png",
+  "pos_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  },
+  "ks_image": "assets/img/pc-evidence/key-strengths_alt.png",
+  "ks_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  },
+  "c_image": "assets/img/pc-evidence/considerations_alt.png",
+  "c_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  },
+  "rvp_image": "assets/img/pc-evidence/relative-variety-perf_alt.png",
+  "rvp_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  },
+  "pro_image": "assets/img/pc-evidence/producibility_alt.png",
+  "pro_btn": {
+    "data-disabled": "true",
+    "data-show": "false",
+    "data-pc_id": 81
+  }
+}
