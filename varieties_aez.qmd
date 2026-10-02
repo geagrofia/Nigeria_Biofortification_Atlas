@@ -27,6 +27,8 @@ library(ggtext)
 library(tidyr)
 library(stringr)
 library(purrr)
+library(leaflet)
+library(sf)
 
 ```
 
@@ -206,7 +208,7 @@ The scraper further parses the results after scraping to assign flags depending 
 +=============================================================+==========================================================================+
 | zinc                                                        | “zinc” or “Zn” in characteristics                                        |
 +-------------------------------------------------------------+--------------------------------------------------------------------------+
-| vit_A                                                       | “vitamin A”, “vit A”, or “beta carotene”                                 |
+| vit_A                                                       | “vitamin A”, “vit A”, “vit.A”, or “carot”                                 |
 +-------------------------------------------------------------+--------------------------------------------------------------------------+
 | iron                                                        | “iron” or “Fe”                                                           |
 +-------------------------------------------------------------+--------------------------------------------------------------------------+
@@ -526,6 +528,25 @@ The HarvestPlus database has less information about the varieties than the Niger
 
 It is therefore worthwhile attempting to merge the two databases.
 
+## Load GLOMIP database
+
+The Global Market Intelligence Platform includes a Product Catalog and downloadable database ( https://glomip.cgiar.org/product-catalog ).
+
+As of October 2026 the database is limited to Rice, and the database does not say where varieties have been released, rather their 'Country of Origin'.
+
+
+```{r}
+#| label: glomip_variety_data
+#| message: false
+#| warning: false
+
+df_glomip <- read.csv("tab_data/Product Catalog GloMIP.csv")
+
+```
+  
+  The other variables in the database include references to market segments (which have their own database), but the information in the downloadable variety catalogue is less extensive than the information which appears in the website for each variety, such as the "full description", "key strengths" and "variety performance". 
+
+
 # Merge variety databases
 
 To merge the databases it is necessary to find variables that are common to both the HarvestPlus and the Nigerian Seed Portal databases.
@@ -680,7 +701,7 @@ add_segments <- function(df, col) {
 df_segmented_nsp <- add_segments(df_nsp_biofort, "Variety.Name")
 df_segmented_hp <- add_segments(df_hp_ng, "Variety_Name")
 
-df_matches <- inner_join(
+df_matches_regex <- inner_join(
   df_segmented_nsp |> select(.id1 = .id, key),
   df_segmented_hp |> select(.id2 = .id, key),
   by = "key",
@@ -688,7 +709,7 @@ df_matches <- inner_join(
 ) |>
   distinct(.id1, .id2)   # one row per matching record pair
 
-df_merge_varname_clean <- df_matches |>
+df_merge_varname_clean <- df_matches_regex |>
   left_join(df_nsp_biofort |> mutate(.id1 = row_number()), by = ".id1") |>
   left_join(df_hp_ng |> mutate(.id2 = row_number()), by = ".id2", suffix = c("_nsp", "_hp")) |>
   select(-.id1, -.id2)
@@ -723,6 +744,18 @@ df_merge_varname_clean |> select(Crop.Name, Biofortified_crop_name, Variety_Name
 
 ```
 
+If we use the alternative names in both databases it appears we are able to match a further three varieties (@tbl-merge_by_varname_clean_alternative).
+However, on closer inspection those extra three records are actually cassava varieties which have ambiguous or contradictory name combinations:
+
+
+|Variety Name (NSP)|Variety Name (HP)|Alternative Name (NSP)|Alternative Name (HP)|Year Released (NSP)|Year Released (HP)|
+|-----------------------|----------|------------------|------------------|----|----|
+|UMUCASS 54 (NO- HUNGER)|UMUCASS 53|IBA164773         |IBA164773         |2022|2022|
+|UMUCASS 54 (NO- HUNGER)|UMUCASS 54|IBA164773         |IBA164773         |2022|2022|
+|UMUCASS 45             |UMUCASS 46|IITA TMS I 07/0593|IITA TMS I 07/0593|2014|2014|
+
+In these cases the alternative names from each database match, but only the second record in the table is a true match, while records 1 and 3 would need investigation to see why the alternative names match, perhaps due to the pedigree of the varieties.
+
 
 ```{r}
 #| label: tbl-merge_by_varname_clean_alternative
@@ -752,6 +785,7 @@ segment_keys_multi <- function(df, cols) {
 df_nsp_keys <- segment_keys_multi(df_nsp_biofort, c("Variety.Name", "Original.Name"))
 df_hp_keys <- segment_keys_multi(df_hp_ng, c("Variety_Name", "Other_or_Local_name"))
 
+# Check the keys
 # Every record should appear with a sensible number of keys
 df_nsp_keys |> count(col)                       # keys per source column
 df_nsp_keys |> summarise(records = n_distinct(.id))
@@ -767,34 +801,54 @@ df_nsp_biofort |> mutate(.id = row_number()) |> anti_join(df_nsp_keys, by = ".id
 df_hp_ng |> mutate(.id = row_number()) |> anti_join(df_hp_keys, by = ".id")
 
 
-df_matches_detail <- inner_join(
-  df_nsp_keys |> rename(.id1 = .id, df1_col = col),
-  df_hp_keys |> rename(.id2 = .id, df2_col = col),
+df_matches_multi <- inner_join(
+  df_nsp_keys |> rename(.id1 = .id, nsp_col = col),
+  df_hp_keys |> rename(.id2 = .id, hp_col = col),
   by = "key",
   relationship = "many-to-many"
 )
 
 # One row per matching record pair
-df_matches <- df_matches_detail |> distinct(.id1, .id2)
+df_matches <- df_matches_multi |> distinct(.id1, .id2)
 
-df_match_summary <- df_matches_detail |>
+df_match_summary <- df_matches_multi |>
   group_by(.id1, .id2) |>
   summarise(
-    matched_on = paste(unique(paste(df1_col, df2_col, sep = " -> ")), collapse = "; "),
-    n_col_pairs = n_distinct(paste(df1_col, df2_col)),
+    matched_on = paste(unique(paste(nsp_col, hp_col, sep = " -> ")), collapse = "; "),
+    n_col_pairs = n_distinct(paste(nsp_col, hp_col)),
     .groups = "drop"
   )
 
 df_nsp_biofort_id <- df_nsp_biofort |> mutate(.id1 = row_number())
 df_hp_ng_id <- df_hp_ng |> mutate(.id2 = row_number())
 
-df_result <- df_match_summary |>
+df_merge_multi <- df_match_summary |>
   inner_join(df_nsp_biofort_id, by = ".id1") |>
   inner_join(df_hp_ng_id, by = ".id2", suffix = c("_nsp", "_hp")) |>
   select(-.id1, -.id2)
 
 df_unmatched_nsp <- df_nsp_biofort_id |> anti_join(df_matches, by = ".id1")
 df_unmatched_hp <- df_hp_ng_id |> anti_join(df_matches, by = ".id2")
+
+df_merge_multi |> select(Crop.Name, Biofortified_crop_name, Variety.Name, Variety_Name, Original.Name, Other_or_Local_name, Year.of.Release, Year_Released ) |>
+  arrange(is.na(Biofortified_crop_name), desc(Crop.Name)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)" , "Variety Name (NSP)", "Variety Name (HP)", "Alternative Name (NSP)", "Alternative Name (HP)", "Year Released (NSP)", "Year Released (HP)"),
+    caption = "Merge by variety name and alternative name",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
 
 ```
 
@@ -825,10 +879,10 @@ df_unmatched_nsp <- df_nsp_biofort_id |> anti_join(df_matches, by = ".id1")
 df_unmatched_hp <- df_hp_ng_id |> anti_join(df_matches, by = ".id2")
 
 
-df_unmatched_nsp |> select(Crop.Name, Variety.Name, National.Code, Year.of.Release) |>
+df_unmatched_nsp |> select(.id1, Crop.Name, Variety.Name, National.Code, Year.of.Release) |>
   DT::datatable(
     rownames = F,
-    colnames=c("Crop Name", "Variety Name", "National Code", "Year Released"),
+    colnames=c( "NSP ID", "Crop Name", "Variety Name", "National Code", "Year Released"),
     caption = "NSP varieties without a match",
     filter = "bottom",
     selection = list(mode = "none"),
@@ -844,10 +898,10 @@ df_unmatched_nsp |> select(Crop.Name, Variety.Name, National.Code, Year.of.Relea
       pageLength = 20
     ))
 
-df_unmatched_hp |> select(Biofortified_crop_name, Variety_Name, Other_or_Local_name, Year_Released) |>
+df_unmatched_hp |> select(.id2, Biofortified_crop_name, Variety_Name, Other_or_Local_name, Year_Released) |>
   DT::datatable(
     rownames = F,
-    colnames=c("Crop Name", "Variety Name", "Other or Local Name", "Year Released"),
+    colnames=c("HP ID", "Crop Name", "Variety Name", "Other or Local Name", "Year Released"),
     caption = "HP varieties without a match",
     filter = "bottom",
     selection = list(mode = "none"),
@@ -865,6 +919,186 @@ df_unmatched_hp |> select(Biofortified_crop_name, Variety_Name, Other_or_Local_n
 
 ```
 
+
+## Manual adjustment for non-matching variety records
+
+By reviewing the non-matching records we are able to identify the varieties that are the same  but which cannot be matched automatically.
+
+These are added to the existing matches which results in 29 varieties that are common across the Nigerian Seed Portal and the HarvestPlus databases (@tbl-manual_merge).
+
+```{r}
+#| label: tbl-manual_merge
+#| message: false
+#| warning: false
+
+df_match_manual <- tibble::tribble(
+  ~.id1, ~.id2, ~note,
+  43L,   8L,  "NSP includes maize in name",
+  44L,   9L,  "NSP includes maize in name",
+  24L,   3L,  "NSP has two names - use release date to match"
+)
+
+# Validate before combining
+# Should all return 0 rows
+df_match_manual |> anti_join(df_unmatched_nsp, by = ".id1")   # IDs that aren't actually unmatched in df1
+df_match_manual |> anti_join(df_unmatched_hp, by = ".id2")   # same for df2
+df_match_manual |> count(.id1, .id2) |> filter(n > 1)   # duplicate pairs
+
+df_all_matches <- bind_rows(
+  df_matches_regex |> mutate(source = "auto"),
+  df_match_manual        |> mutate(source = "manual")
+)
+
+df_merge_manual <- df_all_matches |>
+  inner_join(df_nsp_biofort_id, by = ".id1") |>
+  inner_join(df_hp_ng_id, by = ".id2", suffix = c("_df1", "_df2")) |>
+  select(-.id1, -.id2)
+
+df_merge_manual |> select(Crop.Name, Biofortified_crop_name, Variety.Name, Variety_Name, Original.Name, Other_or_Local_name, Year.of.Release, Year_Released ) |>
+  arrange(is.na(Biofortified_crop_name), desc(Crop.Name)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)" , "Variety Name (NSP)", "Variety Name (HP)", "Alternative Name (NSP)", "Alternative Name (HP)", "Year Released (NSP)", "Year Released (HP)"),
+    caption = "Merge by variety name and alternative name",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+```
+
+## Compare attributes for common varieties
+
+Now that we have merged the matching varieties we can compare the attributes that are common, (@tbl-common_variables).
+
+### Compare year of release
+
+When we compare the release years we see that the two datasets are perfectly aligned and there are no mis-matches (@tbl-release_year_compare).
+
+```{r}
+#| label: tbl-release_year_compare
+#| message: false
+#| warning: false
+
+df_merge_manual |> filter( Year.of.Release != Year_Released) |> 
+  select(Crop.Name, Biofortified_crop_name, Variety.Name, Variety_Name, Original.Name, Other_or_Local_name, Year.of.Release, Year_Released ) |>
+  arrange(is.na(Biofortified_crop_name), desc(Crop.Name)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)" , "Variety Name (NSP)", "Variety Name (HP)", "Alternative Name (NSP)", "Alternative Name (HP)", "Year Released (NSP)", "Year Released (HP)"),
+    caption = "Varities with different year of release in the NSP and HP databases",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+
+```
+
+### Compare yield
+
+When we compare the three yield values we see that not all of the matched variety records have yields (@tbl-yield_compare). Only 12 of the 29 matched records have yield values in the HarvestPlus dataset. All of the records have potential yield from the NSP dataset (yield was extracted from the variety summary [Summary Yield] as well as the potential yield variable from the variety detail page). The data for cassava are complete, although the HP yield values are often far lower than the potential yields. The two zinc rice varieties are the same in both datasets, likewise the iron rich pearl millet variety. 
+In contrast Maize varieties have no yield data in the HarvestPlus database, but are complete in the NSP database. The single sweet potato variety similarly has no yield data in the HP database.
+
+
+```{r}
+#| label: tbl-yield_compare
+#| message: false
+#| warning: false
+
+df_merge_manual_yield <- df_merge_manual |> mutate(
+  yield_pc_nsp_pot_hp =  prettyunits::pretty_round((( as.numeric(Yield) / Potential.Yield..t.ha. ) * 100)),
+  yield_pc_nsp_summ_hp = prettyunits::pretty_round((( as.numeric(Yield) / Summary.Yield..t.ha.) * 100)),
+  yield_pc_nsp_pot_summ = prettyunits::pretty_round((( Summary.Yield..t.ha. / Potential.Yield..t.ha.) * 100))
+)
+
+
+df_merge_manual_yield |>  
+  select(Crop.Name, Biofortified_crop_name, Variety.Name, Variety_Name, Potential.Yield..t.ha., Summary.Yield..t.ha., Yield, yield_pc_nsp_pot_hp) |>
+  arrange(is.na(Biofortified_crop_name), desc(Yield)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)" , "Variety Name (NSP)", "Variety Name (HP)",  "Potential Yield (t/ha) (NSP)", "Summary Yield (t/ha) (NSP)", "Yield (HP)", "HP Yield as % of YP"),
+    caption = "Yield values in the NSP and HP databases",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+
+```
+
+### Compare micronutrient content
+
+The HarvestPlus database has more comprehensive information on the micronutrient content than the Nigerian Seed Portal (@tbl-mn_content_compare), which is to be expected given the focus of HarvestPlus on biofortification.
+The NSP database doesn't have a dedicated variable for micronutrient concentration, so any information has to be extracted from the 'outstanding characteristics' of the variety. This extraction is not always successful given the lack of standardisation of units, and of the order of information in the portal database.
+
+In the NSP database the most commonly mentioned micronutrient contents are for Vitamin A rich varieties. In some cases these are the same or similar to HarvestPlus contents, but others are significantly different, e.g. Oba Super, a Vitamin A Maize variety released in 2023, which has a provitamin A content of 20.1	µg^-g^, while the HarvestPlus database gives a concentration of just 8.3ppm.
+
+The only iron rich crop is pearl millet, which has the same values for iron in both databases, and also includes zinc concentration in the NSP database. 
+
+The only other varieties with zinc content in the NSP database are for Zinc Rice. These two varieties, released in 2025, have the same information as the HP database.
+
+The HarvestPlus database has information on micronutrient concentration for more varieties, and is in standardised units, for these reasons this database should be the source of information on micronutrient content where there are differences. However, for unmatched records (e.g. the iron rich Sorghum variety SAMSORG 52 ) the MN concentration in the NSP database could be used but the source should be displayed.
+
+ 
+
+```{r}
+#| label: tbl-mn_content_compare
+#| message: false
+#| warning: false
+
+
+df_merge_manual |>  
+  select(Crop.Name, Biofortified_crop_name, Variety.Name, Variety_Name, vitA_content, zinc_content, iron_content, Micronutrient_concentratio, Year_Released ) |>
+  arrange(is.na(Biofortified_crop_name), desc(Micronutrient_concentratio)) |>
+  DT::datatable(
+    rownames = F,
+    colnames=c("Crop Name (NSP)", "Crop Name (HP)", "Variety Name (NSP)", "Variety Name (HP)",  "Vitamin A content (NSP)", "Zinc content (NSP)", "Iron content (NSP)", "Micronutrient Concentration (ppm) (HP)", "Year Released (HP)"),
+    caption = "Yield values in the NSP and HP databases",
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      #order = list(list(0, 'desc'), list(1, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      #autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(10, 20),
+      pageLength = 20
+    ))
+
+
+```
 
 # Map the varieties in each AEZ
 
@@ -1026,5 +1260,35 @@ ggplot(vect_aez_geo_joined) +
 
 ```
 
+# Pilot for getting variety data from html
+
+```{r}
+# convert to sf until leaflet properly accepts spatvector
+sf_aez_geo_joined <- st_as_sf(vect_aez_geo_joined) |> filter(Crop.Name == "Cassava", micronutrient == "vit_A") |>
+  aggr(AEZ)
+
+leaflet(sf_aez_geo_joined, width = "100%") %>%
+  addProviderTiles(providers$OpenStreetMap.HOT, group = "OSM (HOT)") %>%
+  addPolygons(
+    label = ~ stringr::str_c('Varieties =', n_varieties),
+    labelOptions = labelOptions(direction = 'auto'),
+    color = "#03F",
+    weight = 1,
+    opacity = 0.5,
+    fill = T,
+    #fillColor = ~ pal(FAO_limit),
+    fillOpacity = 0.2,
+    dashArray = NULL,
+    smoothFactor = 1,
+    noClip = FALSE,
+    popup = paste(
+      'Varieties  =',
+      sf_aez_geo_joined$n_varieties
+    ),
+    popupOptions = NULL,
+    highlightOptions = NULL,
+  )
+
+```
 
 
