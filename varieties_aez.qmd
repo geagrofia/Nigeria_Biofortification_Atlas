@@ -332,6 +332,11 @@ df_aez <- as.data.frame(vect_aez_geo)
 
 df_nsp <- read.csv("tab_data/seedportal_varieties.csv")
 
+# add a numeric variety id for internal use based on row number
+
+df_nsp <- df_nsp |>
+mutate(nsp_variety_id = row_number())
+
 #str(df_nsp)
 #summary(df_nsp)
 
@@ -480,6 +485,10 @@ An alternative source of information on biofortified crops released in Nigeria i
 
 df_hp <- read.csv("tab_data/hp_ListofCrops.csv")
 
+# add a numeric variety id for internal use based on row number
+
+df_hp <- df_hp |>
+mutate(hp_variety_id = row_number())
 
 ```
 
@@ -544,8 +553,38 @@ df_glomip <- read.csv("tab_data/Product Catalog GloMIP.csv")
 
 ```
   
-  The other variables in the database include references to market segments (which have their own database), but the information in the downloadable variety catalogue is less extensive than the information which appears in the website for each variety, such as the "full description", "key strengths" and "variety performance". 
+The other variables in the database include references to market segments (which have their own database), but the information in the downloadable variety catalogue is less extensive than the information which appears in the website for each variety, such as the "full description", "key strengths" and "variety performance". 
 
+An example where such a link does exist is for rice varieties in the GloMIP product catalogue (@tbl-var_ms_tpp1). This allows a variety to be linked to specific traits which have units, and thresholds.
+
+| Variety_name |	MS_short|	TPP (from MS)	| Trait ID	| Trait Type |	Trait Name |
+|--------------|----------|---------------|-----------|------------|-------------|
+| Binadhan-7	 | Rice Indica SA MS00299	| Rice Indica SA IRRI TPP00262 |	TR-00174 |	Abiotic	Yield Under Late Stage Drought
+||||			TR-00176	 | Quality - Analytical	| Head Rice Recovery
+||||			TR-00164	 | Quality - Analytical	 | Amylose Content
+||||			TR-00165	 | Quality - Visual	 | Chalkiness
+||||			TR-00172	 | Agronomic	 | Yield
+||||			TR-00180	 | Morphological	 | Plant Height
+||||			TR-00181	 | Biotic - Disease	 | Bacterial Leaf Blight
+||||			TR-00183	 | Biotic - Disease	 | Leaf Blast
+||||			TR-00184	 | Biotic - Disease	 | Neck Blast
+||||			TR-00185	 | Biotic - Disease	 | Brown Spot
+||||			TR-00187	 | Biotic - Disease	 | Sheath Blight
+||||			TR-00188	 | Biotic - Disease	 | Sheath Rot
+||||			TR-00192	 | Biotic - Pests	 | Brown Plant Hopper
+||||			TR-00175	 | Abiotic	 | Heat Tolerance
+
+: \# Example of links between variety, Market Segment and Target Product Profile {#tbl-var_ms_tpp1}
+
+Another example is for Maize, where the market segment and Target Product Profile can be linked, this segment and product profile is particularly relevant because one of the essential traits to improve is the Provitamin A Carotenoid content (@tbl-ms_tpp1). However, from the information available there is no way to link the market segment to a released variety.
+
+
+| Variety_name |	MS_short|	TPP (from MS)	| Trait ID	| Trait Type |	Trait Name |
+|--------------|----------|---------------|-----------|------------|-------------|
+|              |Maize WAF MS00861	 | Maize WAF IITA TPP00220 |	TR-00120 | 	Quality - Analytical | Provitamin A Carotenoid Content
+: \# Example of links between Market Segment and Target Product Profile but without a variety {#tbl-ms_tpp1}
+
+The biggest issue for linking the GloMIP databases to the varieties in the HarvestPlus and Nigerian Seed Portal is the lack of a reference to a Market Segment in those databases. As a consequence it is currently not possible to incorporate the information in the GloMIP data base with the varieties in the NSP and HP databases.
 
 # Merge variety databases
 
@@ -1148,7 +1187,24 @@ df_nsp_biofort_counts <- df_nsp_biofort_long |>
   pivot_longer(cols = all_of(micronutrients),
                names_to  = "micronutrient",
                values_to = "has_trait") |>
-  filter(has_trait == 1) |>                       # keep only varieties with that micronutrient
+  filter(has_trait == 1) 
+
+# save this for use in the Shiny app
+# should have these columns: variety_id | variety_name | crop | micronutrient | unit_id
+
+df_nsp_biofort_counts |>
+  rename(
+    variety_id = nsp_variety_id,
+    variety_name = Variety.Name,
+    crop = Crop.Name,
+    year = Year.of.Release,
+    unit_id = AEZ
+  ) |>
+  select(variety_id, variety_name, crop, micronutrient, unit_id, year) |>
+  write.csv("E:/repos/Nigeria_Biofortification_Atlas/varieties.csv",row.names = F)
+
+
+df_nsp_biofort_counts <- df_nsp_biofort_counts |>                       # keep only varieties with that micronutrient
   group_by(Crop.Name, micronutrient, AEZ) |>
   summarise(n_varieties = n(), .groups = "drop")
 
@@ -1260,12 +1316,122 @@ ggplot(vect_aez_geo_joined) +
 
 ```
 
-# Pilot for getting variety data from html
+# Visualising the spatial product catalogue for Nigeria
+
+There are two options we are considering for a pilot spatial visualisation of the biofortified variety catalogue for Nigeria:
+
+1) a Shiny interface with a client application and backendserver
+2) a standalone html file with embedded interactive maps 
+
+When deciding whether to embed a Leaflet map in a standalone HTML file or within an R Shiny application, the best choice depends on whether our map needs to communicate with a server.
+
+**Standalone HTML Map**
+A standalone HTML map (created via R's htmlwidgets, leaflet export, or pure JavaScript) is completely static on the backend but interactive on the frontend and has these attributes:
+
+- No Hosting Costs: We do not need an active server (like ShinyServer or shinyapps.io). We can host it for free on GitHub Pages, Netlify, or AWS S3.
+- Fast Performance: Because there is no server-side computation, the map loads quickly for the user, limited only by their internet speed and data size.
+- Scalability: Many users can view the map at the same time without crashing a server, as all rendering happens directly in the user's web browser.
+- Easy Sharing: We can email the map as a single .html file attachment, and it will open and work completely offline.
+
+**R Shiny Application Map**
+An R Shiny map connects our Leaflet frontend to a live R session running on a backend server.
+
+- Dynamic Data Updates: The map can query a live SQL database, fetch real-time APIs, or react to user-uploaded files on the fly.
+- Bidirectional Communication: We can capture user actions on the map (like clicking a marker or drawing a bounding box) and use those actions to trigger complex R scripts, run statistical models, or update separate charts.
+- Heavy-Duty Data Processing: Shiny can process, filter, and summarise gigabytes of spatial data, the data are on the server, sending only the tiny, necessary pieces to the browser.
+- Secured Access: Because the data processing happens on the server, we can hide sensitive underlying datasets or restrict app access behind user authentication.
+
+Because our database is small, we can easily build this using either approach, and our choice depends on how we want to deploy it.
+Since our dataset is small, a standalone HTML file can hold all the data and handle filtering entirely inside the user's browser. However, if we want to write standard R code for filtering or plan to expand the app later, then Shiny remains an option. As a result we will build prototype applications using both approaches.
+
+The prototypes should have the following functionality:
+
+- allow the user to choose a crop and or a micronutrient using a dropdown text filter.
+- display the results of this selection (similar to the individual maps in @fig-aez_var_num) in an interactive map
+- allow the user to select a specific Agro Ecological Zone on the map
+- display the varieties for the selected crop * micronutrient * AEZ combination
+- when the user clicks on the variety in the table display further details of the variety including an image if available
+
+
+The data required are:
+
+1. A long table with a row for each variety * agro-ecological zone combination with an identification for the variety
+2. A table of the details of the biofortified varieties with a unique identification with one row per variety, including characteristics, a link to HarvestPlus attributes and a reference to an image file if available
+
+The merged database of NSP and HarvestPlus only contains a subset of the biofortified varieties that are in the NSP database and for which there are data on the geographical unit for which the variety is adapted.
+
+We therefore need to reintroduce the varieties that were not matched.
 
 ```{r}
+#| label: shiny_pilot_data_preparation_1
+#| message: false
+#| warning: false
+
+# rejoin the non-merged data from NSP add a preference code to show that merged rows are preferred the remove the non-preferred when there are duplicates
+
+# we start with 51 varieties in df_nsp_biofort and 29 in the df_merge_manual, we expect 51 varieties of which 29 should have hp data
+
+# Bind and resolve duplicates by dataset preference
+df_nsp_biofort_merged_hp <- bind_rows(
+  df_merge_manual |> mutate(pref = 1),
+  df_nsp_biofort |> mutate(pref = 2)
+) |>
+  arrange(pref) |>                  # Puts source 1 (preferred) on top
+  distinct(nsp_variety_id, .keep_all = TRUE) |>  # Keeps the first 'id' it sees
+  select(-pref)   
+
+# this produces 51 varieties with 29 containing hp data
+
+# save this for use in the Shiny app
+# should have these columns: variety_id | variety_name | crop | micronutrient | unit_id
+
+
+
+## COMMENTED OUT BECAUSE IMAGES ADDED AFTERWARDS MANUALLY
+##---------------------------------------------------------
+
+# df_nsp_biofort_merged_hp |>
+#   rename(
+#     variety_id = nsp_variety_id,
+#   ) |>
+#   select(variety_id, Variety.Name,  Crop.Name,  oc, zinc_content, iron_content, vitA_content, Micronutrient_concentratio, agro ) |>
+#   write.csv("E:/repos/Nigeria_Biofortification_Atlas/variety_details.csv", row.names = F)
+
+  
+```
+
+What the user can do with the prototype applications:
+
+- Selectors: Crop and micronutrients can be selected via dropdowns above the map.
+- Map: Showing the AEZ polygons and using a variable colour scale with some transparency, with grey for zero-count units and a legend. Hovering shows the AEZ name and the number of varieties.
+- Click a polygon: It gets a red outline and the table filters to that AEZ Click it again, or use "Clear selection", to go back to all AEZs
+- Table: Sortable by clicking the headers, plus a search box.
+- Row click: Shows the image (if available), then the details list, with any http(s) values turned into links (for our image-source link).
+
+
+
+## Prototype standalone html spatial product catalogue using leaflet
+
+A leaflet map can be embedded within a standalone html file which can be distributed to users.
+For instance the leaflet map below (@fig-leaflet_pilot) shows the number of biofortified cassava varieties in Nigeria.
+
+
+```{r}
+#| label: fig-leaflet_pilot
+#| message: false
+#| warning: false
+#| fig-width: 12
+#| fig-height: 18
+#| out-width: "100%"
+#| fig-align: "center"
+#| fig-cap: "Number of Biofortified Cassava Varieties per AEZ"
+
+
 # convert to sf until leaflet properly accepts spatvector
-sf_aez_geo_joined <- st_as_sf(vect_aez_geo_joined) |> filter(Crop.Name == "Cassava", micronutrient == "vit_A") |>
-  aggr(AEZ)
+sf_aez_geo_joined <- st_as_sf(vect_aez_geo_joined) |> filter(Crop.Name == "Cassava", micronutrient == "vit_A") |> # leaflet needs WGS84
+  group_by(AEZ) |>
+  summarise(AEZ_name = first(AEZ_name), n_varieties = first(n_varieties), .groups = "drop") |> # one row per unit_id
+  st_make_valid()
 
 leaflet(sf_aez_geo_joined, width = "100%") %>%
   addProviderTiles(providers$OpenStreetMap.HOT, group = "OSM (HOT)") %>%
@@ -1282,7 +1448,7 @@ leaflet(sf_aez_geo_joined, width = "100%") %>%
     smoothFactor = 1,
     noClip = FALSE,
     popup = paste(
-      'Varieties  =',
+      '# Varieties  =',
       sf_aez_geo_joined$n_varieties
     ),
     popupOptions = NULL,
@@ -1291,4 +1457,31 @@ leaflet(sf_aez_geo_joined, width = "100%") %>%
 
 ```
 
+It is possible to fulfill our required functionality with a standalone html file using leaflet and a range of R packages.
 
+The crosstalk package, for instance, links widgets in the browser, `filter_select()` can be used for dropdowns for crop and micronutrient, while a leaflet map and a DT table can all share one filtered dataset. It's saved with `htmlwidgets::saveWidget(..., selfcontained = TRUE)` or put in an R Markdown/Quarto page, and it runs anywhere. Crosstalk has some shortcomings, however. Crosstalk filters rows, but it doesn't aggregate them to show the number of varieties per AEZ. Our map colours each polygon by the number of distinct varieties, and that number changes as the filters change. Crosstalk can show or hide polygons, but it can't recolour them by a recomputed count. Leaflet's crosstalk support is mainly for filtering, so clicking a polygon to filter the table is not reliable.
+
+An alternative is leaflet plus custom JavaScript. We still build it from R, pre-compute the variety counts for every AEZ * crop * micronutrient combination, embed those plus the details table and base64 images as JSON, and use `htmlwidgets::onRender()` to add the dropdowns, recolour the polygons, handle the click, and fill the table and details panel. 
+This works fully offline (apart from the map background tile) and can be hosted anywhere static, such as GitHub Pages.
+
+A script was written in R to create the html file, R writes the varieties, AEZ names, variety details and base64-encoded images into the page as JSON, and a block of plain JavaScript does the counting, colouring and table updates in the browser.
+The polygons come from R's leaflet package, and the script finds each one by its unit_id so it can recolour it. A duplicate-unit_id clean-up is included.
+It uses the inputs created above: varieties.csv, variety_details.csv, and images/, as well as a geopackage for the spatial data - units.gpkg.
+
+
+The final html page can be accessed here:
+
+<https://geagrofia.github.io/Nigeria_Biofortification_Atlas/nigeria%20biofort%20crop%20catalogue.html>
+
+
+
+## Prototype Shiny interface spatial product catalogue
+
+Shiny is an extension of R scripts to allow the production of user interfaces.
+Shiny is commonly used to produce dashboards, but can be combined with leaflet to display spatial data and permit a user to select units on the map and view other information. Shiny offers us a way of selecting a particular geographic unit to filter our database of biofortified crop varieties.
+
+The shiny interface can be accessed here:
+
+<https://geagrofia.shinyapps.io/Nigerian_Biofortified_Crops_Catalogue/>
+
+This loads a little more slowly than the html page, the design is more like a dashboard, rather than horizontal blocks in the html page.
