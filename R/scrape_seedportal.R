@@ -503,7 +503,20 @@ df <- df |>
     # ── Nutrient indicators (from Outstanding Characteristics) ──
     zinc = flag(oc, "zinc|\\bZn\\b"),
     vit_A = flag(oc, "vitamin\\s*a|\\bvit\\s*a\\b|vit.\\s*a|carot"),
-    iron = flag(oc, "\\biron\\b|\\bFe\\b"),
+    iron = as.integer(
+      str_detect(oc, regex("\\biron\\b|\\bFe\\b", ignore_case = TRUE)) &
+        !str_detect(
+          oc,
+          regex(
+            "iron.{0,20}(toxic|deficien|stress|toleran)|
+                                      (toxic|deficien|stress|toleran).{0,20}iron|
+                                      \\bFe.{0,20}(toxic|deficien)|
+                                      (toxic|deficien).{0,20}\\bFe\\b",
+            ignore_case = TRUE,
+            comments = TRUE
+          )
+        )
+    ),
 
     # ── Micronutrient content values ─────────────────────────────
     zinc_content = extract_nutrient_content(oc, "zinc|\\bZn\\b"),
@@ -518,11 +531,17 @@ df <- df |>
     # Base detections
     .has_n_guinea = str_detect(
       agro,
-      regex("northern\\s*guinea|N\\.?\\s*guinea|northern", ignore_case = TRUE)
+      regex(
+        "northern\\s*guinea|\\bN\\.?\\s*guinea|northern",
+        ignore_case = TRUE
+      )
     ),
     .has_s_guinea = str_detect(
       agro,
-      regex("southern\\s*guinea|S\\.?\\s*guinea|southern", ignore_case = TRUE)
+      regex(
+        "southern\\s*guinea|\\bS\\.?\\s*guinea|southern",
+        ignore_case = TRUE
+      )
     ),
     .has_guinea = str_detect(agro, regex("guinea", ignore_case = TRUE)),
     .has_savanna = str_detect(
@@ -534,6 +553,10 @@ df <- df |>
       agro,
       regex("derived|transition", ignore_case = TRUE)
     ),
+    .has_forest = str_detect(
+      agro,
+      regex("forest", ignore_case = TRUE)
+    ),
 
     # "guinea" alone (without northern/southern qualifier) → both zones
     .guinea_only = .has_guinea & !.has_n_guinea & !.has_s_guinea,
@@ -541,10 +564,14 @@ df <- df |>
     # "savanna" without any transition/derived, guinea or sudan qualifier → all savanna zones
     .savanna_only = .has_savanna & !.has_derived & !.has_guinea & !.has_sudan,
 
+    # forest AND guinea → also includes derived savanna zones
+    .implied_derived = .has_forest &
+      (.has_s_guinea | .has_n_guinea | .has_sudan | .has_savanna),
+
     n_guinea = as.integer(.has_n_guinea | .guinea_only | .savanna_only),
     s_guinea = as.integer(.has_s_guinea | .guinea_only | .savanna_only),
     sudan = as.integer(.has_sudan | .savanna_only),
-    derived = as.integer(.has_derived | .savanna_only),
+    derived = as.integer(.has_derived | .savanna_only | .implied_derived),
     forest = flag(agro, "forest"),
     mid_alt = flag(agro, "mid.?alt"),
     lowland = flag(agro, "lowland|\\blow\\b"),
@@ -552,9 +579,9 @@ df <- df |>
     all_zones = flag(agro, "\\ball\\b"),
 
     .keep = "unused" # drop the temporary .has_* / .xxx columns
-  ) |>
-  # Remove internal working columns (those starting with ".")
-  select(-starts_with("."))
+  ) #|>
+# Remove internal working columns (those starting with ".")
+#select(-starts_with("."))
 
 cat("Post-processing complete.\n\n")
 
