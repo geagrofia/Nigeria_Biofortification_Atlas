@@ -1729,6 +1729,7 @@ ggplot(vect_plantain_banana_2024) +
   )
 
 ```
+
 ### Banana/Plantain (NASS 2022)
 
 ```{r}
@@ -2825,7 +2826,7 @@ For sorghum there are some big differences in the harvested area by state betwee
 
 NAERLS provides no estimates for many southern states. There is likely to be some production here, perhaps for fodder rather than grain, but these estimates do not appear in the report.
 
-Once again the overall harvested areas in the 2022 NASS source are far larger than in NAERLS. The state with the greatest harvested area is Bauchi, with over one million hectares - far in excess of the values in the NAERLS dataset. In contrast the values for Borno state are far lower.
+Once again the overall harvested areas in the 2022 NASS source are far larger than in NAERLS. The state with the greatest harvested area is Bauchi, with over one million hectares - far in excess of the values in the NAERLS dataset. In contrast, the values for Borno state are far lower.
 
 Given the more recent data from NAERLS we will use this source for sorghum.
 
@@ -2978,7 +2979,7 @@ df_spotato_comb_rename_round |>
 
 The comparison between the 2006 estimates from HarvestStat and those of 2020 from MapSpam show very large differences in the absolute harvested areas, with many states in the 2020 dataset showing areas an order of magnitude different, such as Niger, Benue and Taraba, or more extremely for Enugu.
 
-The 2022 data from NASS and are far higher than NAERLS, and are more consistent with MapSpam, but there are inconsistencies. 
+The 2022 data from NASS are far higher than NAERLS, and are more consistent with MapSpam, but there are inconsistencies. 
 
 Sweet Potato production has increased in Nigeria, and the 2006 data are now very old. While the MapSpam data show unusual patterns and obvious missing data for Bayelsa, Ebonyi, Ekiti and Nasarawa. The MapSpam data are more recent than the 2006 data, but given the more recent data in NASS those data will be used for Sweet Potato.
 
@@ -3008,72 +3009,94 @@ It is therefore necessary to use a mixture of the sources, with government sourc
 
 These are saved to the local database.
 
+For the Biofortification Prioritisation Index we do not use the harvested area of a particular crop directly, instead we require the proportion of the state's cropland dedicated to the crop. Also, in the weighting of the BPI we need to calculate the state's share of the national production of a specific crop.
+
+This has implications when we use crop statistics from different sources. Ideally we would use a single source, which had all crop harvested areas for all states. We do not mix the data from different sources, but there is the possibility of achieving state level proportions that sum to more then 100%, e.g.
+
+| Crop |	Harvest Area |	Total (a) or (b) | Proportion % |
+|------|---------------|-------------------|--------------|	
+|Banana/Plantain (a) |	100 |	1000 |	10 |	
+|Cassava (b) |	500 |	2000 |	25 |	
+|Cowpea (b) |	100 |	2000 |	5 |	
+|Maize (b) |	500 |	2000 |	25 |	
+|Rice (a) |	300 |	1000 |	30 |	
+|Sorghum (a) |	100 |	1000 |	10 |	
+|Sweet Potato (b) |	100 |	2000 |	5 |	
+|	 |	 |	 |					110 |	
+
+
+This will not have an effect for an individual crop BPI, but would have the effect of prioritising certain states that have large and differing harvested areas for different crops in different databases.
+
+
 ```{r}
 #| label: save_data
 #| message: false
 #| warning: false
 #| cache: true
 
+
+## NAERLS data source
+
 # # plantain banana 2024
 # writeVector(
 #   x = vect_plantain_banana_2024,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/plantain_banana_2024_naerls.geojson",
+#   filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/plantain_banana_2024_naerls.geojson",
 #   filetype = "GeoJSON",
 #   overwrite = TRUE
 # )
 # 
-# # Cassava 2024
-# writeVector(
-#   x = vect_cassava_2024,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cassava_2024_naerls.geojson",
-#   filetype = "GeoJSON",
-#   overwrite = TRUE
-# )
-# 
-# # Cowpea 2024
-# writeVector(
-#   x = vect_cowpea_2024,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/cowpea_2024_naerls.geojson",
-#   filetype = "GeoJSON",
-#   overwrite = TRUE
-# )
-# 
-# # Maize 2024
-# writeVector(
-#   x = vect_maize_2024,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/maize_2024_naerls.geojson",
-#   filetype = "GeoJSON",
-#   overwrite = TRUE
-# )
 # 
 # # Rice 2024
 # writeVector(
 #   x = vect_rice_2024,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/rice_2024_naerls.geojson",
+#   filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/rice_2024_naerls.geojson",
 #   filetype = "GeoJSON",
 #   overwrite = TRUE
 # )
-
-
+#
 # # Sorghum 2024
 # writeVector(
 #   x = vect_sorghum_2024,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/sorghum_2024_naerls.geojson",
+#   filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/sorghum_2024_naerls.geojson",
 #   filetype = "GeoJSON",
 #   overwrite = TRUE
 # )
 
 
-# Sweet Potato MapSpam 2020
-# join df to vect
-vect_spam_spot_2 <- tidyterra::left_join(vect_state_geo, df_spam_spot_2, by =c("adm1_ref_name" = "ADM1_NAME"))
+## NASS data source
 
-# writeVector(
-#   x = vect_spam_spot_2,
-#   filename = "E:/repos/Biofort_Atlas_Nigeria/spatial_data/spotato_2020_mapspam.geojson",
-#   filetype = "GeoJSON",
-#   overwrite = TRUE
-# )
+# # Cassava 2022
+ writeVector(
+   x = vect_cassava_2022,
+   filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cassava_2022_nass.geojson",
+   filetype = "GeoJSON",
+   overwrite = TRUE
+ )
+ 
+# # Cowpea 2022
+writeVector(
+   x = vect_cowpea_2022,
+   filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cowpea_2022_nass.geojson",
+   filetype = "GeoJSON",
+   overwrite = TRUE
+ )
+ 
+# # Maize 2022
+ writeVector(
+   x = vect_maize_2022,
+   filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/maize_2022_nass.geojson",
+   filetype = "GeoJSON",
+   overwrite = TRUE
+ )
+ 
+# Sweet Potato 2022
+writeVector(
+  x = vect_spot_2022,
+  filename = "E:/repos/Nigeria_Biofortification_Atlas/spatial_data/spot_2022_nass.geojson",
+  filetype = "GeoJSON",
+  overwrite = TRUE
+)
+
 
 ```
 
@@ -3095,25 +3118,25 @@ df_plantain_banana_2024_rename <- as.data.frame(vect_plantain_banana_2024) |>
   rename(plantain_banana_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, plantain_banana_Area_2024)
 
 
-# # Cassava 2024
-vect_cassava_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cassava_2024_naerls.geojson")
+# # Cassava 2022
+vect_cassava_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cassava_2022_nass.geojson")
 
-df_cassava_2024_rename <- as.data.frame(vect_cassava_2024) |>
-  rename(cassava_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, cassava_Area_2024)
-
-
-# # Cowpea 2024
-vect_cowpea_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cowpea_2024_naerls.geojson")
-
-df_cowpea_2024_rename <- as.data.frame(vect_cowpea_2024) |>
-  rename(cowpea_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, cowpea_Area_2024)
+df_cassava_2022_rename <- as.data.frame(vect_cassava_2022) |>
+  rename(cassava_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, cassava_Area_2022)
 
 
-# # Maize 2024
-vect_maize_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/maize_2024_naerls.geojson" )
+# # Cowpea 2022
+vect_cowpea_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cowpea_2022_nass.geojson")
 
-df_maize_2024_rename <- as.data.frame(vect_maize_2024) |>
-  rename(maize_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, maize_Area_2024)
+df_cowpea_2022_rename <- as.data.frame(vect_cowpea_2022) |>
+  rename(cowpea_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, cowpea_Area_2022)
+
+
+# # Maize 2022
+vect_maize_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/maize_2022_nass.geojson" )
+
+df_maize_2022_rename <- as.data.frame(vect_maize_2022) |>
+  rename(maize_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, maize_Area_2022)
 
 
 # # Rice 2024
@@ -3131,10 +3154,10 @@ df_sorghum_2024_rename <- as.data.frame(vect_sorghum_2024) |>
 
 
 # Sweet Potato MapSpam 2020
-vect_spam_spot_2 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/spotato_2020_mapspam.geojson")
+vect_spot_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/spot_2022_nass.geojson")
 
-df_spot_2020_rename <- as.data.frame(vect_spam_spot_2) |>
-  rename(spot_Area_2020 = sum_spot) |> select(adm1_ref_name, spot_Area_2020)
+df_spot_2022_rename <- as.data.frame(vect_spot_2022) |>
+  rename(spot_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, spot_Area_2022)
 
 
 ```
@@ -3145,18 +3168,33 @@ df_spot_2020_rename <- as.data.frame(vect_spam_spot_2) |>
 #| warning: false
 #| cache: true
 
-df_crop_share_2024 <- left_join(select(df_total_cropped_2024, adm1_ref_name, Area_Ha_2024), df_plantain_banana_2024_rename, by = "adm1_ref_name") |> left_join( df_cassava_2024_rename,by = "adm1_ref_name") |> left_join( df_cowpea_2024_rename,by = "adm1_ref_name") |> left_join( df_maize_2024_rename,by = "adm1_ref_name") |> left_join( df_rice_2024_rename,by = "adm1_ref_name") |> left_join( df_sorghum_2024_rename,by = "adm1_ref_name") |> left_join( df_spot_2020_rename,by = "adm1_ref_name") |> left_join( rename(df_spam_total, Area_Ha_2020 = total),by = c("adm1_ref_name" = "ADM1_NAME"))
+df_crop_share <-
+  left_join(
+    select(df_total_cropped_2024, adm1_ref_name, Area_Ha_2024),
+    df_plantain_banana_2024_rename,
+    by = "adm1_ref_name"
+  ) |>
+  left_join(df_cassava_2022_rename, by = "adm1_ref_name") |>
+  left_join(df_cowpea_2022_rename, by = "adm1_ref_name") |>
+  left_join(df_maize_2022_rename, by = "adm1_ref_name") |>
+  left_join(df_rice_2024_rename, by = "adm1_ref_name") |>
+  left_join(df_sorghum_2024_rename, by = "adm1_ref_name") |>
+  left_join(df_spot_2022_rename, by = "adm1_ref_name") |>
+  left_join(
+    rename(df_nass_total_cropped, Area_Ha_2022 = sum_area),
+    by = "adm1_ref_name"
+  )
 
-df_crop_share_2024 <- df_crop_share_2024 |>
+df_crop_share <- df_crop_share |>
   mutate(plantain_banana_share_2024 = (plantain_banana_Area_2024/Area_Ha_2024) * 100,
-         cassava_share_2024 = (cassava_Area_2024/Area_Ha_2024) * 100, 
-         cowpea_share_2024 = (cowpea_Area_2024/Area_Ha_2024) * 100, 
-         maize_share_2024 = (maize_Area_2024/Area_Ha_2024) * 100, 
+         cassava_share_2022 = (cassava_Area_2022/Area_Ha_2022) * 100, 
+         cowpea_share_2022 = (cowpea_Area_2022/Area_Ha_2022) * 100, 
+         maize_share_2022 = (maize_Area_2022/Area_Ha_2022) * 100, 
          rice_share_2024 = (rice_Area_2024/Area_Ha_2024) * 100, 
          sorghum_share_2024 = (sorghum_Area_2024/Area_Ha_2024) * 100, 
-         spot_share_2020 = (spot_Area_2020/Area_Ha_2020) * 100)
+         spot_share_2022 = (spot_Area_2022/Area_Ha_2022) * 100)
 
-vect_crop_area_share <- dplyr::left_join(vect_state_geo, df_crop_share_2024 , by = c("adm1_ref_name"))
+vect_crop_area_share <- dplyr::left_join(vect_state_geo, df_crop_share , by = c("adm1_ref_name"))
 
 ```
 
@@ -3190,17 +3228,18 @@ ggplot(vect_crop_area_share) +
   )
 
 ```
+
 ## Cassava crop area share
 
 ```{r}
-#| label: NAERLS_24_state_cassava_crop_area_share_map
+#| label: NASS_22_state_cassava_crop_area_share_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
 ggplot(vect_crop_area_share) +
-  geom_spatvector(aes(fill = cassava_share_2024)) +
+  geom_spatvector(aes(fill = cassava_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 100),
@@ -3221,14 +3260,14 @@ ggplot(vect_crop_area_share) +
 ## Cowpea crop area share
 
 ```{r}
-#| label: NAERLS_24_state_cowpea_crop_area_share_map
+#| label: NASS_22_state_cowpea_crop_area_share_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
 ggplot(vect_crop_area_share) +
-  geom_spatvector(aes(fill = cowpea_share_2024)) +
+  geom_spatvector(aes(fill = cowpea_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 100),
@@ -3245,17 +3284,18 @@ ggplot(vect_crop_area_share) +
   )
 
 ```
+
 ## Maize crop area share
 
 ```{r}
-#| label: NAERLS_24_state_maize_crop_area_share_map
+#| label: NASS_22_state_maize_crop_area_share_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
 ggplot(vect_crop_area_share) +
-  geom_spatvector(aes(fill = maize_share_2024)) +
+  geom_spatvector(aes(fill = maize_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 100),
@@ -3272,6 +3312,7 @@ ggplot(vect_crop_area_share) +
   )
 
 ```
+
 ## Rice crop area share
 
 ```{r}
@@ -3299,6 +3340,7 @@ ggplot(vect_crop_area_share) +
   )
 
 ```
+
 ## Sorghum crop area share
 
 ```{r}
@@ -3326,17 +3368,18 @@ ggplot(vect_crop_area_share) +
   )
 
 ```
+
 ## Sweet Potato crop area share
 
 ```{r}
-#| label: MapSpam_20_state_spot_crop_area_share_map
+#| label: NASS_22_state_state_spot_crop_area_share_map
 #| message: false
 #| warning: false
 #| cache: false
 #| results: asis
 
 ggplot(vect_crop_area_share) +
-  geom_spatvector(aes(fill = spot_share_2020)) +
+  geom_spatvector(aes(fill = spot_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 100),
@@ -3409,18 +3452,18 @@ ggplot() +
 #| warning: false
 #| cache: true
 
-df_crop_per_capita_2024_pc <- left_join(df_crop_share_2024, select(df_pop_nbs, state_name, pop_est_2025 ), by = c("adm1_ref_name" = "state_name"))
+df_crop_per_capita_pc <- left_join(df_crop_share, select(df_pop_nbs, state_name, pop_est_2025 ), by = c("adm1_ref_name" = "state_name"))
 
-df_crop_per_capita_2024_pc <- df_crop_per_capita_2024_pc |>
+df_crop_per_capita_pc <- df_crop_per_capita_pc |>
   mutate(plantain_banana_pc_2024 = (plantain_banana_Area_2024/pop_est_2025) * 10000,
-         cassava_pc_2024 = (cassava_Area_2024/pop_est_2025) * 10000, 
-         cowpea_pc_2024 = (cowpea_Area_2024/pop_est_2025) * 10000, 
-         maize_pc_2024 = (maize_Area_2024/pop_est_2025) * 10000, 
+         cassava_pc_2022 = (cassava_Area_2022/pop_est_2025) * 10000, 
+         cowpea_pc_2022 = (cowpea_Area_2022/pop_est_2025) * 10000, 
+         maize_pc_2022 = (maize_Area_2022/pop_est_2025) * 10000, 
          rice_pc_2024 = (rice_Area_2024/pop_est_2025) * 10000, 
          sorghum_pc_2024 = (sorghum_Area_2024/pop_est_2025) * 10000, 
-         spot_pc_2020 = (spot_Area_2020/pop_est_2025) * 10000)
+         spot_pc_2022 = (spot_Area_2022/pop_est_2025) * 10000)
 
-vect_crop_area_pc <- dplyr::left_join(vect_state_geo, df_crop_per_capita_2024_pc , by = c("adm1_ref_name"))
+vect_crop_area_pc <- dplyr::left_join(vect_state_geo, df_crop_per_capita_pc , by = c("adm1_ref_name"))
 
 ```
 
@@ -3464,11 +3507,11 @@ ggplot(vect_crop_area_pc) +
 #| warning: false
 #| cache: false
 #| results: asis
-#| fig-cap: "Cassava 2024/25 per-capita area harvested"
+#| fig-cap: "Cassava 2022/25 per-capita area harvested"
 # 
 
 ggplot(vect_crop_area_pc) +
-  geom_spatvector(aes(fill = cassava_pc_2024)) +
+  geom_spatvector(aes(fill = cassava_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 2500),
@@ -3477,7 +3520,7 @@ ggplot(vect_crop_area_pc) +
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Cassava 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  labs(title = "Cassava 2022/25 per-capita area harvested", fill = "m<sup>2</sup>") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -3495,11 +3538,11 @@ ggplot(vect_crop_area_pc) +
 #| warning: false
 #| cache: false
 #| results: asis
-#| fig-cap: "Cowpea 2024/25 per-capita area harvested"
+#| fig-cap: "Cowpea 2022/25 per-capita area harvested"
 # 
 
 ggplot(vect_crop_area_pc) +
-  geom_spatvector(aes(fill = cowpea_pc_2024)) +
+  geom_spatvector(aes(fill = cowpea_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 2500),
@@ -3508,7 +3551,7 @@ ggplot(vect_crop_area_pc) +
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Cowpea 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  labs(title = "Cowpea 2022/25 per-capita area harvested", fill = "m<sup>2</sup>") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -3526,11 +3569,11 @@ ggplot(vect_crop_area_pc) +
 #| warning: false
 #| cache: false
 #| results: asis
-#| fig-cap: "Maize 2024/25 per-capita area harvested"
+#| fig-cap: "Maize 2022/25 per-capita area harvested"
 # 
 
 ggplot(vect_crop_area_pc) +
-  geom_spatvector(aes(fill = maize_pc_2024)) +
+  geom_spatvector(aes(fill = maize_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 2500),
@@ -3539,7 +3582,7 @@ ggplot(vect_crop_area_pc) +
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Maize 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  labs(title = "Maize 2022/25 per-capita area harvested", fill = "m<sup>2</sup>") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -3588,11 +3631,11 @@ ggplot(vect_crop_area_pc) +
 #| warning: false
 #| cache: false
 #| results: asis
-#| fig-cap: "Sweet Potato 2020/25 per-capita area harvested"
+#| fig-cap: "Sweet Potato 2022/25 per-capita area harvested"
 # 
 
 ggplot(vect_crop_area_pc) +
-  geom_spatvector(aes(fill = spot_pc_2020)) +
+  geom_spatvector(aes(fill = spot_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 2500),
@@ -3601,7 +3644,7 @@ ggplot(vect_crop_area_pc) +
     na.value = "pink",
     labels = scales::comma
   ) +
-  labs(title = "Sweet Potato 2020/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  labs(title = "Sweet Potato 2022/25 per-capita area harvested", fill = "m<sup>2</sup>") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -3655,7 +3698,7 @@ df_plantain_banana_2024_national_share <- df_plantain_banana_2024_rename |>
 
 df_plantain_banana_2024_national_share[is.na(df_plantain_banana_2024_national_share)] <- 0
 
-write.csv(df_plantain_banana_2024_national_share, "tab_data/plantain_banana_area_national_share.csv")
+write.csv(df_plantain_banana_2024_national_share, "tab_data/plantain_banana_area_national_share_2024.csv")
 
 ```
 
@@ -3670,16 +3713,16 @@ write.csv(df_plantain_banana_2024_national_share, "tab_data/plantain_banana_area
 #| results: asis
 #| 
 
-cassava_area_2024_total <-  
-  df_cassava_2024_rename |>
-  dplyr::summarise(total = sum(cassava_Area_2024, na.rm=T)) |> pull(total)
+cassava_area_2022_total <-  
+  df_cassava_2022_rename |>
+  dplyr::summarise(total = sum(cassava_Area_2022, na.rm=T)) |> pull(total)
 
-df_cassava_2024_national_share <- df_cassava_2024_rename |> 
-  mutate(cassava_Area_2024_pc = (cassava_Area_2024 / cassava_area_2024_total)) 
+df_cassava_2022_national_share <- df_cassava_2022_rename |> 
+  mutate(cassava_Area_2022_pc = (cassava_Area_2022 / cassava_area_2022_total)) 
 
-df_cassava_2024_national_share[is.na(df_cassava_2024_national_share)] <- 0
+df_cassava_2022_national_share[is.na(df_cassava_2022_national_share)] <- 0
 
-write.csv(df_cassava_2024_national_share, "tab_data/cassava_area_national_share.csv")
+write.csv(df_cassava_2022_national_share, "tab_data/cassava_area_national_share_2022.csv")
 
 ```
 
@@ -3693,16 +3736,16 @@ write.csv(df_cassava_2024_national_share, "tab_data/cassava_area_national_share.
 #| results: asis
 #| 
 
-cowpea_area_2024_total <-  
-  df_cowpea_2024_rename |>
-  dplyr::summarise(total = sum(cowpea_Area_2024, na.rm=T)) |> pull(total)
+cowpea_area_2022_total <-  
+  df_cowpea_2022_rename |>
+  dplyr::summarise(total = sum(cowpea_Area_2022, na.rm=T)) |> pull(total)
 
-df_cowpea_2024_national_share <- df_cowpea_2024_rename |> 
-  mutate(cowpea_Area_2024_pc = (cowpea_Area_2024 / cowpea_area_2024_total)) 
+df_cowpea_2022_national_share <- df_cowpea_2022_rename |> 
+  mutate(cowpea_Area_2022_pc = (cowpea_Area_2022 / cowpea_area_2022_total)) 
 
-df_cowpea_2024_national_share[is.na(df_cowpea_2024_national_share)] <- 0
+df_cowpea_2022_national_share[is.na(df_cowpea_2022_national_share)] <- 0
 
-write.csv(df_cowpea_2024_national_share, "tab_data/cowpea_area_national_share.csv")
+write.csv(df_cowpea_2022_national_share, "tab_data/cowpea_area_national_share_2022.csv")
 
 ```
 
@@ -3716,16 +3759,16 @@ write.csv(df_cowpea_2024_national_share, "tab_data/cowpea_area_national_share.cs
 #| results: asis
 #| 
 
-maize_area_2024_total <-  
-  df_maize_2024_rename |>
-  dplyr::summarise(total = sum(maize_Area_2024, na.rm=T)) |> pull(total)
+maize_area_2022_total <-  
+  df_maize_2022_rename |>
+  dplyr::summarise(total = sum(maize_Area_2022, na.rm=T)) |> pull(total)
 
-df_maize_2024_national_share <- df_maize_2024_rename |> 
-  mutate(maize_Area_2024_pc = (maize_Area_2024 / maize_area_2024_total)) 
+df_maize_2022_national_share <- df_maize_2022_rename |> 
+  mutate(maize_Area_2022_pc = (maize_Area_2022 / maize_area_2022_total)) 
 
-df_maize_2024_national_share[is.na(df_maize_2024_national_share)] <- 0
+df_maize_2022_national_share[is.na(df_maize_2022_national_share)] <- 0
 
-write.csv(df_maize_2024_national_share, "tab_data/maize_area_national_share.csv")
+write.csv(df_maize_2022_national_share, "tab_data/maize_area_national_share_2022.csv")
 
 ```
 
@@ -3748,7 +3791,7 @@ df_rice_2024_national_share <- df_rice_2024_rename |>
 
 df_rice_2024_national_share[is.na(df_rice_2024_national_share)] <- 0
 
-write.csv(df_rice_2024_national_share, "tab_data/rice_area_national_share.csv")
+write.csv(df_rice_2024_national_share, "tab_data/rice_area_national_share_2024.csv")
 
 ```
 
@@ -3772,7 +3815,7 @@ df_sorghum_2024_national_share <- df_sorghum_2024_rename |>
 
 df_sorghum_2024_national_share[is.na(df_sorghum_2024_national_share)] <- 0
 
-write.csv(df_sorghum_2024_national_share, "tab_data/sorghum_area_national_share.csv")
+write.csv(df_sorghum_2024_national_share, "tab_data/sorghum_area_national_share_2024.csv")
 
 ```
 
@@ -3787,15 +3830,15 @@ write.csv(df_sorghum_2024_national_share, "tab_data/sorghum_area_national_share.
 #| results: asis
 #| 
 
-spot_area_2020_total <-  
-  df_spot_2020_rename |>
-  dplyr::summarise(total = sum(spot_Area_2020, na.rm=T)) |> pull(total)
+spot_area_2022_total <-  
+  df_spot_2022_rename |>
+  dplyr::summarise(total = sum(spot_Area_2022, na.rm=T)) |> pull(total)
 
-df_spot_2020_national_share <- df_spot_2020_rename |> 
-  mutate(spot_Area_2020_pc = (spot_Area_2020 / spot_area_2020_total)) 
+df_spot_2022_national_share <- df_spot_2022_rename |> 
+  mutate(spot_Area_2022_pc = (spot_Area_2022 / spot_area_2022_total)) 
 
-df_spot_2020_national_share[is.na(df_spot_2020_national_share)] <- 0
+df_spot_2022_national_share[is.na(df_spot_2022_national_share)] <- 0
 
-write.csv(df_spot_2020_national_share, "tab_data/spot_area_national_share.csv")
+write.csv(df_spot_2022_national_share, "tab_data/spot_area_national_share_2022.csv")
 
 ```
