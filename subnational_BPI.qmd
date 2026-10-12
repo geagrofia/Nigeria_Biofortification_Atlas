@@ -159,7 +159,7 @@ Of the three indicators used to generate the production index only two have data
 - Share of area harvested (%)
 - Per-capita area harvested (m^2^)
 
-The production data used are from 2024, apart from sweet potato for which there were no data in the NAERLS report. Instead we used 2020 data from MapSpam.
+The production data used are from 2022 and for 2024.
 
 
 The third indicator - Export share - does not have data at the subnational level. Market surveys and market flows do not have sufficient data to create an equivalent dataset, but can be used to validate the production and consumption indices.
@@ -323,7 +323,7 @@ ggplot(vect_gpz_geo)+
 
 vect_crop_area_share <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/vect_crop_area_share.geojson")
 
-df_crop_area_share <- select(as.data.frame(vect_crop_area_share), adm1_ref_name, plantain_banana_share_2024, cassava_share_2024, cowpea_share_2024, maize_share_2024, rice_share_2024, sorghum_share_2024, spot_share_2020)
+df_crop_area_share <- select(as.data.frame(vect_crop_area_share), adm1_ref_name, plantain_banana_share_2024, cassava_share_2022, cowpea_share_2022, maize_share_2022, rice_share_2024, sorghum_share_2024, spot_share_2022)
 
 # convert NA values to 0 so that states with no data (which are equivalent to 0 are actually given this value)
 df_crop_area_share[is.na(df_crop_area_share)] <- 0
@@ -375,7 +375,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_share_rescale) +
-  geom_spatvector(aes(fill = cassava_share_2024)) +
+  geom_spatvector(aes(fill = cassava_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -403,7 +403,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_share_rescale) +
-  geom_spatvector(aes(fill = cowpea_share_2024)) +
+  geom_spatvector(aes(fill = cowpea_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -431,7 +431,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_share_rescale) +
-  geom_spatvector(aes(fill = maize_share_2024)) +
+  geom_spatvector(aes(fill = maize_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -515,7 +515,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_share_rescale) +
-  geom_spatvector(aes(fill = spot_share_2020)) +
+  geom_spatvector(aes(fill = spot_share_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -544,7 +544,7 @@ ggplot(vect_state_geo_crop_share_rescale) +
 
 vect_crop_area_pc <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/vect_crop_area_pc.geojson")
 
-df_crop_area_pc <- select(as.data.frame(vect_crop_area_pc), adm1_ref_name, plantain_banana_pc_2024, cassava_pc_2024, cowpea_pc_2024, maize_pc_2024, rice_pc_2024, sorghum_pc_2024, spot_pc_2020)
+df_crop_area_pc <- select(as.data.frame(vect_crop_area_pc), adm1_ref_name, plantain_banana_pc_2024, cassava_pc_2022, cowpea_pc_2022, maize_pc_2022, rice_pc_2024, sorghum_pc_2024, spot_pc_2022)
 
 # convert NA values to 0 so that states with no data (which are equivalent to 0 are actually given this value)
 df_crop_area_pc[is.na(df_crop_area_pc)] <- 0
@@ -597,7 +597,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_pc_rescale) +
-  geom_spatvector(aes(fill = cassava_pc_2024)) +
+  geom_spatvector(aes(fill = cassava_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -625,7 +625,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_pc_rescale) +
-  geom_spatvector(aes(fill = cowpea_pc_2024)) +
+  geom_spatvector(aes(fill = cowpea_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -653,7 +653,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_pc_rescale) +
-  geom_spatvector(aes(fill = maize_pc_2024)) +
+  geom_spatvector(aes(fill = maize_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -737,7 +737,7 @@ ggplot(vect_state_geo_crop_pc_rescale) +
 #| results: asis
 
 ggplot(vect_state_geo_crop_pc_rescale) +
-  geom_spatvector(aes(fill = spot_pc_2020)) +
+  geom_spatvector(aes(fill = spot_pc_2022)) +
   scale_fill_stepsn(
     n.breaks = 10,
     limits = c(0, 1),
@@ -2120,10 +2120,10 @@ ggplot(vect_state_geo_plantain_banana_PI) +
 #| results: asis
 
 df_cassava_PI <- left_join(
-  select(df_crop_area_share_rescale, adm1_ref_name, cassava_share_2024),
-  select(df_crop_area_pc_rescale, adm1_ref_name, cassava_pc_2024),
+  select(df_crop_area_share_rescale, adm1_ref_name, cassava_share_2022),
+  select(df_crop_area_pc_rescale, adm1_ref_name, cassava_pc_2022),
   by = "adm1_ref_name"
-) |> mutate(cassava_PI = ((cassava_share_2024 * 0.5) + (cassava_pc_2024 * 0.5)))
+) |> mutate(cassava_PI = ((cassava_share_2022 * 0.5) + (cassava_pc_2022 * 0.5)))
 
 median_cassava_PI <- median(df_cassava_PI$cassava_PI)
 cat(paste("Median Cassava PI = ", median_cassava_PI))
@@ -2159,10 +2159,10 @@ ggplot(vect_state_geo_cassava_PI) +
 #| results: asis
 
 df_cowpea_PI <- left_join(
-  select(df_crop_area_share_rescale, adm1_ref_name, cowpea_share_2024),
-  select(df_crop_area_pc_rescale, adm1_ref_name, cowpea_pc_2024),
+  select(df_crop_area_share_rescale, adm1_ref_name, cowpea_share_2022),
+  select(df_crop_area_pc_rescale, adm1_ref_name, cowpea_pc_2022),
   by = "adm1_ref_name"
-) |> mutate(cowpea_PI = ((cowpea_share_2024 * 0.5) + (cowpea_pc_2024 * 0.5)))
+) |> mutate(cowpea_PI = ((cowpea_share_2022 * 0.5) + (cowpea_pc_2022 * 0.5)))
 
 median_cowpea_PI <- median(df_cowpea_PI$cowpea_PI)
 cat(paste("Median Cowpea PI = ", median_cassava_PI))
@@ -2198,10 +2198,10 @@ ggplot(vect_state_geo_cowpea_PI) +
 #| results: asis
 
 df_maize_PI <- left_join(
-  select(df_crop_area_share_rescale, adm1_ref_name, maize_share_2024),
-  select(df_crop_area_pc_rescale, adm1_ref_name, maize_pc_2024),
+  select(df_crop_area_share_rescale, adm1_ref_name, maize_share_2022),
+  select(df_crop_area_pc_rescale, adm1_ref_name, maize_pc_2022),
   by = "adm1_ref_name"
-) |> mutate(maize_PI = ((maize_share_2024 * 0.5) + (maize_pc_2024 * 0.5)))
+) |> mutate(maize_PI = ((maize_share_2022 * 0.5) + (maize_pc_2022 * 0.5)))
 
 median_maize_PI <- median(df_maize_PI$maize_PI)
 cat(paste("Median Maize PI = ", median_maize_PI))
@@ -2316,10 +2316,10 @@ ggplot(vect_state_geo_sorghum_PI) +
 #| results: asis
 
 df_spot_PI <- left_join(
-  select(df_crop_area_share_rescale, adm1_ref_name, spot_share_2020),
-  select(df_crop_area_pc_rescale, adm1_ref_name, spot_pc_2020),
+  select(df_crop_area_share_rescale, adm1_ref_name, spot_share_2022),
+  select(df_crop_area_pc_rescale, adm1_ref_name, spot_pc_2022),
   by = "adm1_ref_name"
-) |> mutate(spot_PI = ((spot_share_2020 * 0.5) + (spot_pc_2020 * 0.5)))
+) |> mutate(spot_PI = ((spot_share_2022 * 0.5) + (spot_pc_2022 * 0.5)))
 
 median_spot_PI <- median(df_spot_PI$spot_PI)
 cat(paste("Median Sorghum PI = ", median_spot_PI))
@@ -3834,7 +3834,7 @@ ifelse((
   "Intervention Areas", 
   
   "None"))))  |> 
-  select(adm1_ref_name, spot_PI, Plantain, VitA_I, spot_VitA_BPI, spot_BPI_compare )
+  select(adm1_ref_name, spot_PI, Sweet.potato, VitA_I, spot_VitA_BPI, spot_BPI_compare )
 
 
 vect_state_geo_spot_VitA_BPI <- dplyr::left_join(vect_state_geo, df_spot_VitA_BPI_areas, by = "adm1_ref_name")
@@ -3894,7 +3894,7 @@ Where:
 #| cache: false
 #| results: asis
 
-df_plantain_banana_national_share <- read.csv("tab_data/plantain_banana_area_national_share.csv")
+df_plantain_banana_national_share <- read.csv("tab_data/plantain_banana_area_national_share_2024.csv")
 
 df_plantain_banana_VitA_BPI_weighted <- left_join(df_plantain_banana_VitA_BPI_rescale, df_plantain_banana_national_share, by = "adm1_ref_name") |>
   mutate( plantain_banana_VitA_BPI_weight_share = (plantain_banana_VitA_BPI_rescale * plantain_banana_Area_2024_pc))
@@ -3936,10 +3936,10 @@ ggplot(vect_state_geo_plantain_banana_VitA_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_cassava_national_share <- read.csv("tab_data/cassava_area_national_share.csv")
+df_cassava_national_share <- read.csv("tab_data/cassava_area_national_share_2022.csv")
 
 df_cassava_VitA_BPI_weighted <- left_join(df_cassava_VitA_BPI_rescale, df_cassava_national_share, by = "adm1_ref_name") |>
-  mutate( cassava_VitA_BPI_weight_share = (cassava_VitA_BPI_rescale * cassava_Area_2024_pc))
+  mutate( cassava_VitA_BPI_weight_share = (cassava_VitA_BPI_rescale * cassava_Area_2022_pc))
 
 df_cassava_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_cassava_VitA_BPI_weighted, cassava_VitA_BPI_weight_share ), minMax)) |> 
   mutate(cassava_VitA_BPI_weight_share_rescale = (cassava_VitA_BPI_weight_share * 100))
@@ -3977,10 +3977,10 @@ ggplot(vect_state_geo_cassava_VitA_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_cowpea_national_share <- read.csv("tab_data/cowpea_area_national_share.csv")
+df_cowpea_national_share <- read.csv("tab_data/cowpea_area_national_share_2022.csv")
 
 df_cowpea_Zn_BPI_weighted <- left_join(df_cowpea_Zn_BPI_rescale, df_cowpea_national_share, by = "adm1_ref_name") |>
-  mutate( cowpea_Zn_BPI_weight_share = (cowpea_Zn_BPI_rescale * cowpea_Area_2024_pc))
+  mutate( cowpea_Zn_BPI_weight_share = (cowpea_Zn_BPI_rescale * cowpea_Area_2022_pc))
 
 df_cowpea_Zn_BPI_weighted_normalised <- as.data.frame(lapply(select(df_cowpea_Zn_BPI_weighted, cowpea_Zn_BPI_weight_share ), minMax)) |> 
   mutate(cowpea_Zn_BPI_weight_share_rescale = (cowpea_Zn_BPI_weight_share * 100))
@@ -4018,10 +4018,10 @@ ggplot(vect_state_geo_cowpea_Zn_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_cowpea_national_share <- read.csv("tab_data/cowpea_area_national_share.csv")
+df_cowpea_national_share <- read.csv("tab_data/cowpea_area_national_share_2022.csv")
 
 df_cowpea_Fe_BPI_weighted <- left_join(df_cowpea_Fe_BPI_rescale, df_cowpea_national_share, by = "adm1_ref_name") |>
-  mutate( cowpea_Fe_BPI_weight_share = (cowpea_Fe_BPI_rescale * cowpea_Area_2024_pc))
+  mutate( cowpea_Fe_BPI_weight_share = (cowpea_Fe_BPI_rescale * cowpea_Area_2022_pc))
 
 df_cowpea_Fe_BPI_weighted_normalised <- as.data.frame(lapply(select(df_cowpea_Fe_BPI_weighted, cowpea_Fe_BPI_weight_share ), minMax)) |> 
   mutate(cowpea_Fe_BPI_weight_share_rescale = (cowpea_Fe_BPI_weight_share * 100))
@@ -4059,10 +4059,10 @@ ggplot(vect_state_geo_cowpea_Fe_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_maize_national_share <- read.csv("tab_data/maize_area_national_share.csv")
+df_maize_national_share <- read.csv("tab_data/maize_area_national_share_2022.csv")
 
 df_maize_VitA_BPI_weighted <- left_join(df_maize_VitA_BPI_rescale, df_maize_national_share, by = "adm1_ref_name") |>
-  mutate( maize_VitA_BPI_weight_share = (maize_VitA_BPI_rescale * maize_Area_2024_pc))
+  mutate( maize_VitA_BPI_weight_share = (maize_VitA_BPI_rescale * maize_Area_2022_pc))
 
 df_maize_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_maize_VitA_BPI_weighted, maize_VitA_BPI_weight_share ), minMax)) |> 
   mutate(maize_VitA_BPI_weight_share_rescale = (maize_VitA_BPI_weight_share * 100))
@@ -4101,10 +4101,10 @@ ggplot(vect_state_geo_maize_VitA_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_maize_national_share <- read.csv("tab_data/maize_area_national_share.csv")
+df_maize_national_share <- read.csv("tab_data/maize_area_national_share_2022.csv")
 
 df_maize_Zn_BPI_weighted <- left_join(df_maize_Zn_BPI_rescale, df_maize_national_share, by = "adm1_ref_name") |>
-  mutate( maize_Zn_BPI_weight_share = (maize_Zn_BPI_rescale * maize_Area_2024_pc))
+  mutate( maize_Zn_BPI_weight_share = (maize_Zn_BPI_rescale * maize_Area_2022_pc))
 
 df_maize_Zn_BPI_weighted_normalised <- as.data.frame(lapply(select(df_maize_Zn_BPI_weighted, maize_Zn_BPI_weight_share ), minMax)) |> 
   mutate(maize_Zn_BPI_weight_share_rescale = (maize_Zn_BPI_weight_share * 100))
@@ -4142,7 +4142,7 @@ ggplot(vect_state_geo_maize_Zn_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_rice_national_share <- read.csv("tab_data/rice_area_national_share.csv")
+df_rice_national_share <- read.csv("tab_data/rice_area_national_share_2024.csv")
 
 df_rice_Zn_BPI_weighted <- left_join(df_rice_Zn_BPI_rescale, df_rice_national_share, by = "adm1_ref_name") |>
   mutate( rice_Zn_BPI_weight_share = (rice_Zn_BPI_rescale * rice_Area_2024_pc))
@@ -4183,7 +4183,7 @@ ggplot(vect_state_geo_rice_Zn_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_sorghum_national_share <- read.csv("tab_data/sorghum_area_national_share.csv")
+df_sorghum_national_share <- read.csv("tab_data/sorghum_area_national_share_2024.csv")
 
 df_sorghum_Zn_BPI_weighted <- left_join(df_sorghum_Zn_BPI_rescale, df_sorghum_national_share, by = "adm1_ref_name") |>
   mutate( sorghum_Zn_BPI_weight_share = (sorghum_Zn_BPI_rescale * sorghum_Area_2024_pc))
@@ -4224,7 +4224,7 @@ ggplot(vect_state_geo_sorghum_Zn_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_sorghum_national_share <- read.csv("tab_data/sorghum_area_national_share.csv")
+df_sorghum_national_share <- read.csv("tab_data/sorghum_area_national_share_2024.csv")
 
 df_sorghum_Fe_BPI_weighted <- left_join(df_sorghum_Fe_BPI_rescale, df_sorghum_national_share, by = "adm1_ref_name") |>
   mutate( sorghum_Fe_BPI_weight_share = (sorghum_Fe_BPI_rescale * sorghum_Area_2024_pc))
@@ -4265,10 +4265,10 @@ ggplot(vect_state_geo_sorghum_Fe_BPI_weighted_rescale) +
 #| cache: false
 #| results: asis
 
-df_spot_national_share <- read.csv("tab_data/spot_area_national_share.csv")
+df_spot_national_share <- read.csv("tab_data/spot_area_national_share_2022.csv")
 
 df_spot_VitA_BPI_weighted <- left_join(df_spot_VitA_BPI_rescale, df_spot_national_share, by = "adm1_ref_name") |>
-  mutate( spot_VitA_BPI_weight_share = (spot_VitA_BPI_rescale * spot_Area_2020_pc))
+  mutate( spot_VitA_BPI_weight_share = (spot_VitA_BPI_rescale * spot_Area_2022_pc))
 
 df_spot_VitA_BPI_weighted_normalised <- as.data.frame(lapply(select(df_spot_VitA_BPI_weighted, spot_VitA_BPI_weight_share ), minMax)) |> 
   mutate(spot_VitA_BPI_weight_share_rescale = (spot_VitA_BPI_weight_share * 100))
