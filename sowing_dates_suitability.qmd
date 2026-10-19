@@ -1,0 +1,1147 @@
+---
+title: "Sowing Dates for Crop suitability models"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(tidyr)
+library(stringr)
+library(purrr)
+library(leaflet)
+library(sf)
+library(scales)
+
+```
+
+# Introduction
+
+The Innovation Recommendation Domain Mapping model splits the growing
+period into separate growth stages, and applies different thresholds for
+the climatic criteria for each or some of the growth stages.
+
+In order to position the growing period and specific growth stages
+within the calendar year we need to know when the crop is normally sown
+planted or transplanted.
+
+For small areas a single date will satisfy this requirement, whereas for
+a large country like Nigeria there will be different sowing dates as the
+rainy season progresses from South to North.
+
+There are a number of ways of identifying and mapping the sowing date.
+The most reliable is to ask producers themselves, but this also has its
+disadvantages because of poor recall, or changing dates, or how to deal
+with outliers. Another method is to ask extension agents the average
+date in a particular geography, this has the advantage of using a
+mixture of local knowledge with some professional skill at estimation.
+Alternatives include models based on daily rainfall and temperature
+data, or direct observation of crop growth via satellite imagery.
+
+None of these methods is foolproof, due to the fact that the seasons are
+dynamic from year to year and we are trying to model for a 'normal'
+season.
+
+# Sowing date data
+
+There are a number of spatial data products of sowing dates.
+
+The (rainfed) crops that we are going to model are:
+
+- cassava
+
+- cowpea
+
+- maize
+
+- rice
+
+- sweet potato
+
+These are highlighted in the table below.
+
++-------------------+----------------+-------------------+----------------+----------+----------+
+| Name              | Source         | Resolution        | Priority Crops | Creation | Citation |
+|                   |                |                   |                | Date     |          |
++===================+================+===================+================+==========+==========+
+| Crop Calendar     | Center for     | 5 minute and 0.5  | - **Cassava**  | 2010     | (Sacks,  |
+| Dataset           | Sustainability | degree            |                |          | 2010)    |
+| (CCD)             | and the Global |                   | - **Maize**    |          |          |
+|                   | Environment    |                   |                |          |          |
+|                   |                |                   | - Millet       |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Potatoes     |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Pulses**   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Rice**     |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Sweet      |          |          |
+|                   |                |                   |   Potato**     |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Wheat        |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+| SAtellite-derived | RIKEN Advanced | 5 arcmin          | - Wheat        | 2015     | Kotsuki  |
+| CRop calendar for | Institute for  |                   |                |          | and      |
+| Agricultural      | Computational  |                   | - **Maize**    |          | Tanaka   |
+| simulations       | Science        |                   |                |          | (2015,   |
+| (SACRA)           |                |                   | - **Rice**     |          | HESS)    |
+| Provides sowing   |                |                   |                |          |          |
+| date for the      |                |                   | - Millet       |          |          |
+| 'dominant' crop in|                |                   |                |          |          |
+| each grid cell    |                |                   | - Potatoes     |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cassava**  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Pulses**   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Others       |          |          |
+|                   |                |                   |   perennial    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Others       |          |          |
+|                   |                |                   |   annual       |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+| Livelihood Zone   | FEWSNET        | Selected          |                | 2018     | FEWSNET  |
+| Seasonal and      |                | Livelihood Zones  |                |          | (2018)   |
+| Consumption       |                |                   |                |          |          |
+| Calendars         |                |                   |                |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG01 – Sokoto    | - Millet       |          |          |
+|                   |                | millet, cowpeas,  |                |          |          |
+|                   |                | groundnuts and    | - Rice         |          |          |
+|                   |                | livestock)        |   (irrigated)  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Sorghum      |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Sweet      |          |          |
+|                   |                |                   |   potatoes**   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cowpeas**  |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG02 –           | - Millet       |          |          |
+|                   |                | Kano-Katsina      |                |          |          |
+|                   |                | Sahel: millet,    | - **Cowpeas**  |          |          |
+|                   |                | sorghum, sesame   |                |          |          |
+|                   |                | and gum arabic)   | - **Sweet      |          |          |
+|                   |                |                   |   potatoes**   |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG03 –           | - **Rice**     |          |          |
+|                   |                | Kano-Katsina      |                |          |          |
+|                   |                | Sudan: maize,     | - **Maize**    |          |          |
+|                   |                | sorghum,          |                |          |          |
+|                   |                | groundnuts and    | - **Cowpeas**  |          |          |
+|                   |                | rice)             |                |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG04 – Northeast | - Millet       |          |          |
+|                   |                | Sahel: millet,    |                |          |          |
+|                   |                | sesame, cowpeas   | - **Cowpea**   |          |          |
+|                   |                | and livestock)    |   (early)      |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG05 –           | - Millet       |          |          |
+|                   |                | Borno-Yobe-Bauchi |                |          |          |
+|                   |                | millet, cowpeas,  | - **Cowpeas**  |          |          |
+|                   |                | groundnuts and    |                |          |          |
+|                   |                | sesame)           | - **Rice**     |          |          |
+|                   |                |                   |   (rainfed)    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Rice         |          |          |
+|                   |                |                   |   (irrigated)  |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG06 –           | - **Rice**     |          |          |
+|                   |                | Sokot-Rima-Kano   |   (rainfed)    |          |          |
+|                   |                | riverine rice and |                |          |          |
+|                   |                | fishing and NG07  | - Rice         |          |          |
+|                   |                | – Komadugu-Yobe   |   (irrigated)  |          |          |
+|                   |                | irrigated peppers |                |          |          |
+|                   |                | with rice, millet | - Millet       |          |          |
+|                   |                | and vegetables)   |                |          |          |
+|                   |                |                   | - **Maize**    |          |          |
+|                   |                |                   |   (rainfed)    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Maize        |          |          |
+|                   |                |                   |   (irrigated)  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cowpeas**  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cassava**  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Sweet      |          |          |
+|                   |                |                   |   potatoes**   |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG08 – Lake Chad | - Wheat        |          |          |
+|                   |                | fishing, maize,   |   (irrigated)  |          |          |
+|                   |                | cowpeas and       |                |          |          |
+|                   |                | vegetables and    | - Maize        |          |          |
+|                   |                | NG09 – Chad       |   (irrigated)  |          |          |
+|                   |                | Basin: dry season |                |          |          |
+|                   |                | masakwa sorghum   | - Rice         |          |          |
+|                   |                | and wheat)        |   (irrigated)  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cowpeas**  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Millet       |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG10 –           | - Rice         |          |          |
+|                   |                | Hadeija-Nguru     |   (irrig. -    |          |          |
+|                   |                | wetlands: mixed   |   Hadeija      |          |          |
+|                   |                | cereals and       |   Valley       |          |          |
+|                   |                | vegetables)       |   Project)     |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Rice         |          |          |
+|                   |                |                   |   (irrigated)  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cassava**  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cowpeas**  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Wheat        |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Maize**    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Millet       |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG11 – Northwest | - **Rice**     |          |          |
+|                   |                | sorghum, maize,   |   (rainfed)    |          |          |
+|                   |                | soybeans and rice |                |          |          |
+|                   |                | and NG12 –        | - Rice         |          |          |
+|                   |                | Northwest         |   (irrigated)  |          |          |
+|                   |                | sorghum, maize    |                |          |          |
+|                   |                | and cotton with   | - **Maize**    |          |          |
+|                   |                | cross-border      |                |          |          |
+|                   |                | trade)            | - **Cowpeas**  |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG13 – Northwest | - **Maize**    |          |          |
+|                   |                | and central       |   (rainfed)    |          |          |
+|                   |                | maize, rice,      |                |          |          |
+|                   |                | cowpeas and sweet | - Maize        |          |          |
+|                   |                | potatoes and NG14 |   (irrigated - |          |          |
+|                   |                | – Central sorghum |   cobs for     |          |          |
+|                   |                | dominant with     |   roasting)    |          |          |
+|                   |                | maize, groundnuts |                |          |          |
+|                   |                | and cowpeas)      | - **Cowpea**   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Sweet      |          |          |
+|                   |                |                   |   potatoes**   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Millet       |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG15 – Northeast | - **Maize**    |          |          |
+|                   |                | maize dominant    |                |          |          |
+|                   |                | with rice,        | - **Rice**     |          |          |
+|                   |                | soybeans and      |   (rainfed)    |          |          |
+|                   |                | groundnuts)       |                |          |          |
+|                   |                |                   | - **Cowpeas**  |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG16 – High      | - Irish potato |          |          |
+|                   |                | plateau Irish     |   (wet and     |          |          |
+|                   |                | potatoes, maize,  |   dry)         |          |          |
+|                   |                | acha (Digitaria)  |                |          |          |
+|                   |                | and livestock and | - **Maize**    |          |          |
+|                   |                | NG17 – Lower      |   (rainfed)    |          |          |
+|                   |                | plateau rice,     |                |          |          |
+|                   |                | sorghum and       | - Maize        |          |          |
+|                   |                | cattle)           |   irrigated)   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Rice**     |          |          |
+|                   |                |                   |   (rainfed)    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Rice         |          |          |
+|                   |                |                   |   (irrigated)  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cassava**  |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG18 – Ginger    | - **Maize**    |          |          |
+|                   |                | and turmeric with |   (rainfed)    |          |          |
+|                   |                | maize, sorghum,   |                |          |          |
+|                   |                | yams and acha     | - Maize        |          |          |
+|                   |                | (Digitaria) and   |   (irrigated)  |          |          |
+|                   |                | NG20 – Central    |                |          |          |
+|                   |                | yams and maize    | - **Cassava**  |          |          |
+|                   |                | belt, with        |                |          |          |
+|                   |                | cassava, rice and |                |          |          |
+|                   |                | soybeans)         |                |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG19 – Benue     | - Rice         |          |          |
+|                   |                | river sugar cane, |   (irrigated)  |          |          |
+|                   |                | rice and sugar    |                |          |          |
+|                   |                | estate labor,     | - **Rice**     |          |          |
+|                   |                | NG21 – Niger and  |   (rainfed)    |          |          |
+|                   |                | Benue rivers      |                |          |          |
+|                   |                | floodplain rice   | - **Maize**    |          |          |
+|                   |                | with maize,       |                |          |          |
+|                   |                | vegetables and    | - **Cassava**  |          |          |
+|                   |                | livestock, and    |                |          |          |
+|                   |                | NG35 – Niger and  |                |          |          |
+|                   |                | Benue rivers      |                |          |          |
+|                   |                | fishing and food  |                |          |          |
+|                   |                | crops)            |                |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG23 – Citrus    | - **Cassava**  |          |          |
+|                   |                | fruits with yams, |                |          |          |
+|                   |                | cassava and       | - **Maize**    |          |          |
+|                   |                | groundnuts, NG24  |   (early)      |          |          |
+|                   |                | – Cocoa dominant  |                |          |          |
+|                   |                | with oil palms,   | - **Maize**    |          |          |
+|                   |                | cereals and       |   (late)       |          |          |
+|                   |                | tubers, and NG30  |                |          |          |
+|                   |                | – Cashews with    | - **Rice**     |          |          |
+|                   |                | tubers, maize and |   (rainfed)    |          |          |
+|                   |                | oil palms)        |                |          |          |
+|                   |                |                   | - Rice         |          |          |
+|                   |                |                   |   (irrigated)  |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Sweet      |          |          |
+|                   |                |                   |   potatoes**   |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cowpea**   |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG22 – Cassava   | - **Rice**     |          |          |
+|                   |                | dominant with     |   (rainfed)    |          |          |
+|                   |                | rice, maize, yams |                |          |          |
+|                   |                | and tree-crops,   | - **Cassava**  |          |          |
+|                   |                | NG26 – Cross      |                |          |          |
+|                   |                | River cocoa with  | - **Maize**    |          |          |
+|                   |                | oil palms, rice,  |                |          |          |
+|                   |                | yams and          | - **Sweet      |          |          |
+|                   |                | plantain, NG27 –  |   Potato**     |          |          |
+|                   |                | Southeast rice    |                |          |          |
+|                   |                | dominant with     |                |          |          |
+|                   |                | cassava, yams and |                |          |          |
+|                   |                | oil palms, and    |                |          |          |
+|                   |                | NG28 – Southwest  |                |          |          |
+|                   |                | cocoa with oil    |                |          |          |
+|                   |                | palms, tubers and |                |          |          |
+|                   |                | cereals)          |                |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG22 – Cassava   | - **Cassava**  |          |          |
+|                   |                | dominant with     |                |          |          |
+|                   |                | rice, maize, yams | - **Maize**    |          |          |
+|                   |                | and tree-crops    |                |          |          |
+|                   |                | and NG33 –        | - **Rice**     |          |          |
+|                   |                | Southeast cassava |   (rainfed)    |          |          |
+|                   |                | and oil palms     |                |          |          |
+|                   |                | with extensive    | - Rice         |          |          |
+|                   |                | off-farm work and |   (irrigated)  |          |          |
+|                   |                | trade)            |                |          |          |
+|                   |                |                   | - Plaintain    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - Cocoyam      |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG25 – Mambila   | - **Maize**    |          |          |
+|                   |                | highland: cattle, |                |          |          |
+|                   |                | maize, Irish      | - Irish        |          |          |
+|                   |                | potatoes, tea,    |   potatoes     |          |          |
+|                   |                | coffee and kola   |                |          |          |
+|                   |                | nuts)             | - Beans        |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Sweet      |          |          |
+|                   |                |                   |   potatoes**   |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG29 – Southwest | - **Rice**     |          |          |
+|                   |                | rice, cassava and |                |          |          |
+|                   |                | cattle with       | - **Cassava**  |          |          |
+|                   |                | cross-border      |                |          |          |
+|                   |                | trade)            | - **Maize**    |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG31 – Lagos     | - **Rice**     |          |          |
+|                   |                | peri-urban –      |                |          |          |
+|                   |                | fishing, poultry, | - **Cassava**  |          |          |
+|                   |                | piggeries, market |                |          |          |
+|                   |                | gardening and     | - **Maize**    |          |          |
+|                   |                | coconuts and NG32 |                |          |          |
+|                   |                | – Coastal belt:   |                |          |          |
+|                   |                | maritime and      |                |          |          |
+|                   |                | inland fishing,   |                |          |          |
+|                   |                | cassava,          |                |          |          |
+|                   |                | plantain, oil     |                |          |          |
+|                   |                | palms and rubber) |                |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+|                   |                | (NG34 – Northeast | - Millet       |          |          |
+|                   |                | cattle, small     |                |          |          |
+|                   |                | ruminants and     | - **Rice**     |          |          |
+|                   |                | food crops with   |   (rainfed)    |          |          |
+|                   |                | cross-border      |                |          |          |
+|                   |                | livestock trade)  | - **Maize**    |          |          |
+|                   |                |                   |                |          |          |
+|                   |                |                   | - **Cowpea**   |          |          |
++-------------------+----------------+-------------------+----------------+----------+----------+
+
+# Load the Nigeria boundary
+
+
+```{r}
+#| label: boundary
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson") 
+
+vect_ng_geo <- vect_state_geo |> aggregate(by = "adm0_pcode")
+
+crs(vect_ng_geo) <- "epsg:4326"
+
+vect_ng_geo$adm0_pcode <- as.factor(vect_ng_geo$adm0_pcode)
+
+# levels(vect_state_geo$adm1_pcode) # Check levels
+
+ggplot(vect_ng_geo)+
+  geom_spatvector(aes(fill = adm0_pcode)) +
+  geom_spatvector_text(aes(label = adm0_pcode), size = 3) +
+  labs(
+    title = "Nigeria",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+# Load the Livelihood Zones
+
+The livelihood zones are loaded from disk (see @fig-lz_zones).
+
+```{r}
+#| label: fig-lz_zones
+#| message: false
+#| warning: false
+#| fig-cap: "FEWS NET 2018 Livelihood Zones"
+
+vect_lz_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/NG_LHZ_2018/NG_LHZ_2018.topojson")
+vect_lz_geo$LZCODE <- as.factor(vect_lz_geo$LZCODE)
+
+crs(vect_lz_geo) <- "epsg:4326"
+
+col.par <- function(n) sample(seq(0.3, 1, length.out = 50), n)
+cols <- rainbow(35, s = col.par(35), v = col.par(35))[sample(1:35, 35)]
+
+ggplot(vect_lz_geo) +
+  geom_spatvector(aes(fill = LZCODE)) +
+  scale_fill_manual(values = cols) +
+  geom_spatvector_text(aes(label = LZCODE), size = 3) +
+  labs(title = "FEWS NET 2018 Livelihood Zones") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+rast_lz_geo <- rast(vect_lz_geo, ncols=144, nrows=116)
+
+
+```
+
+
+```{r}
+#| label: lz_sow_dates
+#| message: false
+#| warning: false
+
+df_lz_sow <- read.csv("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/FEWS NET LZ/LZ_Sow_Date.csv")
+
+vect_lz_geo_sowdate  <- merge(vect_lz_geo, df_lz_sow, by = "LZCODE")
+
+```
+
+# Analyse the sowing dates
+
+## Cassava (CCD)
+
+```{r}
+#| label: cassava_sowdate_ccd
+#| message: false
+#| warning: false
+
+rast_cassava_ccd <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SAGE/crop_calendar/Cassava.crop.calendar.nc") |> crop(vect_ng_geo)
+
+crs(rast_cassava_ccd) <- "epsg:4326"
+
+plot(rast_cassava_ccd)
+
+ggplot() +
+  geom_spatraster(data = rast_cassava_ccd, aes(fill = plant)) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "CCD Cassava Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cassava (FEWSNET)
+
+```{r}
+#| label: lz_cassava_sow_date
+#| message: false
+#| warning: false
+
+rast_cassava_lz <- rasterize(vect_lz_geo_sowdate, rast_lz_geo, field = "Sow_Date_Avg_Cassava")
+
+ggplot() +
+  geom_spatraster(data = rast_cassava_lz) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "FEWS NET 2018 Cassava Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Neither the CCD nor the FEWSNET sources provide cassava sowing dates for all of the country. The CCD gives a single sowing date, and only for the south of Nigeria. FEWSNET provides sowing dates for cassava, but only for livelihood zones in the south and centre of the country.
+
+While, these are the main cassava growing zones we would like to model the suitability for the whole country.
+
+To cover the northern states we can either use the sowing dates for another crop that is grown in the north and which has similar sowing dates to cassava, or use the SACRA dominant crop sowing date (see below).
+
+
+```{r}
+#| label: df_cassava_sow_date
+#| message: false
+#| warning: false
+#| 
+df_cassava_ccd <- terra::zonal(rast_cassava_ccd$plant, vect_state_geo, fun="mean", na.rm = T)
+df_cassava_lz <- terra::zonal(rast_cassava_lz, vect_state_geo, fun="mean", na.rm = T)
+
+df_cassava_sow <- bind_cols(select(as_data_frame(vect_state_geo), adm1_ref_name), df_cassava_ccd, df_cassava_lz )
+
+df_cassava_sow  |>
+  DT::datatable(
+    rownames = F,
+    colnames = c("CCD", "FEWSNET"),
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+       order = list(list(1, 'desc'), list(2, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+To compare the sowing dates we have calculated the average sowing date for each state. For the southern half of the country we can compare the single sowing date from CCD - 31st May - with the livelihood zone estimates. The biggest difference is found in Oyo state where the FEWSNET source gives an average sowing date of 176 (25th June). But in general the dates are within the same month.
+
+The FEWSNET source gives a better representation of the changes in sowing date.
+Where FEWSNET data are not available then we will use CCD.
+Where CCD is not available we will use the Dominant crop 1 from SACRA.
+For any remaining areas without a sowing date in Nigeria we will use a different crop from CCD or FEWSNET for which data are available.
+
+
+## Cowpea (CCD)
+
+```{r}
+#| label: cowpea_sowdate_ccd
+#| message: false
+#| warning: false
+
+rast_cowpea_ccd <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SAGE/crop_calendar/Pulses.crop.calendar.nc") |> crop(vect_ng_geo)
+
+plot(rast_cowpea_ccd)
+
+ggplot() +
+  geom_spatraster(data = rast_cowpea_ccd, aes(fill = plant)) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "CCD Cowpea Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Cowpea (FEWSNET)
+
+```{r}
+#| label: lz_cowpea_sow_date
+#| message: false
+#| warning: false
+
+rast_cowpea_lz <- rasterize(vect_lz_geo_sowdate, rast_lz_geo, field = "Sow_Date_Avg_Cowpea")
+
+ggplot() +
+  geom_spatraster(data = rast_cowpea_lz)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "FEWS NET 2018 Cowpea Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The CCD source provides information only for generic 'pulses'. Cowpea is the main pulse in Nigeria, but the CCD source gives no sowing date.
+
+The FEWSNET source gives sowing dates for most of the north of Nigeria as well as livelihood zones in the centre of the country.
+
+So for cowpea, the situation is the reverse of for cassava. Once again we will have to seek reasonable estimates of sowing dates for half of the country.
+
+
+```{r}
+#| label: df_cowpea_sow_date
+#| message: false
+#| warning: false
+#| 
+df_cowpea_ccd <- terra::zonal(rast_cowpea_ccd$plant, vect_state_geo, fun="mean", na.rm = T)
+df_cowpea_lz <- terra::zonal(rast_cowpea_lz, vect_state_geo, fun="mean", na.rm = T)
+
+df_cowpea_sow <- bind_cols(select(as_data_frame(vect_state_geo), adm1_ref_name), df_cowpea_ccd, df_cowpea_lz )
+
+df_cowpea_sow  |>
+  DT::datatable(
+    rownames = F,
+    colnames = c("CCD", "FEWSNET"),
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(1, 'desc'), list(2, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+There are no data from the CCD source for cowpea, so we will use the FEWSNET livelihood zones, or if missing the Dominant Crop in season 1 from SACRA, or another crop from CCD or FEWSNET.
+
+
+## Maize (CCD)
+
+```{r}
+#| label: maize_sowdate_ccd
+#| message: false
+#| warning: false
+
+rast_maize_ccd <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SAGE/crop_calendar/Maize.crop.calendar.nc") |> crop(vect_ng_geo)
+
+plot(rast_maize_ccd)
+
+ggplot() +
+  geom_spatraster(data = rast_maize_ccd, aes(fill = plant)) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "CCD Maize Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+## Maize (FEWSNET)
+
+```{r}
+#| label: lz_maize_sow_date
+#| message: false
+#| warning: false
+
+rast_maize_lz <- rasterize(vect_lz_geo_sowdate, rast_lz_geo, field = "Sow_Date_Avg_Maize")
+
+ggplot() +
+  geom_spatraster(data = rast_maize_lz)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "FEWS NET 2018 Maize Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The sowing dates for maize are complete in the CCD source, although there are only two dates, one for the south of the country (31st March), and one for the north (31st May).
+FEWSNET provides sowing dates for almost all of Nigeria, except for the far north of the country.
+
+
+```{r}
+#| label: df_maize_sow_date
+#| message: false
+#| warning: false
+#| 
+df_maize_ccd <- terra::zonal(rast_maize_ccd$plant, vect_state_geo, fun="mean", na.rm = T)
+df_maize_lz <- terra::zonal(rast_maize_lz, vect_state_geo, fun="mean", na.rm = T)
+
+df_maize_sow <- bind_cols(select(as_data_frame(vect_state_geo), adm1_ref_name), df_maize_ccd, df_maize_lz )
+
+df_maize_sow  |>
+  DT::datatable(
+    rownames = F,
+    colnames = c("CCD", "FEWSNET"),
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(1, 'desc'), list(2, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+The CCD sowing dates for Maize are generally earlier than those in the FEWSNET data source, especially in the south. 
+
+The FEWSNET source gives a better representation of the changes in sowing date.
+Where FEWSNET data are not available in the north, then we will use CCD.
+
+## Rice (CCD)
+
+```{r}
+#| label: rice_sowdate_ccd
+#| message: false
+#| warning: false
+
+rast_rice_ccd <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SAGE/crop_calendar/Rice.crop.calendar.nc") |> crop(vect_ng_geo)
+
+plot(rast_rice_ccd)
+
+ggplot() +
+  geom_spatraster(data = rast_rice_ccd, aes(fill = plant)) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "CCD Rice Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+## Rice (FEWSNET)
+
+```{r}
+#| label: lz_rice_sow_date
+#| message: false
+#| warning: false
+
+rast_rice_lz <- rasterize(vect_lz_geo_sowdate, rast_lz_geo, field = "Sow_Date_Avg_Rice")
+
+ggplot() +
+  geom_spatraster(data = rast_rice_lz)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "FEWS NET 2018 Rice Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+The rainfed rice sowing dates in the FEWSNET source are sparser than for maize, especially in the centre of the country and in the far north. There are sowing dates for irrigated rice in more livelihood zones, but we will not be modelling the suitability of irrigated crops.
+
+
+
+```{r}
+#| label: df_rice_sow_date
+#| message: false
+#| warning: false
+#| 
+df_rice_ccd <- terra::zonal(rast_rice_ccd$plant, vect_state_geo, fun="mean", na.rm = T)
+df_rice_lz <- terra::zonal(rast_rice_lz, vect_state_geo, fun="mean", na.rm = T)
+
+df_rice_sow <- bind_cols(select(as_data_frame(vect_state_geo), adm1_ref_name), df_rice_ccd, df_rice_lz )
+
+df_rice_sow  |>
+  DT::datatable(
+    rownames = F,
+    colnames = c("CCD", "FEWSNET"),
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(1, 'desc'), list(2, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+For many of the northern states the sowing dates are well matched. However, the CCD source displays a large change in sowing dates for the southern states. In contrast the FEWSNET source has a gentler gradient from early to late as one moves northward.
+
+
+The FEWSNET source gives a better representation of the changes in sowing date.
+Where FEWSNET data are not available in the north, then we will use CCD.
+
+
+## Sweet Potato (CCD)
+
+```{r}
+#| label: spot_sowdate_ccd
+#| message: false
+#| warning: false
+
+rast_spot_ccd <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SAGE/crop_calendar/Sweet.Potatoes.crop.calendar.nc") |> crop(vect_ng_geo)
+
+plot(rast_spot_ccd)
+
+ggplot() +
+  geom_spatraster(data = rast_spot_ccd, aes(fill = plant)) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "CCD Sweet Potato Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+
+
+
+
+## Sweet Potato (FEWSNET)
+
+```{r}
+#| label: lz_spot_sow_date
+#| message: false
+#| warning: false
+
+rast_spot_lz <- rasterize(vect_lz_geo_sowdate, rast_lz_geo, field = "Sow_Date_Avg_Spot")
+
+ggplot() +
+  geom_spatraster(data = rast_spot_lz)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "FEWS NET 2018 Sweet Potato Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+Sweet Potato sowing dates in the CCD source are later in the year than for other crops. Likewise in the FEWSNET source, although this source has missing data from many livelihood zones.
+
+
+
+```{r}
+#| label: df_spot_sow_date
+#| message: false
+#| warning: false
+#| 
+df_spot_ccd <- terra::zonal(rast_spot_ccd$plant, vect_state_geo, fun="mean", na.rm = T)
+df_spot_lz <- terra::zonal(rast_spot_lz, vect_state_geo, fun="mean", na.rm = T)
+
+df_spot_sow <- bind_cols(select(as_data_frame(vect_state_geo), adm1_ref_name), df_spot_ccd, df_spot_lz )
+
+df_spot_sow  |>
+  DT::datatable(
+    rownames = F,
+    colnames = c("CCD", "FEWSNET"),
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      order = list(list(1, 'desc'), list(2, 'desc')),
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+The differences in the two sources of sweet potato planting is probably the greatest of the five crops.
+The dates in the FEWSNET source vary less from south to north than in the CCD source.
+
+
+The FEWSNET source gives a better representation of the changes in sowing date.
+Where FEWSNET data are not available in the north, then we will use CCD.
+
+
+## Dominant Crop 1 (SACRA)
+
+The SACRA dataset is organised differently than the other two sources and is based on vegetation indices using remotely sensed imagery.
+
+The source provides a date for when the landscape starts to green in response to the start of the rainy season. The dominant crop in each raster cell is also provided, this is based on the harvested area from agricultural censuses or surveys.
+
+The SACRA source provides sowing dates for up to three growing seasons in a calendar year.
+
+
+
+```{r}
+#| label: domcrop_1_sacra
+#| message: false
+#| warning: false
+
+rast_domcrop1_sacra <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SACRA Crop Calendar/CALEND/CRPMAP_5min_all_1st_CRP_AF.asc") |> crop(vect_ng_geo)
+
+plot(rast_domcrop1_sacra)
+
+rast_sow1_sacra <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SACRA Crop Calendar/CALEND/CRPMAP_5min_all_1st_SOW_AF.asc") |> crop(vect_ng_geo)
+
+ggplot() +
+  geom_spatraster(data = rast_sow1_sacra)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "SACRA Dominant Crop 1 Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+2	= Maize, 6 = Millet, 7 = Sorghum, 11 = Cassava, 21 = Cotton, 26 = Others annual
+
+According to SACRA, Cassava is the dominant crop in much of northern and central Nigeria, while in southern Nigeria the dominant crop is an undefined annual crop.
+
+The progression of the sowing date from south to north is noticeably smoother than the CCD source.
+
+
+## Dominant Crop 2 (SACRA)
+
+```{r}
+#| label: domcrop_2_sacra
+#| message: false
+#| warning: false
+
+rast_domcrop2_sacra <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SACRA Crop Calendar/CALEND/CRPMAP_5min_all_2nd_CRP_AF.asc") |> crop(vect_ng_geo)
+
+plot(rast_domcrop2_sacra)
+
+rast_sow2_sacra <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SACRA Crop Calendar/CALEND/CRPMAP_5min_all_2nd_SOW_AF.asc") |> crop(vect_ng_geo)
+
+ggplot() +
+  geom_spatraster(data = rast_sow2_sacra)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "SACRA Dominant Crop 2 Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+
+## Dominant Crop 3 (SACRA)
+
+```{r}
+#| label: domcrop_3_sacra
+#| message: false
+#| warning: false
+
+rast_domcrop3_sacra <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SACRA Crop Calendar/CALEND/CRPMAP_5min_all_3rd_CRP_AF.asc") |> crop(vect_ng_geo)
+
+plot(rast_domcrop3_sacra)
+
+rast_sow3_sacra <- rast("D:/DatosProyecto/SpatialData/Global/Biofisico/SACRA Crop Calendar/CALEND/CRPMAP_5min_all_3rd_SOW_AF.asc") |> crop(vect_ng_geo)
+
+ggplot() +
+  geom_spatraster(data = rast_sow3_sacra)+
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_lz_geo, fill = NA) + 
+  labs(title = "SACRA Dominant Crop 3 Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+# Construct sowing dates for each crop
+
+## Cassava
+
+FEWSNET > CCD > SACRA > different crop from CCD for which data are available
+
+
+
+```{r}
+#| label: cassava_sowdate
+#| message: false
+#| warning: false
+
+rast_cassava_lz_rsmp <- resample(rast_cassava_lz, rast_cassava_ccd )
+rast_cassava_sacra <- resample(rast_sow1_sacra, rast_cassava_ccd )
+
+rast_cassava <- ifel(
+  !is.na(rast_cassava_lz_rsmp),
+  rast_cassava_lz_rsmp,
+  ifel(
+    !is.na(rast_cassava_ccd$plant),
+    rast_cassava_ccd$plant,
+    ifel(!is.na(rast_cassava_sacra), rast_cassava_sacra, rast_spot_ccd$plant)
+  )
+)
+
+
+ggplot() +
+  geom_spatraster(data = rast_cassava) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "Cassava Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
