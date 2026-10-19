@@ -1,0 +1,254 @@
+---
+title: "IRM spatial data preparation"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    page-layout: full
+    embed-resources: true
+    self-contained-math: true
+    toc-expand: true
+    theme: united
+    code-fold: true
+    code-summary: "Show the code"
+    css: css/style.css
+bibliography: biofort_quarto_better.bib
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r results='hide', warning=FALSE, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+library(terra)
+library(tidyterra)
+library(readODS)
+library(ggplot2)
+library(ggtext)
+library(tidyr)
+library(stringr)
+library(purrr)
+library(leaflet)
+library(sf)
+library(scales)
+
+```
+
+# Introduction
+
+The IRM crop suitability model requires spatial data for the various biophysical criteria or requirements.
+
+The global or continental data are often too large to store in the IRM spatial data directory.
+
+Therefore we will create a mask of Nigeria that we will use to clip the other data.
+
+We will also merge soil raster data that have separate files for different soil horizons. These will be weighted and used in the IRM, but need to be saved previously as separate bands in a raster GeoTiff file.
+
+
+
+# Mask and Resolution
+
+The mask will be the boundary of Nigeria using the states dataset that we use throughout the Atlas.
+
+The spatial resolution will be 5km, but at this stage we will only use the boundary to clip the data using its native resolution. The clip will include all pixels touching the boundary.
+
+
+# Load the Nigeria boundary
+
+
+```{r}
+#| label: boundary
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson") 
+
+vect_ng_geo <- vect_state_geo |> aggregate(by = "adm0_pcode")
+
+crs(vect_ng_geo) <- "epsg:4326"
+
+vect_ng_geo$adm0_pcode <- as.factor(vect_ng_geo$adm0_pcode)
+
+ext(vect_ng_geo)
+
+ggplot(vect_ng_geo)+
+  geom_spatvector(aes(fill = adm0_pcode)) +
+  geom_spatvector_text(aes(label = adm0_pcode), size = 3) +
+  labs(
+    title = "Nigeria",
+    fill = "State<br>Code") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+```
+
+
+## Climate
+
+### Precipitation
+
+CHIRPS cumulative rainfall amounts - dekadal, monthly averages (https://data.chc.ucsb.edu/products/CHIRPS-2.0/)
+
+Using the 30 year average for 1991-2020.
+
+
+```{r}
+#| label: clip_chirps_ppt
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+rast_chirps_d <- rast("E:/SpatialDataExternal/CHIRPSv3/raw_data/chirps_9120_avg.tif")
+
+rast_chirps_d
+
+rast_chirps_d_ng <- crop(rast_chirps_d, vect_ng_geo)
+
+rast_chirps_d_ng
+
+rm(rast_chirps_d)
+
+gc()
+
+ggplot()+
+  geom_spatraster(data = rast_chirps_d_ng$r9120_dekad011_avg) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria CHIRPS Precipitation 1991-2020 - Dekad 1",
+    fill = "(mm)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+writeRaster(rast_chirps_d_ng, "E:/repos/IRM_shiny/data/spatial_data/chirps_9120_nigeria.tif", overwrite=TRUE)
+
+```
+
+
+### Temperature
+
+CHELSA
+
+Using the 30 year average for 1981-2010.
+
+#### Monthly mean daily average temperature
+
+```{r}
+#| label: clip_chelsa_tas
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+rast_chelsa_tas_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tas/CHELSA_tas_year_1981-2010_V.2.1.tif")
+
+rast_chelsa_tas_m
+
+rast_chelsa_tas_m_ng <- crop(rast_chelsa_tas_m, vect_ng_geo)
+
+rast_chelsa_tas_m_ng
+
+rm(rast_chelsa_tas_m)
+
+gc()
+
+ggplot()+
+  geom_spatraster(data = rast_chelsa_tas_m_ng$`CHELSA_tas_01_1981-2010_V.2.1`) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria CHELSA mean monthly temperature 1981-2010 - January",
+    fill = "(degC)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+writeRaster(rast_chelsa_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tas_8110_nigeria.tif", overwrite=TRUE)
+
+```
+
+#### Monthly mean daily minimum temperature
+
+```{r}
+#| label: clip_chelsa_tasmin
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+rast_chelsa_tasmin_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tasmin/CHELSA_tasmin_year_1981-2010_V.2.1.tif")
+
+rast_chelsa_tasmin_m
+
+rast_chelsa_tasmin_m_ng <- crop(rast_chelsa_tasmin_m, vect_ng_geo)
+
+rast_chelsa_tasmin_m_ng
+
+rm(rast_chelsa_tasmin_m)
+
+gc()
+
+ggplot()+
+  geom_spatraster(data = rast_chelsa_tasmin_m_ng$`CHELSA_tasmin_01_1981-2010_V.2.1`) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria CHELSA mean monthly minmum temperature 1981-2010 - January",
+    fill = "(degC)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+writeRaster(rast_chelsa_tasmin_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tasmin_8110_nigeria.tif", overwrite=TRUE)
+
+```
+
+## Landscape
+
+### Slope
+
+We use existing sources of high resolution.
+Use Copernicus 30m DEM or existing SRTM 30m data or 90m.
+Process slope in GoogleEarthEngine (https://developers.google.com/earth-engine/apidocs/ee-terrain-slope) 
+
+
+
+
+### Drainage
+
+Use ISRIC soilgrids for consistent coverage or country level soil data?
+
+## Soil physical
+
+### Texture
+
+### depth 
+
+### coarse fragments
+
+Use ISRIC soilgrids for consistent coverage or country level soil data
+
+## Soil fertility
+
+### Soil pH/CEC/BSAT
+
+### SOC
+
+iSDASols has maps for Africa of soilpH (https://www.isda-africa.com/isdasoil/) 
+
