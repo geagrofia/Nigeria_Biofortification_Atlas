@@ -1103,7 +1103,7 @@ ggplot() +
 
 ## Cassava
 
-FEWSNET > CCD > SACRA > different crop from CCD for which data are available
+FEWSNET > CCD > SACRA > different crop from CCD for which data are available (sweet potato)
 
 
 
@@ -1143,5 +1143,174 @@ ggplot() +
     plot.title = element_markdown(),
     axis.title = element_blank()
   )
+
+writeRaster(rast_cassava, "E:/repos/IRM_shiny/data/spatial_data/onset_cassava_generic_nigeria.tif", overwrite=TRUE)
+
+
+```
+
+## Cowpea
+
+FEWSNET > SACRA > different crop from CCD for which data are available (maize)
+
+
+
+```{r}
+#| label: cowpea_sowdate
+#| message: false
+#| warning: false
+
+rast_cowpea_lz_rsmp <- resample(rast_cowpea_lz, rast_cowpea_ccd )
+rast_cowpea_sacra <- resample(rast_sow1_sacra, rast_cowpea_ccd )
+
+rast_cowpea <- ifel(
+  !is.na(rast_cowpea_lz_rsmp),
+  rast_cowpea_lz_rsmp,
+    ifel(!is.na(rast_cowpea_sacra), rast_cowpea_sacra, rast_maize_ccd$plant)
+  )
+
+
+ggplot() +
+  geom_spatraster(data = rast_cowpea) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "Cowpea Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+writeRaster(rast_cowpea, "E:/repos/IRM_shiny/data/spatial_data/onset_cowpea_generic_nigeria.tif", overwrite=TRUE)
+
+```
+
+
+## Maize
+
+FEWSNET > CCD
+
+
+
+```{r}
+#| label: maize_sowdate
+#| message: false
+#| warning: false
+
+rast_maize_lz_rsmp <- resample(rast_maize_lz, rast_maize_ccd )
+rast_maize_sacra <- resample(rast_sow1_sacra, rast_maize_ccd )
+
+rast_maize <- ifel(
+  !is.na(rast_maize_lz_rsmp),  rast_maize_lz_rsmp, rast_maize_ccd$plant)
+
+
+ggplot() +
+  geom_spatraster(data = rast_maize) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "Maize Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+writeRaster(rast_maize, "E:/repos/IRM_shiny/data/spatial_data/onset_maize_generic_nigeria.tif", overwrite=TRUE)
+
+```
+
+
+## Rice
+
+FEWSNET > CCD
+
+
+
+```{r}
+#| label: rice_sowdate
+#| message: false
+#| warning: false
+
+rast_rice_lz_rsmp <- resample(rast_rice_lz, rast_rice_ccd )
+rast_rice_sacra <- resample(rast_sow1_sacra, rast_rice_ccd )
+
+rast_rice <- ifel(
+  !is.na(rast_rice_lz_rsmp),  rast_rice_lz_rsmp, rast_rice_ccd$plant)
+
+
+ggplot() +
+  geom_spatraster(data = rast_rice) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "Rice Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+writeRaster(rast_rice, "E:/repos/IRM_shiny/data/spatial_data/onset_rice_generic_nigeria.tif", overwrite=TRUE)
+
+```
+
+
+## Sweet Potato
+
+FEWSNET > CCD
+
+
+
+```{r}
+#| label: spot_sowdate
+#| message: false
+#| warning: false
+
+rast_spot_lz_rsmp <- resample(rast_spot_lz, rast_spot_ccd )
+rast_spot_sacra <- resample(rast_sow1_sacra, rast_spot_ccd )
+
+rast_spot <- ifel(
+  !is.na(rast_spot_lz_rsmp),  rast_spot_lz_rsmp, rast_spot_ccd$plant)
+
+
+ggplot() +
+  geom_spatraster(data = rast_spot) +
+    scale_fill_distiller(
+    type = "seq",
+    palette = "Purples",
+    direction = 1,
+    limits = c(1, 365),
+    breaks = c(31,59,90,120,151,181,212,243,273,304,334,365),
+    labels = label_comma(),
+    guide = "legend"
+  ) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) + 
+  labs(title = "Sweet Potato Average Sowing Dates", fill = "day #") +
+  theme(
+    plot.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+writeRaster(rast_spot, "E:/repos/IRM_shiny/data/spatial_data/onset_spot_generic_nigeria.tif", overwrite=TRUE)
 
 ```
