@@ -55,6 +55,58 @@ The mask will be the boundary of Nigeria using the states dataset that we use th
 The spatial resolution will be 5km, but at this stage we will only use the boundary to clip the data using its native resolution. The clip will include all pixels touching the boundary.
 
 
+```{r}
+#| label: geo_crs
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+wkt_geo <-  paste0( "
+  GEOGCRS[\"WGS 84 (with axis order normalized for visualization)\",
+          ENSEMBLE[\"World Geodetic System 1984 ensemble\",
+                   MEMBER[\"World Geodetic System 1984 (Transit)\",
+                          ID[\"EPSG\",1166]],
+                   MEMBER[\"World Geodetic System 1984 (G730)\",
+                          ID[\"EPSG\",1152]],
+                   MEMBER[\"World Geodetic System 1984 (G873)\",
+                          ID[\"EPSG\",1153]],
+                   MEMBER[\"World Geodetic System 1984 (G1150)\",
+                          ID[\"EPSG\",1154]],
+                   MEMBER[\"World Geodetic System 1984 (G1674)\",
+                          ID[\"EPSG\",1155]],
+                   MEMBER[\"World Geodetic System 1984 (G1762)\",
+                          ID[\"EPSG\",1156]],
+                   MEMBER[\"World Geodetic System 1984 (G2139)\",
+                          ID[\"EPSG\",1309]],
+                   ELLIPSOID[\"WGS 84\",6378137,298.257223563,
+                             LENGTHUNIT[\"metre\",1],
+                             ID[\"EPSG\",7030]],
+                   ENSEMBLEACCURACY[2.0],
+                   ID[\"EPSG\",6326]],
+          PRIMEM[\"Greenwich\",0,
+                 ANGLEUNIT[\"degree\",0.0174532925199433],
+                 ID[\"EPSG\",8901]],
+          CS[ellipsoidal,2],
+          AXIS[\"geodetic longitude (Lon)\",east,
+               ORDER[1],
+               ANGLEUNIT[\"degree\",0.0174532925199433,
+                         ID[\"EPSG\",9122]]],
+          AXIS[\"geodetic latitude (Lat)\",north,
+               ORDER[2],
+               ANGLEUNIT[\"degree\",0.0174532925199433,
+                         ID[\"EPSG\",9122]]],
+          USAGE[
+            SCOPE[\"Horizontal component of 3D system.\"],
+            AREA[\"World.\"],
+            BBOX[-90,-180,90,180]],
+          REMARK[\"Axis order reversed compared to EPSG:4326\"]]")
+```
+
+
+
+
 # Load the Nigeria boundary
 
 
@@ -90,6 +142,100 @@ ggplot(vect_ng_geo)+
 
 ```
 
+## Land Use
+
+The purpose of including a land use criteria is to assess whether the existing land use is suitable for the crop. Normally in a crop suitability model a land cover like shrubland, or forest would not be suitable for crops due to the environmental impacts. But in our case we are concerned with whether it is feasible to convert the land to cropland. Therefore we include all land use types that are not urban, water, flooded or bare.
+
+
+https://collections.sentinel-hub.com/worldcover/readme.html
+
+ | Value	| Label	| Agricultural Land value  |
+ |------|-------|--------------------------|
+ | 10 | Tree cover  | 1 | 
+ | 20 | Shrubland  | 1 | 
+ | 30 | Grassland  | 1 | 
+ | 40 | Cropland  | 1 | 
+ | 50 | Built-up  | 0 | 
+ | 60 | Bare / sparse vegetation  | 0 | 
+ | 70 | Snow and ice  | 0 | 
+ | 80 | Permanent water bodies  | 0 | 
+ | 90 | Herbaceous wetland  | 0 | 
+ | 95 | Mangroves  | 0 | 
+ | 100 | Moss and lichen  | 0 | 
+ | 0 | No data  | 0 | 
+
+
+
+```{r}
+#| label: clip_worldcover
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_landuse <- rast("E:/SpatialDataExternal/WorldCover_v200/terrascope_download_20241127_121517/WORLDCOVER/ESA_WORLDCOVER_10M_2021_V200/Worldcover_v_200_Nigeria-mosaic.tif")
+# 
+# rast_landuse
+# 
+# rast_landuse_ng <- crop(rast_landuse, vect_ng_geo)
+# 
+# rast_landuse_ng
+# 
+# rm(rast_landuse)
+# 
+# gc()
+# 
+# plot(rast_landuse_ng)
+# plot(vect_ng_geo, fill = NA, add = T)
+# 
+# 
+# # classify land cover
+# 
+# df_landcover_lookup <- tribble(
+#   ~wc_value, ~irm_value,
+# 10, 1,
+# 20, 1,
+# 30, 1,
+# 40, 1,
+# 50, 0,
+# 60, 0,
+# 70, 0,
+# 80, 0,
+# 90, 0,
+# 95, 0,
+# 100, 0,
+# 0, 0)
+# 
+# m_landcover_lookup <- as.matrix(df_landcover_lookup)
+# 
+# rast_landuse_rcl_ng <- classify(rast_landuse_ng, m_landcover_lookup)
+# rast_landuse_rcl_ng
+
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_landuse_rcl_ng, "E:/repos/IRM_shiny/data/spatial_data/worldcover200_rcl_30m_nigeria.tif", overwrite=TRUE)
+
+rast_landuse_rcl_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/worldcover200_rcl_30m_nigeria.tif")
+
+ggplot()+
+  geom_spatraster(data = rast_landuse_rcl_ng) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria WorldCover reclassified cropland",
+    fill = "()") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+```
 
 ## Climate
 
@@ -107,17 +253,28 @@ Using the 30 year average for 1991-2020.
 #| cache: false
 #| results: asis
 
-rast_chirps_d <- rast("E:/SpatialDataExternal/CHIRPSv3/raw_data/chirps_9120_avg.tif")
 
-rast_chirps_d
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
 
-rast_chirps_d_ng <- crop(rast_chirps_d, vect_ng_geo)
+# rast_chirps_d <- rast("E:/SpatialDataExternal/CHIRPSv3/raw_data/chirps_9120_avg.tif")
+# 
+# rast_chirps_d
+# 
+# rast_chirps_d_ng <- crop(rast_chirps_d, vect_ng_geo)
+# 
+# rast_chirps_d_ng
+# 
+# rm(rast_chirps_d)
+# 
+# gc()
 
-rast_chirps_d_ng
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
 
-rm(rast_chirps_d)
+# writeRaster(rast_chirps_d_ng, "E:/repos/IRM_shiny/data/spatial_data/chirps_9120_nigeria.tif", overwrite=TRUE)
 
-gc()
+
+rast_chirps_d_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/chirps_9120_nigeria.tif")
+
 
 ggplot()+
   geom_spatraster(data = rast_chirps_d_ng$r9120_dekad011_avg) +
@@ -132,7 +289,7 @@ ggplot()+
   )
 
 
-writeRaster(rast_chirps_d_ng, "E:/repos/IRM_shiny/data/spatial_data/chirps_9120_nigeria.tif", overwrite=TRUE)
+
 
 ```
 
@@ -152,17 +309,28 @@ Using the 30 year average for 1981-2010.
 #| cache: false
 #| results: asis
 
-rast_chelsa_tas_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tas/CHELSA_tas_year_1981-2010_V.2.1.tif")
 
-rast_chelsa_tas_m
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
 
-rast_chelsa_tas_m_ng <- crop(rast_chelsa_tas_m, vect_ng_geo)
+# rast_chelsa_tas_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tas/CHELSA_tas_year_1981-2010_V.2.1.tif")
+# 
+# rast_chelsa_tas_m
+# 
+# rast_chelsa_tas_m_ng <- crop(rast_chelsa_tas_m, vect_ng_geo)
+# 
+# rast_chelsa_tas_m_ng
+# 
+# rm(rast_chelsa_tas_m)
+# 
+# gc()
 
-rast_chelsa_tas_m_ng
 
-rm(rast_chelsa_tas_m)
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
 
-gc()
+# writeRaster(rast_chelsa_tas_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tas_8110_nigeria.tif", overwrite=TRUE)
+
+rast_chelsa_tas_m_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/chelsa_tas_8110_nigeria.tif")
+
 
 ggplot()+
   geom_spatraster(data = rast_chelsa_tas_m_ng$`CHELSA_tas_01_1981-2010_V.2.1`) +
@@ -177,8 +345,6 @@ ggplot()+
   )
 
 
-writeRaster(rast_chelsa_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tas_8110_nigeria.tif", overwrite=TRUE)
-
 ```
 
 #### Monthly mean daily minimum temperature
@@ -190,24 +356,34 @@ writeRaster(rast_chelsa_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tas_8
 #| cache: false
 #| results: asis
 
-rast_chelsa_tasmin_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tasmin/CHELSA_tasmin_year_1981-2010_V.2.1.tif")
 
-rast_chelsa_tasmin_m
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
 
-rast_chelsa_tasmin_m_ng <- crop(rast_chelsa_tasmin_m, vect_ng_geo)
+# rast_chelsa_tasmin_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tasmin/CHELSA_tasmin_year_1981-2010_V.2.1.tif")
+# 
+# rast_chelsa_tasmin_m
+# 
+# rast_chelsa_tasmin_m_ng <- crop(rast_chelsa_tasmin_m, vect_ng_geo)
+# 
+# rast_chelsa_tasmin_m_ng
+# 
+# rm(rast_chelsa_tasmin_m)
+# 
+# gc()
 
-rast_chelsa_tasmin_m_ng
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
 
-rm(rast_chelsa_tasmin_m)
+# writeRaster(rast_chelsa_tasmin_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tasmin_8110_nigeria.tif", overwrite=TRUE)
 
-gc()
+rast_chelsa_tasmin_m_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/chelsa_tasmin_8110_nigeria.tif")
+
 
 ggplot()+
   geom_spatraster(data = rast_chelsa_tasmin_m_ng$`CHELSA_tasmin_01_1981-2010_V.2.1`) +
   geom_spatvector(data = vect_ng_geo, fill = NA) +
   labs(
     title = "Nigeria CHELSA mean monthly minmum temperature 1981-2010 - January",
-    fill = "(degC)") +
+    fill = "(°C)") +
   theme(
     plot.title = element_markdown(),
     legend.title = element_markdown(),
@@ -215,7 +391,110 @@ ggplot()+
   )
 
 
-writeRaster(rast_chelsa_tasmin_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tasmin_8110_nigeria.tif", overwrite=TRUE)
+
+
+```
+
+#### Monthly mean daily maximum temperature
+
+```{r}
+#| label: clip_chelsa_tasmax
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_chelsa_tasmax_m <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tasmax/CHELSA_tasmax_year_1981-2010_V.2.1.tif")
+# 
+# rast_chelsa_tasmax_m
+# 
+# rast_chelsa_tasmax_m_ng <- crop(rast_chelsa_tasmax_m, vect_ng_geo)
+# 
+# rast_chelsa_tasmax_m_ng
+# 
+# rm(rast_chelsa_tasmax_m)
+# 
+# gc()
+
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_chelsa_tasmax_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tasmax_8110_nigeria.tif", overwrite=TRUE)
+
+rast_chelsa_tasmax_m_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/chelsa_tasmax_8110_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_chelsa_tasmax_m_ng$`CHELSA_tasmax_01_1981-2010_V.2.1`) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria CHELSA mean monthly maximum temperature 1981-2010 - January",
+    fill = "(°C)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+```
+
+#### Monthly minimum daily minimum temperature
+
+Raw CHELSA V2.1 temperatures are stored in Kelvin as scaled integers, so the stored values are never negative. In the documentation, the temperature variables are given as K × 10 (for example, 2731 means 273.1 K). To get °C you apply a scale factor of 0.1 and an offset of -273.15.
+
+```{r}
+#| label: clip_chelsa_tasminmin
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_chelsa_tasminmin_y <- rast("E:/SpatialDataExternal/CHELSA/climatologies/tasminmin/CHELSA_tasmin_min_year_1981_2010.tif")
+# 
+# rast_chelsa_tasminmin_y
+# 
+# rast_chelsa_tasminmin_y_ng <- crop(rast_chelsa_tasminmin_y, vect_ng_geo)
+# rast_chelsa_tasminmin_y_ng <- ((rast_chelsa_tasminmin_y_ng / 10) -273.15)
+# 
+# rast_chelsa_tasminmin_y_ng
+# 
+# rm(rast_chelsa_tasminmin_y)
+# 
+# gc()
+# 
+# names(rast_chelsa_tasminmin_y_ng) <- c("Jan", "02", "03", "04", "05", "06", "07", "08","09", "10", "11", "12")
+# 
+# rast_chelsa_tasminmin_y_ng
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_chelsa_tasminmin_y_ng, "E:/repos/IRM_shiny/data/spatial_data/chelsa_tasminmin_y_8110_nigeria.tif", overwrite=TRUE)
+
+rast_chelsa_tasminmin_y_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/chelsa_tasminmin_y_8110_nigeria.tif")
+
+
+ggplot() + 
+  geom_spatraster(data = rast_chelsa_tasminmin_y_ng$Jan) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria CHELSA minimum monthly minmum temperature 1981-2010 - January",
+    fill = "(°C)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
 
 ```
 
@@ -224,13 +503,111 @@ writeRaster(rast_chelsa_tasmin_m_ng, "E:/repos/IRM_shiny/data/spatial_data/chels
 ### Slope
 
 We use existing sources of high resolution.
-Use Copernicus 30m DEM or existing SRTM 30m data or 90m.
-Process slope in GoogleEarthEngine (https://developers.google.com/earth-engine/apidocs/ee-terrain-slope) 
+Use existing SRTM 90m data
 
 
+```{r}
+#| label: clip_srtm90
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_srtm90 <- rast("E:/repos_external/RDC_Aptitud/spatial_data/input/srtm_slope.tif")
+# 
+# rast_srtm90
+# 
+# rast_srtm90_ng <- crop(rast_srtm90, vect_ng_geo)
+# 
+# rast_srtm90_ng
+# 
+# rm(rast_srtm90)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_srtm90_ng, "E:/repos/IRM_shiny/data/spatial_data/srtm90_nigeria.tif", overwrite=TRUE)
+
+rast_srtm90_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/srtm90_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_srtm90_ng) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria SRTM Slope degrees",
+    fill = "(°)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+
+```
 
 
 ### Drainage
+
+We use existing sources of high resolution.
+Use existing AfSIS 250m data
+
+
+```{r}
+#| label: clip_drain
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_af_drain <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_DRAINFAO_T__M_250m.tif")
+# 
+# rast_af_drain
+# 
+# rast_af_drain_ng <- crop(project(rast_af_drain, wkt_geo), vect_ng_geo)
+# 
+# rast_af_drain_ng
+# 
+# rm(rast_af_drain)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_af_drain_ng, "E:/repos/IRM_shiny/data/spatial_data/af_DRAINFAO_T__M_250m_nigeria.tif", overwrite=TRUE)
+
+rast_af_drain_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/af_DRAINFAO_T__M_250m_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_af_drain_ng) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria AfSIS drainage class",
+    fill = "(FAO Code)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+
+
+```
+
 
 Use ISRIC soilgrids for consistent coverage or country level soil data?
 
@@ -238,17 +615,265 @@ Use ISRIC soilgrids for consistent coverage or country level soil data?
 
 ### Texture
 
-### depth 
+```{r}
+#| label: clip_texture
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
 
-### coarse fragments
 
-Use ISRIC soilgrids for consistent coverage or country level soil data
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_af_text <- rast("E:/repos_external/RDC_Aptitud/spatial_data/input/af_TEXMHT_T__M_sd_all_250m_geo.tif")
+# 
+# rast_af_text
+# 
+# rast_af_text_ng <- crop(rast_af_text, vect_ng_geo)
+# 
+# rast_af_text_ng
+# 
+# rm(rast_af_text)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_af_text_ng, "E:/repos/IRM_shiny/data/spatial_data/af_TEXMHT_T__M_sd_all_250m_nigeria.tif", overwrite=TRUE)
+
+rast_af_text_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/af_TEXMHT_T__M_sd_all_250m_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_af_text_ng$af_TEXMHT_T__M_sd_all_250m_geo_1) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria AfSIS Soil Texture Classes",
+    fill = "(USDA Code)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+```
+
+### Soil depth 
+
+```{r}
+#| label: clip_depth
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_af_depth <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_BDRICM_T__M_250m.tif")
+# 
+# rast_af_depth
+# 
+# rast_af_depth_ng <- crop(project(rast_af_depth, wkt_geo), vect_ng_geo)
+# 
+# rast_af_depth_ng
+# 
+# rm(rast_af_depth)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_af_depth_ng, "E:/repos/IRM_shiny/data/spatial_data/af_BDRICM_T__M_250m_nigeria.tif", overwrite=TRUE)
+
+rast_af_depth_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/af_BDRICM_T__M_250m_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_af_depth_ng) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria AfSIS Soil Depth to Bedrock",
+    fill = "(cm)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+```
+
+### Coarse fragments
+
+```{r}
+#| label: clip_cfrag
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_af_cfrag_1 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_CRFVOL_T__M_sd1_250m.tif") #|> project(wkt_geo)  |> crop(vect_ng_geo)
+# rast_af_cfrag_2 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_CRFVOL_T__M_sd2_250m.tif")
+# rast_af_cfrag_3 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_CRFVOL_T__M_sd3_250m.tif")
+# rast_af_cfrag_4 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_CRFVOL_T__M_sd4_250m.tif")
+# rast_af_cfrag_5 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_CRFVOL_T__M_sd5_250m.tif")
+# rast_af_cfrag_6 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_CRFVOL_T__M_sd6_250m.tif")
+# 
+# rast_af_cfrag <- c(rast_af_cfrag_1, rast_af_cfrag_2, rast_af_cfrag_3, rast_af_cfrag_4, rast_af_cfrag_5, rast_af_cfrag_6)
+# 
+# rast_af_cfrag
+# 
+# rast_af_cfrag_ng <- crop(project(rast_af_cfrag, wkt_geo), vect_ng_geo)
+# 
+# rast_af_cfrag_ng
+# 
+# rm(rast_af_cfrag)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_af_cfrag_ng, "E:/repos/IRM_shiny/data/spatial_data/af_CRFVOL_T__M_250m_nigeria.tif", overwrite=TRUE)
+
+rast_af_cfrag_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/af_CRFVOL_T__M_250m_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_af_cfrag_ng$af_CRFVOL_T__M_sd1_250m) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria AfSIS Coarse Fragments - Horizon 1",
+    fill = "(%)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+```
+
 
 ## Soil fertility
 
-### Soil pH/CEC/BSAT
+### Soil pH
+
+
+```{r}
+#| label: clip_ph
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_af_ph_1 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_PHIHOX_T__M_sd1_250m.tif") 
+# rast_af_ph_2 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_PHIHOX_T__M_sd2_250m.tif")
+# rast_af_ph_3 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_PHIHOX_T__M_sd3_250m.tif")
+# rast_af_ph_4 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_PHIHOX_T__M_sd4_250m.tif")
+# rast_af_ph_5 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_PHIHOX_T__M_sd5_250m.tif")
+# rast_af_ph_6 <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_PHIHOX_T__M_sd6_250m.tif")
+# 
+# rast_af_ph <- c(rast_af_ph_1, rast_af_ph_2, rast_af_ph_3, rast_af_ph_4, rast_af_ph_5, rast_af_ph_6)
+# 
+# rast_af_ph
+# 
+# rast_af_ph_ng <- crop(project(rast_af_ph, wkt_geo), vect_ng_geo)
+# 
+# rast_af_ph_ng
+# 
+# rm(rast_af_ph)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_af_ph_ng, "E:/repos/IRM_shiny/data/spatial_data/af_PHIHOX_T__M_250m_nigeria.tif", overwrite=TRUE)
+
+
+rast_af_ph_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/af_PHIHOX_T__M_250m_nigeria.tif")
+
+ggplot()+
+  geom_spatraster(data = rast_af_ph_ng$af_PHIHOX_T__M_sd1_250m) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria AfSIS Soil pH (in H2O) - Horizon 1",
+    fill = "(%)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+
+```
+
 
 ### SOC
 
-iSDASols has maps for Africa of soilpH (https://www.isda-africa.com/isdasoil/) 
+
+```{r}
+#| label: clip_soc
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+# RUN ONCE TO GENERATE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# rast_af_soc <- rast("D:/DatosProyecto/SpatialData/Africa/biofisico/Soils/AfSIS/af_ORCDRC_T__M_sd1_250m.tif")
+# 
+# rast_af_soc
+# 
+# rast_af_soc_ng <- crop(project(rast_af_soc, wkt_geo), vect_ng_geo) 
+# 
+# # convert from permille to percent
+# rast_af_soc_ng <- (rast_af_soc_ng / 10)
+# 
+# rm(rast_af_soc)
+# 
+# gc()
+
+# RUN ONCE TO SAVE THE DATA - THEREAFTER THE SAVED DATA ARE LOADED FOR DISPLAY
+
+# writeRaster(rast_af_soc_ng, "E:/repos/IRM_shiny/data/spatial_data/af_ORCPC_T__M_sd1_250m_nigeria.tif", overwrite=TRUE)
+
+rast_af_soc_ng <- rast("E:/repos/IRM_shiny/data/spatial_data/af_ORCPC_T__M_sd1_250m_nigeria.tif")
+
+
+ggplot()+
+  geom_spatraster(data = rast_af_soc_ng) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria AfSIS Soil Organic Carbon - Horizon 1",
+    fill = "(%)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+
+
+
+```
+
+
 
