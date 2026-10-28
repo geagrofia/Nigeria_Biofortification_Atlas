@@ -1192,6 +1192,131 @@ writeRaster(rast_cowpea, "E:/repos/IRM_shiny/data/spatial_data/onset_cowpea_gene
 
 ```
 
+The sowing dates above gave good results for some areas, such as in the north west and parts of the central part of Nigeria. But were particularly unsuited for north east Nigeria.
+
+Therefore, we tried a number of static sowing dates to test their impact on climatic suitability.
+
+
+```{r}
+wkt_geo <-  paste0( "
+  GEOGCRS[\"WGS 84 (with axis order normalized for visualization)\",
+          ENSEMBLE[\"World Geodetic System 1984 ensemble\",
+                   MEMBER[\"World Geodetic System 1984 (Transit)\",
+                          ID[\"EPSG\",1166]],
+                   MEMBER[\"World Geodetic System 1984 (G730)\",
+                          ID[\"EPSG\",1152]],
+                   MEMBER[\"World Geodetic System 1984 (G873)\",
+                          ID[\"EPSG\",1153]],
+                   MEMBER[\"World Geodetic System 1984 (G1150)\",
+                          ID[\"EPSG\",1154]],
+                   MEMBER[\"World Geodetic System 1984 (G1674)\",
+                          ID[\"EPSG\",1155]],
+                   MEMBER[\"World Geodetic System 1984 (G1762)\",
+                          ID[\"EPSG\",1156]],
+                   MEMBER[\"World Geodetic System 1984 (G2139)\",
+                          ID[\"EPSG\",1309]],
+                   ELLIPSOID[\"WGS 84\",6378137,298.257223563,
+                             LENGTHUNIT[\"metre\",1],
+                             ID[\"EPSG\",7030]],
+                   ENSEMBLEACCURACY[2.0],
+                   ID[\"EPSG\",6326]],
+          PRIMEM[\"Greenwich\",0,
+                 ANGLEUNIT[\"degree\",0.0174532925199433],
+                 ID[\"EPSG\",8901]],
+          CS[ellipsoidal,2],
+          AXIS[\"geodetic longitude (Lon)\",east,
+               ORDER[1],
+               ANGLEUNIT[\"degree\",0.0174532925199433,
+                         ID[\"EPSG\",9122]]],
+          AXIS[\"geodetic latitude (Lat)\",north,
+               ORDER[2],
+               ANGLEUNIT[\"degree\",0.0174532925199433,
+                         ID[\"EPSG\",9122]]],
+          USAGE[
+            SCOPE[\"Horizontal component of 3D system.\"],
+            AREA[\"World.\"],
+            BBOX[-90,-180,90,180]],
+          REMARK[\"Axis order reversed compared to EPSG:4326\"]]")
+
+
+rast_cowpea_140 <- rast("E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOCnonsos_140_NA_10000_NG/spatial_data/optsubopt_Precipitation Aptitude_cowpea_generic_nigeriaOCnonsos_140_10000_NG.tif") |> project(wkt_geo)
+
+plot(rast_cowpea_140$optimal, main = "2 rast_cowpea_140")
+
+rast_cowpea_167 <- rast("E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOCnonsos_NA_10000_NG/spatial_data/optsubopt_Precipitation Aptitude_cowpea_generic_nigeriaOCnonsos_10000_NG.tif") |> project(wkt_geo)
+
+plot(rast_cowpea_167$optimal, main = "3 rast_cowpea_167")
+
+rast_cowpea_180 <- rast("E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOCnonsos_180_NA_10000_NG/spatial_data/optsubopt_Precipitation Aptitude_cowpea_generic_nigeriaOCnonsos_180_10000_NG.tif") |> project(wkt_geo)
+
+plot(rast_cowpea_180$optimal, main = "4 rast_cowpea_180")
+
+rast_cowpea_211 <- rast("E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOCnonsos_211_NA_10000_NG/spatial_data/optsubopt_Precipitation Aptitude_cowpea_generic_nigeriaOCnonsos_211_10000_NG.tif") |> project(wkt_geo)
+
+plot(rast_cowpea_211$optimal, main = "5 rast_cowpea_211")
+
+rast_pptopt_layers <- c(
+  rast_cowpea_140[["optimal"]], 
+  rast_cowpea_167[["optimal"]], 
+  rast_cowpea_180[["optimal"]], 
+  rast_cowpea_211[["optimal"]]
+)
+rast_cowpea_pptopt_max <- max(rast_pptopt_layers, na.rm = TRUE) |> resample(rast_cowpea)
+rast_cowpea_pptopt_max 
+  
+rast_cowpea_pptopt_whichmax <- which.max(rast_pptopt_layers) |> resample(rast_cowpea, method="modal")
+rast_cowpea_pptopt_whichmax 
+  
+
+plot(rast_cowpea_pptopt_max)
+plot(rast_cowpea_pptopt_whichmax)
+
+rast_cowpea_revised <- ifel(
+    rast_cowpea_pptopt_whichmax == 1,
+    140,
+    ifel(
+      rast_cowpea_pptopt_whichmax == 2,
+      167,
+      ifel(rast_cowpea_pptopt_whichmax == 3, 180, 211)
+    )
+  )
+
+plot(rast_cowpea_revised)
+
+writeRaster(rast_cowpea_revised, "E:/repos/IRM_shiny/data/spatial_data/onset_cowpea_generic_nigeriaOC.tif", overwrite=TRUE)
+
+```
+
+
+
+
+
+
+
+The value used in the north west (day number 167 - equivalent to 16th June) gave good results for most of the north of Nigeria.
+
+
+| day number |         poor  | moderate               |                    good |
+|------------|---------------|------------------------|-------------------------|
+|   dynamic  | north-north east | central, north | north west and south west |
+|       140  |     |                        |   | 
+|       167  | north central, south |                  west  |  north west, north east |
+|       180  | north central (less area than 167), south |  south of north, north of south |    north west, north east (less area than 167)                     | 
+|       211  |          |                        |   | 
+
+
+The best sowing dates for cowpea are still dynamic but are slightly distinct from those suggested by FEWSNET or by SACRA.
+
+North - 167
+North central - 180
+south west - dynamic
+south central - dynamic
+north central - dynamic
+east - 180
+north of south - dynamic
+
+
+
 
 ## Maize
 
