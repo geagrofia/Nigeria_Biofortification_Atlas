@@ -33,6 +33,7 @@ library(purrr)
 library(leaflet)
 library(sf)
 library(scales)
+library(geodata)
 
 ```
 
@@ -118,6 +119,16 @@ wkt_geo <-  paste0( "
 #| results: asis
 
 vect_state_geo <- vect("D:/DatosProyecto/SpatialData/Africa/Pais/Nigeria/NGA Admin 2019-2025 OSGOF-Ehealth-UNCS/nga_admin1_topo.topojson") 
+
+# save the admin data for use in IRM
+# the division variable (DIVCODEVAR parameter) is ADM0_PCODE
+# the division variable value (DIVCODEVAR parameter) is NG
+# the division name variable (DIVNAMEVAR parameter) is ADM0_EN
+# the sub-division variable (SUBDIVNAMEVAR parameter) is ADM1_EN
+
+# run once writeVector(vect_state_geo, "E:/repos/IRM_shiny/data/spatial_data/admin_Nigeria.geojson")
+
+
 
 vect_ng_geo <- vect_state_geo |> aggregate(by = "adm0_pcode")
 
@@ -497,6 +508,228 @@ ggplot() +
 
 
 ```
+#### Number of dry months
+
+## Future Climate
+
+WorldClim route. It averages 7 GCMs and writes 12-band monthly GeoTIFFs for Nigeria: precipitation, tmin, tmax and tmean. It also writes the between-model standard deviation, so you can see where the models disagree.
+
+SSP370 only, at 5 arc-minutes (9 km at the equator). SSP370, with 7 W/m² by the year 2100, this scenario is in the upper-middle part of the full range of scenarios. It was newly introduced after the RCP scenarios, closing the gap between RCP6.0 and RCP8.5.
+
+The files are named like NGA_prec_ssp370_2021-2040_ensmean.tif. Each has 12 bands (Jan to Dec), with precipitation in mm/month and temperature in °C. Together they cover 3 variables, plus the matching _enssd.tif spread layers.
+
+Model availability: some GCM and SSP combinations are missing on the server. The script skips them and tells you which models were used for each SSP. Check that the model count is the same across SSPs, or the SSP comparison will be uneven.
+
+Model choice: UKESM1-0-LL and IPSL-CM6A-LR are among the hotter CMIP6 models, while the others are more moderate. This mix is reasonable, but swap models if you want to focus on a particular set.
+
+### Download Worldclim future climate data
+
+```{r}
+
+# run this only once
+# 
+# dir.create("data", showWarnings = FALSE)
+# dir.create("out",  showWarnings = FALSE)
+# 
+# nga    <- gadm("NGA", level = 0, path = "data")
+# ssp    <- "370"
+# vars   <- c("prec", "tmin", "tmax")
+# res    <- 5   # arc-minutes, ~9 km
+# models <- c("ACCESS-CM2", "GFDL-ESM4", "IPSL-CM6A-LR", "MIROC6",
+#             "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL")
+# 
+# 
+# get_one <- function(m, v) {
+#   r <- tryCatch(
+#     cmip6_world(model = m, ssp = ssp, time = "2021-2040",
+#                 var = v, res = res, path = "data"),
+#     error = function(e) { message("Skipping ", m, " ", v); NULL })
+#   if (is.null(r)) return(NULL)
+#   mask(crop(r, nga), nga)
+# }
+# 
+# 
+# 
+# 
+# ens_mean <- function(lst) Reduce(`+`, lst) / length(lst)
+# 
+# ens_sd <- function(lst) {
+#   rast(lapply(1:12, function(i)
+#     app(rast(lapply(lst, function(x) x[[i]])), sd)))
+# }
+# 
+# save_r <- function(r, v, stat) {
+#   names(r) <- paste0(v, "_", sprintf("%02d", 1:12))
+#   writeRaster(r, sprintf("out/NGA_%s_ssp%s_2021-2040_ens%s.tif", v, ssp, stat),
+#               overwrite = TRUE)
+# }
+# 
+# # Collect models that have all three variables
+# got <- list()
+# for (m in models) {
+#   x <- lapply(vars, function(v) get_one(m, v))
+#   if (!any(sapply(x, is.null))) {
+#     names(x) <- vars
+#     x$tmean  <- (x$tmin + x$tmax) / 2
+#     got[[m]] <- x
+#   }
+# }
+# message("Models used (", length(got), "): ", paste(names(got), collapse = ", "))
+# 
+# for (v in c("prec", "tmin", "tmax", "tmean")) {
+#   lst <- lapply(got, `[[`, v)
+#   save_r(ens_mean(lst), v, "mean")
+#   save_r(ens_sd(lst),   v, "sd")
+# }
+
+
+```
+
+```{r}
+#| label: future_clim_load
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+rast_ssp370_ensem_prec_mean <- rast("spatial_data/worldclim_future/out/NGA_prec_ssp370_2021-2040_ensmean.tif")
+plot(rast_ssp370_ensem_prec_mean)
+
+rast_ssp370_ensem_prec_sd <- rast("spatial_data/worldclim_future/out/NGA_prec_ssp370_2021-2040_enssd.tif")
+plot(rast_ssp370_ensem_prec_sd)
+
+rast_ssp370_ensem_tmax_mean <- rast("spatial_data/worldclim_future/out/NGA_tmax_ssp370_2021-2040_ensmean.tif")
+plot(rast_ssp370_ensem_tmax_mean)
+
+rast_ssp370_ensem_tmax_sd <- rast("spatial_data/worldclim_future/out/NGA_tmax_ssp370_2021-2040_enssd.tif")
+plot(rast_ssp370_ensem_tmax_sd)
+
+rast_ssp370_ensem_tmean_mean <- rast("spatial_data/worldclim_future/out/NGA_tmean_ssp370_2021-2040_ensmean.tif")
+plot(rast_ssp370_ensem_tmean_mean)
+
+rast_ssp370_ensem_tmean_sd <- rast("spatial_data/worldclim_future/out/NGA_tmean_ssp370_2021-2040_enssd.tif")
+plot(rast_ssp370_ensem_tmean_sd)
+
+rast_ssp370_ensem_tmin_mean <- rast("spatial_data/worldclim_future/out/NGA_tmin_ssp370_2021-2040_ensmean.tif")
+plot(rast_ssp370_ensem_tmin_mean)
+
+rast_ssp370_ensem_tmin_sd <- rast("spatial_data/worldclim_future/out/NGA_tmin_ssp370_2021-2040_enssd.tif")
+plot(rast_ssp370_ensem_tmin_sd)
+
+
+```
+
+```{r}
+#| label: future_clim_save
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# run this only once
+
+# writeRaster(rast_ssp370_ensem_prec_mean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_prec_mean.tif")
+# 
+# writeRaster(rast_ssp370_ensem_prec_sd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_prec_sd.tif")
+# 
+# writeRaster(rast_ssp370_ensem_tmax_mean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_tmax_mean.tif")
+# 
+# writeRaster(rast_ssp370_ensem_tmax_sd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_tmax_sd.tif")
+# 
+# writeRaster(rast_ssp370_ensem_tmean_mean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_tmean_mean.tif")
+# 
+# writeRaster(rast_ssp370_ensem_tmean_sd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_tmean_sd.tif")
+# 
+# writeRaster(rast_ssp370_ensem_tmin_mean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_tmin_mean.tif")
+# 
+# writeRaster(rast_ssp370_ensem_tmin_sd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_ensem_tmin_sd.tif")
+
+
+```
+
+### Dry month calculation
+
+```{r}
+
+nga       <- gadm("NGA", level = 0, path = "data")
+ssp       <- "370"
+res       <- 5
+threshold <- 50   # mm/month; a month is "dry" if prec < threshold
+models    <- c("ACCESS-CM2", "GFDL-ESM4", "IPSL-CM6A-LR", "MIROC6",
+               "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL")
+
+# Longest run of consecutive dry months, treating the year as circular
+# so a dry season spanning Dec -> Jan is counted as one run
+dsl_fun <- function(x) {
+  if (anyNA(x)) return(NA_real_)
+  d <- c(x, x) < threshold          # repeat the year to handle wrap-around
+  if (!any(d)) return(0)
+  r <- rle(d)
+  min(max(r$lengths[r$values]), 12) # cap at 12 (dry all year)
+}
+
+dsl_list <- list()
+for (m in models) {
+  p <- tryCatch(
+    cmip6_world(model = m, ssp = ssp, time = "2021-2040",
+                var = "prec", res = res, path = "data"),
+    error = function(e) { message("Skipping ", m); NULL })
+  if (is.null(p)) next
+  p <- mask(crop(p, nga), nga)
+  dsl_list[[m]] <- app(p, dsl_fun)
+}
+message("Models used (", length(dsl_list), "): ", paste(names(dsl_list), collapse = ", "))
+
+dsl_stack <- rast(dsl_list)
+dsl_mean  <- mean(dsl_stack)
+dsl_sd    <- app(dsl_stack, sd)
+
+names(dsl_mean) <- "dry_season_months"
+names(dsl_sd)   <- "dry_season_sd"
+
+writeRaster(dsl_mean, "out/NGA_DSL_ssp370_2021-2040_ensmean.tif", overwrite = TRUE)
+writeRaster(dsl_sd,   "out/NGA_DSL_ssp370_2021-2040_enssd.tif",   overwrite = TRUE)
+
+plot(dsl_mean, main = "Mean dry season length (months), SSP370, 2021-2040")
+```
+
+```{r}
+#| label: future_drydays_save
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+dsl_mean_days <- (dsl_mean * ((365/12) / 30))
+plot(dsl_mean_days)
+
+dsl_mean_days_m <- c(dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days)
+
+# Rename layers by index using names()
+names(dsl_mean_days_m) <- c("January", "February", "March", "April", "May", "June","July", "August", "September","October", "November", "December")
+
+plot(dsl_mean_days_m)
+
+writeRaster(dsl_mean_days_m, "E:/repos/IRM_shiny/data/spatial_data/ssp370_cdm_days_m.tif", overwrite=TRUE)
+
+
+
+dsl_sd_days <- (dsl_sd * ((365/12) / 30))
+plot(dsl_sd_days)
+
+dsl_sd_days_m <- c(dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days)
+
+# Rename layers by index using names()
+names(dsl_sd_days_m) <- c("January", "February", "March", "April", "May", "June","July", "August", "September","October", "November", "December")
+
+plot(dsl_sd_days_m)
+
+writeRaster(dsl_sd_days_m, "E:/repos/IRM_shiny/data/spatial_data/ssp370_cdm_days_msd.tif", overwrite=TRUE)
+
+
+```
+
 
 ## Landscape
 
