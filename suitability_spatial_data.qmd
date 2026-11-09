@@ -647,7 +647,117 @@ plot(rast_ssp370_ensem_tmin_sd)
 
 ```
 
+### Annual precipitation with spread
+
+We could use the sum of the monthly totals, but the method below gives the spread of annual precipitation among the models.
+
+```{r}
+
+nga    <- gadm("NGA", level = 0, path = "data")
+ssp    <- "370"
+res    <- 5
+models <- c("ACCESS-CM2", "GFDL-ESM4", "IPSL-CM6A-LR", "MIROC6",
+            "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL")
+
+ann <- list()
+for (m in models) {
+  p <- tryCatch(
+    cmip6_world(model = m, ssp = ssp, time = "2021-2040",
+                var = "prec", res = res, path = "data"),
+    error = function(e) { message("Skipping ", m); NULL })
+  if (is.null(p)) next
+  ann[[m]] <- sum(mask(crop(p, nga), nga))
+}
+message("Models used (", length(ann), "): ", paste(names(ann), collapse = ", "))
+
+ann   <- rast(ann)
+pmean <- mean(ann);  names(pmean) <- "prec_annual_mm"
+psd   <- app(ann, sd); names(psd) <- "prec_annual_sd_mm"
+
+writeRaster(pmean, "out/NGA_prec_annual_ssp370_2021-2040_ensmean.tif", overwrite = TRUE)
+writeRaster(psd,   "out/NGA_prec_annual_ssp370_2021-2040_enssd.tif",   overwrite = TRUE)
+
+plot(pmean, main = "Annual precipitation (mm), SSP370, 2021-2040")
+plot(psd, main = "Spread (sd) of annual precipitation (mm), SSP370, 2021-2040")
+
+
+writeRaster(pmean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_pmean.tif", overwrite=TRUE)
+writeRaster(psd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_psd.tif", overwrite=TRUE)
+
+
+
+
+```
+
+
+
+
 ### Dry month calculation
+
+Per-month dry/not-dry layer. It reuses the cached WorldClim files.
+
+```{r}
+nga       <- gadm("NGA", level = 0, path = "data")
+ssp       <- "370"
+res       <- 5
+threshold <- 50   # mm/month; dry if prec < threshold
+models    <- c("ACCESS-CM2", "GFDL-ESM4", "IPSL-CM6A-LR", "MIROC6",
+               "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL")
+
+# Classify each model's monthly rainfall as dry (1) or not dry (0)
+dry_list <- list()
+for (m in models) {
+  p <- tryCatch(
+    cmip6_world(model = m, ssp = ssp, time = "2021-2040",
+                var = "prec", res = res, path = "data"),
+    error = function(e) { message("Skipping ", m); NULL })
+  if (is.null(p)) next
+  p <- mask(crop(p, nga), nga)
+  dry_list[[m]] <- ifel(p < threshold, 1, 0)
+}
+n <- length(dry_list)
+message("Models used (", n, "): ", paste(names(dry_list), collapse = ", "))
+
+mnames <- sprintf("%02d", 1:12)
+
+# 1) Agreement: fraction of models classing each month as dry (0 to 1)
+dry_frac <- Reduce(`+`, dry_list) / n
+names(dry_frac) <- paste0("dryfrac_", mnames)
+
+# 2) Binary ensemble classification: dry if at least half of the models say dry
+dry_bin <- ifel(dry_frac >= 0.5, 1, 0)
+names(dry_bin) <- paste0("dry_", mnames)
+
+# 3) Total number of dry months per year (not necessarily consecutive)
+dry_total <- sum(dry_bin)
+names(dry_total) <- "dry_months_total"
+
+writeRaster(dry_bin,   "out/NGA_drymonth_ssp370_2021-2040_binary.tif",
+            datatype = "INT1U", overwrite = TRUE)
+writeRaster(dry_frac,  "out/NGA_drymonth_ssp370_2021-2040_modelfraction.tif",
+            overwrite = TRUE)
+writeRaster(dry_total, "out/NGA_drymonths_total_ssp370_2021-2040.tif",
+            datatype = "INT1U", overwrite = TRUE)
+
+
+# Rename layers by index using names()
+names(dry_bin) <- c("January", "February", "March", "April", "May", "June","July", "August", "September","October", "November", "December")
+names(dry_frac) <- c("January", "February", "March", "April", "May", "June","July", "August", "September","October", "November", "December")
+
+plot(dry_bin)
+plot(dry_frac)
+plot(dry_total)
+
+writeRaster(dry_bin, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_bin_mean.tif", overwrite=TRUE)
+writeRaster(dry_frac, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_frac_mean.tif", overwrite=TRUE)
+writeRaster(dry_total, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_total_mean.tif", overwrite=TRUE)
+
+```
+
+
+
+Mean dry season length (consecutive dry months where dry month = less than 50mm)
+Convert to a monthly total in days so that this can be used in the normal precipitation calculation.
 
 ```{r}
 
@@ -711,7 +821,7 @@ names(dsl_mean_days_m) <- c("January", "February", "March", "April", "May", "Jun
 
 plot(dsl_mean_days_m)
 
-writeRaster(dsl_mean_days_m, "E:/repos/IRM_shiny/data/spatial_data/ssp370_cdm_days_m.tif", overwrite=TRUE)
+writeRaster(dsl_mean_days_m, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_cdm_days_m.tif", overwrite=TRUE)
 
 
 
@@ -725,7 +835,7 @@ names(dsl_sd_days_m) <- c("January", "February", "March", "April", "May", "June"
 
 plot(dsl_sd_days_m)
 
-writeRaster(dsl_sd_days_m, "E:/repos/IRM_shiny/data/spatial_data/ssp370_cdm_days_msd.tif", overwrite=TRUE)
+writeRaster(dsl_sd_days_m, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_cdm_days_msd.tif", overwrite=TRUE)
 
 
 ```
