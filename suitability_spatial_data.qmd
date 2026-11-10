@@ -508,7 +508,28 @@ ggplot() +
 
 
 ```
-#### Number of dry months
+#### Number of consecutive dry months
+
+
+```{r}
+rast_chirps_d_ng_cdm_days <- rast("E:/repos/IRM_shiny/data/spatial_data/chirps_all_cdm_year_avg_days_m.tif")
+
+rast_chirps_d_ng_cdm_days
+
+ggplot()+
+  geom_spatraster(data = rast_chirps_d_ng$r9120_dekad011_avg) +
+  geom_spatvector(data = vect_ng_geo, fill = NA) +
+  labs(
+    title = "Nigeria CHIRPS Precipitation 1991-2020 - Dekad 1",
+    fill = "(mm)") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
 
 ## Future Climate
 
@@ -674,15 +695,15 @@ ann   <- rast(ann)
 pmean <- mean(ann);  names(pmean) <- "prec_annual_mm"
 psd   <- app(ann, sd); names(psd) <- "prec_annual_sd_mm"
 
-writeRaster(pmean, "out/NGA_prec_annual_ssp370_2021-2040_ensmean.tif", overwrite = TRUE)
-writeRaster(psd,   "out/NGA_prec_annual_ssp370_2021-2040_enssd.tif",   overwrite = TRUE)
+#writeRaster(pmean, "out/NGA_prec_annual_ssp370_2021-2040_ensmean.tif", overwrite = TRUE)
+#writeRaster(psd,   "out/NGA_prec_annual_ssp370_2021-2040_enssd.tif",   overwrite = TRUE)
 
 plot(pmean, main = "Annual precipitation (mm), SSP370, 2021-2040")
 plot(psd, main = "Spread (sd) of annual precipitation (mm), SSP370, 2021-2040")
 
 
-writeRaster(pmean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_pmean.tif", overwrite=TRUE)
-writeRaster(psd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_psd.tif", overwrite=TRUE)
+#writeRaster(pmean, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_pmean.tif", overwrite=TRUE)
+#writeRaster(psd, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_psd.tif", overwrite=TRUE)
 
 
 
@@ -732,12 +753,9 @@ names(dry_bin) <- paste0("dry_", mnames)
 dry_total <- sum(dry_bin)
 names(dry_total) <- "dry_months_total"
 
-writeRaster(dry_bin,   "out/NGA_drymonth_ssp370_2021-2040_binary.tif",
-            datatype = "INT1U", overwrite = TRUE)
-writeRaster(dry_frac,  "out/NGA_drymonth_ssp370_2021-2040_modelfraction.tif",
-            overwrite = TRUE)
-writeRaster(dry_total, "out/NGA_drymonths_total_ssp370_2021-2040.tif",
-            datatype = "INT1U", overwrite = TRUE)
+#writeRaster(dry_bin,   "out/NGA_drymonth_ssp370_2021-2040_binary.tif",            datatype = "INT1U", overwrite = TRUE)
+#writeRaster(dry_frac,  "out/NGA_drymonth_ssp370_2021-2040_modelfraction.tif",            overwrite = TRUE)
+#writeRaster(dry_total, "out/NGA_drymonths_total_ssp370_2021-2040.tif",            datatype = "INT1U", overwrite = TRUE)
 
 
 # Rename layers by index using names()
@@ -748,9 +766,9 @@ plot(dry_bin)
 plot(dry_frac)
 plot(dry_total)
 
-writeRaster(dry_bin, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_bin_mean.tif", overwrite=TRUE)
-writeRaster(dry_frac, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_frac_mean.tif", overwrite=TRUE)
-writeRaster(dry_total, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_total_mean.tif", overwrite=TRUE)
+#writeRaster(dry_bin, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_bin_mean.tif", overwrite=TRUE)
+#writeRaster(dry_frac, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_frac_mean.tif", overwrite=TRUE)
+#writeRaster(dry_total, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_dm_total_mean.tif", overwrite=TRUE)
 
 ```
 
@@ -797,8 +815,8 @@ dsl_sd    <- app(dsl_stack, sd)
 names(dsl_mean) <- "dry_season_months"
 names(dsl_sd)   <- "dry_season_sd"
 
-writeRaster(dsl_mean, "out/NGA_DSL_ssp370_2021-2040_ensmean.tif", overwrite = TRUE)
-writeRaster(dsl_sd,   "out/NGA_DSL_ssp370_2021-2040_enssd.tif",   overwrite = TRUE)
+#writeRaster(dsl_mean, "out/NGA_DSL_ssp370_2021-2040_ensmean.tif", overwrite = TRUE)
+#writeRaster(dsl_sd,   "out/NGA_DSL_ssp370_2021-2040_enssd.tif",   overwrite = TRUE)
 
 plot(dsl_mean, main = "Mean dry season length (months), SSP370, 2021-2040")
 ```
@@ -811,7 +829,7 @@ plot(dsl_mean, main = "Mean dry season length (months), SSP370, 2021-2040")
 #| results: asis
 
 
-dsl_mean_days <- (dsl_mean * ((365/12) / 30))
+dsl_mean_days <- (dsl_mean * ((365/12) / 12))
 plot(dsl_mean_days)
 
 dsl_mean_days_m <- c(dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days, dsl_mean_days)
@@ -821,11 +839,11 @@ names(dsl_mean_days_m) <- c("January", "February", "March", "April", "May", "Jun
 
 plot(dsl_mean_days_m)
 
-writeRaster(dsl_mean_days_m, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_cdm_days_m.tif", overwrite=TRUE)
+#writeRaster(dsl_mean_days_m, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_cdm_days_m.tif", overwrite=TRUE)
 
 
 
-dsl_sd_days <- (dsl_sd * ((365/12) / 30))
+dsl_sd_days <- (dsl_sd * ((365/12) / 12))
 plot(dsl_sd_days)
 
 dsl_sd_days_m <- c(dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days, dsl_sd_days)
@@ -835,7 +853,7 @@ names(dsl_sd_days_m) <- c("January", "February", "March", "April", "May", "June"
 
 plot(dsl_sd_days_m)
 
-writeRaster(dsl_sd_days_m, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_cdm_days_msd.tif", overwrite=TRUE)
+#writeRaster(dsl_sd_days_m, "E:/repos/IRM_shiny/data/spatial_data/rast_ssp370_cdm_days_msd.tif", overwrite=TRUE)
 
 
 ```
@@ -1219,4 +1237,257 @@ ggplot()+
 ```
 
 
+# Compare results at the state level
+
+The IRM script compares the yields of the two innovations - in our case the current and future climate. The IRM script also gives sub-division statistics for different FAO classes, but not the overall optimality.
+
+It would be useful to show which states might experience the biggest changes.
+
+## Load the sub-divisions
+
+```{r}
+#| label: load_sub_div
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+vect_ng_subdiv_geo <- vect("E:/repos/IRM_shiny/data/spatial_data/admin_Nigeria.geojson")
+plot(vect_ng_subdiv_geo)
+
+```
+
+### Cassava
+
+```{r}
+#| label: compare_cassava
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+rast_cassava_current_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/cassava_generic_nigeria_cassava_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_cassava_generic_nigeria_10000_NG.tif")
+
+rast_cassava_current_BA_opt_geo <- project(rast_cassava_current_BA_opt_proj, "epsg:4326" )
+
+df_cassava_current_BA_opt <- zonal(rast_cassava_current_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_current =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+rast_cassava_2030_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/cassava_generic_nigeria_cassava_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_cassava_generic_nigeria_2030_10000_NG.tif")
+
+rast_cassava_2030_BA_opt_geo <- project(rast_cassava_2030_BA_opt_proj, "epsg:4326" )
+
+df_cassava_2030_BA_opt <- zonal(rast_cassava_2030_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_2030 =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+
+df_cassava_BA_opt <- cbind(as.data.frame(select(vect_ng_subdiv_geo, adm1_ref_name)), df_cassava_current_BA_opt$optimal_pc_current, df_cassava_2030_BA_opt$optimal_pc_2030) |> 
+  mutate(optimal_pc_change = (df_cassava_2030_BA_opt$optimal_pc_2030 - df_cassava_current_BA_opt$optimal_pc_current))
+
+#write.csv(df_cassava_BA_opt, "E:/repos/IRM_shiny/results/cassava_generic_nigeria_cassava_generic_nigeria_2030_10000_NG/tab_data/df_cassava_BA_opt.csv")
+
+df_cassava_BA_opt |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+### Cowpea
+
+```{r}
+#| label: compare_cowpea
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+rast_cowpea_current_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOC_cowpea_generic_nigeriaOC2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_cowpea_generic_nigeriaOC_10000_NG.tif")
+
+rast_cowpea_current_BA_opt_geo <- project(rast_cowpea_current_BA_opt_proj, "epsg:4326" )
+
+df_cowpea_current_BA_opt <- zonal(rast_cowpea_current_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_current =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+rast_cowpea_2030_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOC_cowpea_generic_nigeriaOC2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_cowpea_generic_nigeriaOC2030_10000_NG.tif")
+
+rast_cowpea_2030_BA_opt_geo <- project(rast_cowpea_2030_BA_opt_proj, "epsg:4326" )
+
+df_cowpea_2030_BA_opt <- zonal(rast_cowpea_2030_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_2030 =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+
+df_cowpea_BA_opt <- cbind(as.data.frame(select(vect_ng_subdiv_geo, adm1_ref_name)), df_cowpea_current_BA_opt$optimal_pc_current, df_cowpea_2030_BA_opt$optimal_pc_2030) |> 
+  mutate(optimal_pc_change = (df_cowpea_2030_BA_opt$optimal_pc_2030 - df_cowpea_current_BA_opt$optimal_pc_current))
+
+#write.csv(df_cowpea_BA_opt, "E:/repos/IRM_shiny/results/cowpea_generic_nigeriaOC_cowpea_generic_nigeriaOC2030_10000_NG/tab_data/df_cowpea_BA_opt.csv")
+
+df_cowpea_BA_opt |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+### Maize
+
+```{r}
+#| label: compare_maize
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+rast_maize_current_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/maize_generic_nigeria_dyn_maize_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_maize_generic_nigeria_dyn_10000_NG.tif")
+
+rast_maize_current_BA_opt_geo <- project(rast_maize_current_BA_opt_proj, "epsg:4326" )
+
+df_maize_current_BA_opt <- zonal(rast_maize_current_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_current =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+rast_maize_2030_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/maize_generic_nigeria_dyn_maize_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_maize_generic_nigeria_2030_10000_NG.tif")
+
+rast_maize_2030_BA_opt_geo <- project(rast_maize_2030_BA_opt_proj, "epsg:4326" )
+
+df_maize_2030_BA_opt <- zonal(rast_maize_2030_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_2030 =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+
+df_maize_BA_opt <- cbind(as.data.frame(select(vect_ng_subdiv_geo, adm1_ref_name)), df_maize_current_BA_opt$optimal_pc_current, df_maize_2030_BA_opt$optimal_pc_2030) |> 
+  mutate(optimal_pc_change = (df_maize_2030_BA_opt$optimal_pc_2030 - df_maize_current_BA_opt$optimal_pc_current))
+
+#write.csv(df_maize_BA_opt, "E:/repos/IRM_shiny/results/maize_generic_nigeria_dyn_maize_generic_nigeria_2030_10000_NG/tab_data/df_maize_BA_opt.csv")
+
+df_maize_BA_opt |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+### Rice
+
+```{r}
+#| label: compare_rice
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+rast_rice_current_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/rice_generic_nigeria_dyn_rice_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_rice_generic_nigeria_dyn_10000_NG.tif")
+
+rast_rice_current_BA_opt_geo <- project(rast_rice_current_BA_opt_proj, "epsg:4326" )
+
+df_rice_current_BA_opt <- zonal(rast_rice_current_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_current =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+rast_rice_2030_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/rice_generic_nigeria_dyn_rice_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_rice_generic_nigeria_2030_10000_NG.tif")
+
+rast_rice_2030_BA_opt_geo <- project(rast_rice_2030_BA_opt_proj, "epsg:4326" )
+
+df_rice_2030_BA_opt <- zonal(rast_rice_2030_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_2030 =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+
+df_rice_BA_opt <- cbind(as.data.frame(select(vect_ng_subdiv_geo, adm1_ref_name)), df_rice_current_BA_opt$optimal_pc_current, df_rice_2030_BA_opt$optimal_pc_2030) |> 
+  mutate(optimal_pc_change = (df_rice_2030_BA_opt$optimal_pc_2030 - df_rice_current_BA_opt$optimal_pc_current))
+
+#write.csv(df_rice_BA_opt, "E:/repos/IRM_shiny/results/rice_generic_nigeria_dyn_rice_generic_nigeria_2030_10000_NG/tab_data/df_rice_BA_opt.csv")
+
+df_rice_BA_opt |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
+
+### Sweet Potato
+
+```{r}
+#| label: compare_spot
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+
+rast_spot_current_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/spot_generic_nigeria_dyn_spot_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_spot_generic_nigeria_dyn_10000_NG.tif")
+
+rast_spot_current_BA_opt_geo <- project(rast_spot_current_BA_opt_proj, "epsg:4326" )
+
+df_spot_current_BA_opt <- zonal(rast_spot_current_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_current =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+rast_spot_2030_BA_opt_proj <- rast("E:/repos/IRM_shiny/results/spot_generic_nigeria_dyn_spot_generic_nigeria_2030_10000_NG/spatial_data/FAO_Biophysical Aptitude_spot_generic_nigeria_2030_10000_NG.tif")
+
+rast_spot_2030_BA_opt_geo <- project(rast_spot_2030_BA_opt_proj, "epsg:4326" )
+
+df_spot_2030_BA_opt <- zonal(rast_spot_2030_BA_opt_geo$optimal, vect_ng_subdiv_geo, fun = "mean", na.rm=T) |> mutate(optimal_pc_2030 =  as.numeric(prettyunits::pretty_round(optimal * 100)))
+
+
+df_spot_BA_opt <- cbind(as.data.frame(select(vect_ng_subdiv_geo, adm1_ref_name)), df_spot_current_BA_opt$optimal_pc_current, df_spot_2030_BA_opt$optimal_pc_2030) |> 
+  mutate(optimal_pc_change = (df_spot_2030_BA_opt$optimal_pc_2030 - df_spot_current_BA_opt$optimal_pc_current))
+
+#write.csv(df_spot_BA_opt, "E:/repos/IRM_shiny/results/spot_generic_nigeria_dyn_spot_generic_nigeria_2030_10000_NG/tab_data/df_spot_BA_opt.csv")
+
+df_spot_BA_opt |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+```
 
