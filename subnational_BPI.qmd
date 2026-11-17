@@ -249,7 +249,7 @@ vect_state_geo$adm1_pcode <- as.factor(vect_state_geo$adm1_pcode)
 
 # levels(vect_state_geo$adm1_pcode) # Check levels
 
-ggplot(vect_state_geo)+
+ggplot(vect_state_geo) +
   geom_spatvector(aes(fill = adm1_pcode)) +
   geom_spatvector_text(aes(label = adm1_pcode), size = 3) +
   labs(
@@ -332,6 +332,10 @@ df_crop_area_share_normalised <- as.data.frame(lapply(select(df_crop_area_share,
 head(df_crop_area_share_normalised)
 
 df_crop_area_share_rescale <- bind_cols(select(df_crop_area_share, adm1_ref_name), df_crop_area_share_normalised)
+
+# save rescaled crop area share
+#write.csv(df_crop_area_share_rescale, "E:/repos/Nigeria_Biofortification_Atlas/tab_data/crop_area_share_rescale.csv")
+
 
 vect_state_geo_crop_share_rescale <- dplyr::left_join(vect_state_geo, df_crop_area_share_rescale, by = "adm1_ref_name")
 

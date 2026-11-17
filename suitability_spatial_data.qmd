@@ -1491,3 +1491,712 @@ df_spot_BA_opt |>
 
 ```
 
+# Correlation between suitability and harvested area
+
+## Load crop area share data
+
+```{r}
+#| label: crop_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+vect_crop_area_share <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/vect_crop_area_share.geojson")
+
+df_crop_area_share <- select(as.data.frame(vect_crop_area_share), adm1_ref_name, cassava_share_2022, cowpea_share_2022, maize_share_2022, rice_share_2024, spot_share_2022)
+
+```
+
+## Cassava suitability vs crop area
+
+```{r}
+#| label: cassava_suitability_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cassava_suitability_crop_share <- left_join(select(df_crop_area_share, adm1_ref_name, cassava_share_2022), df_cassava_BA_opt, by = "adm1_ref_name") 
+
+df_cassava_suitability_crop_share <- rename(df_cassava_suitability_crop_share, current_suit = `df_cassava_current_BA_opt$optimal_pc_current`)
+
+df_cassava_suitability_crop_share <- rename(df_cassava_suitability_crop_share, future_suit = `df_cassava_2030_BA_opt$optimal_pc_2030`)
+
+df_cassava_suitability_crop_share |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+# use spearman rank coefficient because relationship is partly linear
+
+cassava_cor <- prettyunits::pretty_round(cor(
+  df_cassava_suitability_crop_share$cassava_share_2022,
+  df_cassava_suitability_crop_share$current_suit, method ="spearman", use ="complete.obs"
+), digits = 2)
+
+
+ggplot(df_cassava_suitability_crop_share) +
+  aes(x = current_suit, y = cassava_share_2022) +
+  geom_point(colour = "#0c4c8a") +
+  geom_text(aes(label = adm1_ref_name), size = 3.5) +
+  geom_smooth(method=lm, se=FALSE) +
+  labs(title = paste("Cassava, rank correlation = ", cassava_cor)) +
+  theme_minimal()
+
+
+```
+
+
+## Cowpea suitability vs crop area
+
+```{r}
+#| label: cowpea_suitability_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cowpea_suitability_crop_share <- left_join(select(df_crop_area_share, adm1_ref_name, cowpea_share_2022), df_cowpea_BA_opt, by = "adm1_ref_name") 
+
+df_cowpea_suitability_crop_share <- rename(df_cowpea_suitability_crop_share, current_suit = `df_cowpea_current_BA_opt$optimal_pc_current`)
+
+df_cowpea_suitability_crop_share <- rename(df_cowpea_suitability_crop_share, future_suit = `df_cowpea_2030_BA_opt$optimal_pc_2030`)
+
+df_cowpea_suitability_crop_share |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+# use spearman rank coefficient because relationship is partly linear
+
+cowpea_cor <- prettyunits::pretty_round(cor(
+  df_cowpea_suitability_crop_share$cowpea_share_2022,
+  df_cowpea_suitability_crop_share$current_suit, method ="spearman", use ="complete.obs"
+), digits = 2)
+
+
+ggplot(df_cowpea_suitability_crop_share) +
+  aes(x = current_suit, y = cowpea_share_2022) +
+  geom_point(colour = "#0c4c8a") +
+  geom_text(aes(label = adm1_ref_name), size = 3.5) +
+  geom_smooth(method=lm, se=FALSE) +
+  labs(title = paste("Cowpea, rank correlation = ", cowpea_cor)) +
+  theme_minimal()
+
+
+```
+
+
+## Maize suitability vs crop area
+
+```{r}
+#| label: maize_suitability_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_maize_suitability_crop_share <- left_join(select(df_crop_area_share, adm1_ref_name, maize_share_2022), df_maize_BA_opt, by = "adm1_ref_name") 
+
+df_maize_suitability_crop_share <- rename(df_maize_suitability_crop_share, current_suit = `df_maize_current_BA_opt$optimal_pc_current`)
+
+df_maize_suitability_crop_share <- rename(df_maize_suitability_crop_share, future_suit = `df_maize_2030_BA_opt$optimal_pc_2030`)
+
+df_maize_suitability_crop_share |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+# use spearman rank coefficient because relationship is partly linear
+
+maize_cor <- prettyunits::pretty_round(cor(
+  df_maize_suitability_crop_share$maize_share_2022,
+  df_maize_suitability_crop_share$current_suit, method ="spearman", use ="complete.obs"
+), digits = 2)
+
+
+ggplot(df_maize_suitability_crop_share) +
+  aes(x = current_suit, y = maize_share_2022) +
+  geom_point(colour = "#0c4c8a") +
+  geom_text(aes(label = adm1_ref_name), size = 3.5) +
+  geom_smooth(method=lm, se=FALSE) +
+  labs(title = paste("Maize, rank correlation = ", maize_cor)) +
+  theme_minimal()
+
+
+```
+
+## Rice suitability vs crop area
+
+```{r}
+#| label: rice_suitability_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_rice_suitability_crop_share <- left_join(select(df_crop_area_share, adm1_ref_name, rice_share_2024), df_rice_BA_opt, by = "adm1_ref_name") 
+
+df_rice_suitability_crop_share <- rename(df_rice_suitability_crop_share, current_suit = `df_rice_current_BA_opt$optimal_pc_current`)
+
+df_rice_suitability_crop_share <- rename(df_rice_suitability_crop_share, future_suit = `df_rice_2030_BA_opt$optimal_pc_2030`)
+
+df_rice_suitability_crop_share |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+# use spearman rank coefficient because relationship is partly linear
+
+rice_cor <- prettyunits::pretty_round(cor(
+  df_rice_suitability_crop_share$rice_share_2024,
+  df_rice_suitability_crop_share$current_suit, method ="spearman", use ="complete.obs"
+), digits = 2)
+
+
+ggplot(df_rice_suitability_crop_share) +
+  aes(x = current_suit, y = rice_share_2024) +
+  geom_point(colour = "#0c4c8a") +
+  geom_text(aes(label = adm1_ref_name), size = 3.5) +
+  geom_smooth(method=lm, se=FALSE) +
+  labs(title = paste("Rice, rank correlation = ", rice_cor)) +
+  theme_minimal()
+
+
+```
+
+## Sweet Potato suitability vs crop area
+
+```{r}
+#| label: spot_suitability_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spot_suitability_crop_share <- left_join(select(df_crop_area_share, adm1_ref_name, spot_share_2022), df_spot_BA_opt, by = "adm1_ref_name") 
+
+df_spot_suitability_crop_share <- rename(df_spot_suitability_crop_share, current_suit = `df_spot_current_BA_opt$optimal_pc_current`)
+
+df_spot_suitability_crop_share <- rename(df_spot_suitability_crop_share, future_suit = `df_spot_2030_BA_opt$optimal_pc_2030`)
+
+df_spot_suitability_crop_share |>
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+# use spearman rank coefficient because relationship is partly linear
+
+spot_cor <- prettyunits::pretty_round(cor(
+  df_spot_suitability_crop_share$spot_share_2022,
+  df_spot_suitability_crop_share$current_suit, method ="spearman", use ="complete.obs"
+), digits = 2)
+
+
+ggplot(df_spot_suitability_crop_share) +
+  aes(x = current_suit, y = spot_share_2022) +
+  geom_point(colour = "#0c4c8a") +
+  geom_text(aes(label = adm1_ref_name), size = 3.5) +
+  geom_smooth(method=lm, se=FALSE) +
+  labs(title = paste("Sweet Potato, rank correlation = ", spot_cor)) +
+  theme_minimal()
+
+
+```
+
+# Applying suitability factor to future harvest area
+
+If we assume that the share of harvested area will rise or fall according to the change in suitability (a big assumption), then what would be the change in the share of harvested area?
+
+## Future crop area shares
+
+```{r}
+#| label: future_area_share
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cassava_suitability_crop_share <- df_cassava_suitability_crop_share |> 
+  mutate(cassava_share_2030 = (cassava_share_2022 + (cassava_share_2022 * (optimal_pc_change / 100)))
+  )
+
+df_cowpea_suitability_crop_share <- df_cowpea_suitability_crop_share |> 
+  mutate(cowpea_share_2030 = (cowpea_share_2022 + (cowpea_share_2022 * (optimal_pc_change / 100)))
+  )
+
+df_maize_suitability_crop_share <- df_maize_suitability_crop_share |> 
+  mutate(maize_share_2030 = (maize_share_2022 + (maize_share_2022 * (optimal_pc_change / 100)))
+  )
+
+df_rice_suitability_crop_share <- df_rice_suitability_crop_share |> 
+  mutate(rice_share_2030 = (rice_share_2024 + (rice_share_2024 * (optimal_pc_change / 100)))
+  )
+
+df_spot_suitability_crop_share <- df_spot_suitability_crop_share |> 
+  mutate(spot_share_2030 = (spot_share_2022 + (spot_share_2022 * (optimal_pc_change / 100)))
+  )
+
+df_crop_area_share_future <- cbind(df_crop_area_share, df_cassava_suitability_crop_share$cassava_share_2030,
+df_cowpea_suitability_crop_share$cowpea_share_2030,                 
+df_maize_suitability_crop_share$maize_share_2030,                                   
+df_rice_suitability_crop_share$rice_share_2030,                                   
+df_spot_suitability_crop_share$spot_share_2030)
+
+df_crop_area_share_future <- rename(df_crop_area_share_future, cassava_share_2030 = `df_cassava_suitability_crop_share$cassava_share_2030`)
+df_crop_area_share_future <- rename(df_crop_area_share_future, cowpea_share_2030 = `df_cowpea_suitability_crop_share$cowpea_share_2030`)
+df_crop_area_share_future <- rename(df_crop_area_share_future, maize_share_2030 = `df_maize_suitability_crop_share$maize_share_2030`)
+df_crop_area_share_future <- rename(df_crop_area_share_future, rice_share_2030 = `df_rice_suitability_crop_share$rice_share_2030`)
+df_crop_area_share_future <- rename(df_crop_area_share_future, spot_share_2030 = `df_spot_suitability_crop_share$spot_share_2030`)
+
+```
+
+
+```{r}
+#| label: Rescale_function
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+# custom function to implement min max scaling
+minMax <- function(x) {
+  (x - min(x,
+      na.rm = T)) / (max(x,
+      na.rm = T) - min(x,
+      na.rm = T))
+}
+
+```
+
+Normalise and rescale.
+
+```{r}
+
+df_crop_area_share_future_normalised <- as.data.frame(lapply(select(df_crop_area_share_future, -adm1_ref_name, -cassava_share_2022, -cowpea_share_2022, -maize_share_2022, -rice_share_2024, -spot_share_2022), minMax))
+df_crop_area_share_future_normalised <- df_crop_area_share_future_normalised |>
+  mutate(cassava_share_2030 = prettyunits::pretty_round(cassava_share_2030, digits = 2),
+         cowpea_share_2030 = prettyunits::pretty_round(cowpea_share_2030, digits = 2),
+         maize_share_2030 = prettyunits::pretty_round(maize_share_2030, digits = 2),
+         rice_share_2030 = prettyunits::pretty_round(rice_share_2030, digits = 2),
+         spot_share_2030 = prettyunits::pretty_round(spot_share_2030, digits = 2))
+
+head(df_crop_area_share_future_normalised)
+
+df_crop_area_share_future_rescale <- bind_cols(select(df_crop_area_share_future, adm1_ref_name), df_crop_area_share_future_normalised)
+
+df_crop_area_share_current_rescale <- read.csv("E:/repos/Nigeria_Biofortification_Atlas/tab_data/crop_area_share_rescale.csv") |>
+  select(-X, -plantain_banana_share_2024, -sorghum_share_2024) |>
+    mutate(cassava_share_2022 = prettyunits::pretty_round(cassava_share_2022, digits = 2),
+         cowpea_share_2022 = prettyunits::pretty_round(cowpea_share_2022, digits = 2),
+         maize_share_2022 = prettyunits::pretty_round(maize_share_2022, digits = 2),
+         rice_share_2024 = prettyunits::pretty_round(rice_share_2024, digits = 2),
+         spot_share_2022 = prettyunits::pretty_round(spot_share_2022, digits = 2))
+
+df_crop_area_share_combined_rescale <- left_join(df_crop_area_share_current_rescale, df_crop_area_share_future_rescale, by = "adm1_ref_name")
+
+df_crop_area_share_combined_rescale[ , c(1, 2, 7, 3, 8, 4, 9, 5, 10, 6, 11)] |> 
+    DT::datatable(
+    rownames = F,
+    filter = "bottom",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 2,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    )
+  )
+
+write.csv(df_crop_area_share_combined_rescale, "E:/repos/Nigeria_Biofortification_Atlas/tab_data/crop_area_share_combined_rescale.csv") 
+
+```
+
+## Per-Capita future crop harvested area
+
+### Load the population projections for 2030
+
+```{r}
+#| label: load_2030_pop
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_pop_nbs <- read.csv("tab_data/nigeria_state_population_weights_2025_2030_csv.csv")
+
+```
+
+
+### Load crop area data
+
+```{r}
+#| label: crop_area_pc
+#| message: false
+#| warning: false
+#| cache: true
+
+# Cassava 2022
+vect_cassava_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cassava_2022_nass.geojson")
+
+df_cassava_2022_rename <- as.data.frame(vect_cassava_2022) |>
+  rename(cassava_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, cassava_Area_2022)
+
+
+# Cowpea 2022
+vect_cowpea_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/cowpea_2022_nass.geojson")
+
+df_cowpea_2022_rename <- as.data.frame(vect_cowpea_2022) |>
+  rename(cowpea_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, cowpea_Area_2022)
+
+
+# Maize 2022
+vect_maize_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/maize_2022_nass.geojson" )
+
+df_maize_2022_rename <- as.data.frame(vect_maize_2022) |>
+  rename(maize_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, maize_Area_2022)
+
+
+# Rice 2024
+vect_rice_2024 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/rice_2024_naerls.geojson")
+
+df_rice_2024_rename <- as.data.frame(vect_rice_2024) |>
+  rename(rice_Area_2024 = Area_Ha_2024) |> select(adm1_ref_name, rice_Area_2024)
+
+
+# Sweet Potato MapSpam 2022
+vect_spot_2022 <- vect("E:/repos/Nigeria_Biofortification_Atlas/spatial_data/spot_2022_nass.geojson")
+
+df_spot_2022_rename <- as.data.frame(vect_spot_2022) |>
+  rename(spot_Area_2022 = h_area_22_23_T) |> select(adm1_ref_name, spot_Area_2022)
+
+
+```
+
+### Cassava per-capita area 2030
+
+```{r}
+#| label: cassava_area_pc_2030
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cassava_area_pc_2030 <-
+  left_join(df_cassava_2022_rename, select(df_cassava_suitability_crop_share, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name") |>
+  mutate(cassava_Area_2030 = (cassava_Area_2022 + (cassava_Area_2022*(optimal_pc_change/100))))  |>
+left_join(select(df_pop_nbs, state_name, pop_est_2030 ), by = c("adm1_ref_name" = "state_name"))  |>
+  mutate(cassava_pc_2030 = (cassava_Area_2030/pop_est_2030) * 10000)
+
+vect_cassava_area_pc_2030 <- dplyr::left_join(vect_state_geo, df_cassava_area_pc_2030 , by = c("adm1_ref_name"))
+
+
+```
+
+```{r}
+#| label: fig-cassava_nbs_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Cassava 2030 per-capita area harvested"
+# 
+
+ggplot(vect_cassava_area_pc_2030) +
+  geom_spatvector(aes(fill = cassava_pc_2030)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cassava 2030 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Cowpea per-capita area 2030
+
+```{r}
+#| label: cowpea_area_pc_2030
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cowpea_area_pc_2030 <-
+  left_join(df_cowpea_2022_rename, select(df_cowpea_suitability_crop_share, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name") |>
+  mutate(cowpea_Area_2030 = (cowpea_Area_2022 + (cowpea_Area_2022*(optimal_pc_change/100))))  |>
+left_join(select(df_pop_nbs, state_name, pop_est_2030 ), by = c("adm1_ref_name" = "state_name"))  |>
+  mutate(cowpea_pc_2030 = (cowpea_Area_2030/pop_est_2030) * 10000)
+
+vect_cowpea_area_pc_2030 <- dplyr::left_join(vect_state_geo, df_cowpea_area_pc_2030 , by = c("adm1_ref_name"))
+
+
+```
+
+```{r}
+#| label: fig-cowpea_nbs_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Cowpea 2030 per-capita area harvested"
+# 
+
+ggplot(vect_cowpea_area_pc_2030) +
+  geom_spatvector(aes(fill = cowpea_pc_2030)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Cowpea 2030 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Maize per-capita area 2030
+
+```{r}
+#| label: maize_area_pc_2030
+#| message: false
+#| warning: false
+#| cache: true
+
+df_maize_area_pc_2030 <-
+  left_join(df_maize_2022_rename, select(df_maize_suitability_crop_share, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name") |>
+  mutate(maize_Area_2030 = (maize_Area_2022 + (maize_Area_2022*(optimal_pc_change/100))))  |>
+left_join(select(df_pop_nbs, state_name, pop_est_2030 ), by = c("adm1_ref_name" = "state_name"))  |>
+  mutate(maize_pc_2030 = (maize_Area_2030/pop_est_2030) * 10000)
+
+vect_maize_area_pc_2030 <- dplyr::left_join(vect_state_geo, df_maize_area_pc_2030 , by = c("adm1_ref_name"))
+
+
+```
+
+```{r}
+#| label: fig-maize_nbs_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Maize 2030 per-capita area harvested"
+# 
+
+ggplot(vect_maize_area_pc_2030) +
+  geom_spatvector(aes(fill = maize_pc_2030)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Maize 2030 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Rice per-capita area 2030
+
+```{r}
+#| label: rice_area_pc_2030
+#| message: false
+#| warning: false
+#| cache: true
+
+df_rice_area_pc_2030 <-
+  left_join(df_rice_2024_rename, select(df_rice_suitability_crop_share, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name") |>
+  mutate(rice_Area_2030 = (rice_Area_2024 + (rice_Area_2024*(optimal_pc_change/100))))  |>
+left_join(select(df_pop_nbs, state_name, pop_est_2030 ), by = c("adm1_ref_name" = "state_name"))  |>
+  mutate(rice_pc_2030 = (rice_Area_2030/pop_est_2030) * 10000)
+
+vect_rice_area_pc_2030 <- dplyr::left_join(vect_state_geo, df_rice_area_pc_2030 , by = c("adm1_ref_name"))
+
+
+```
+
+```{r}
+#| label: fig-rice_nbs_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Rice 2030 per-capita area harvested"
+# 
+
+ggplot(vect_rice_area_pc_2030) +
+  geom_spatvector(aes(fill = rice_pc_2030)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice 2030 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+
+### Sweet Potato per-capita area 2030
+
+```{r}
+#| label: spot_area_pc_2030
+#| message: false
+#| warning: false
+#| cache: true
+
+df_spot_area_pc_2030 <-
+  left_join(df_spot_2022_rename, select(df_spot_suitability_crop_share, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name") |>
+  mutate(spot_Area_2030 = (spot_Area_2022 + (spot_Area_2022*(optimal_pc_change/100))))  |>
+left_join(select(df_pop_nbs, state_name, pop_est_2030 ), by = c("adm1_ref_name" = "state_name"))  |>
+  mutate(spot_pc_2030 = (spot_Area_2030/pop_est_2030) * 10000)
+
+vect_spot_area_pc_2030 <- dplyr::left_join(vect_state_geo, df_spot_area_pc_2030 , by = c("adm1_ref_name"))
+
+
+```
+
+```{r}
+#| label: fig-spot_nbs_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Sweet Potato 2030 per-capita area harvested"
+# 
+
+ggplot(vect_spot_area_pc_2030) +
+  geom_spatvector(aes(fill = spot_pc_2030)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Sweet Potato 2030 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
+
+### Combine Crops
+
+```{r}
+#| label: combined_area_pc_2030
+#| message: false
+#| warning: false
+#| cache: true
+
+df_crop_area_pc_2030 <- left_join(
+  select(df_cassava_area_pc_2030, adm1_ref_name, cassava_pc_2030),
+  left_join(
+    select(df_cowpea_area_pc_2030, adm1_ref_name, cowpea_pc_2030),
+    left_join(
+      select(df_maize_area_pc_2030, adm1_ref_name, maize_pc_2030),
+      left_join(
+        select(df_rice_area_pc_2030, adm1_ref_name, rice_pc_2030),
+        select(df_spot_area_pc_2030, adm1_ref_name, spot_pc_2030),
+        by = "adm1_ref_name"
+      ),
+      by = "adm1_ref_name"
+    ),
+    by = "adm1_ref_name"
+  ),
+  by = "adm1_ref_name"
+)                                                                                                                                                                                                   
+write.csv(df_crop_area_pc_2030, "E:/repos/Nigeria_Biofortification_Atlas/tab_data/crop_area_pc_2030.csv", row.names=F)
+
+
+```
+
