@@ -3591,6 +3591,35 @@ ggplot(vect_crop_area_pc) +
 
 ```
 
+## Rice crop area per capita
+
+```{r}
+#| label: fig-rice_nbs_2025
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| fig-cap: "Sorghum 2024/25 per-capita area harvested"
+# 
+
+ggplot(vect_crop_area_pc) +
+  geom_spatvector(aes(fill = rice_pc_2024)) +
+  scale_fill_stepsn(
+    n.breaks = 10,
+    limits = c(0, 2500),
+    colours = hcl.colors(palette = "Grays", 10, rev = T),
+    guide = "legend",
+    na.value = "pink",
+    labels = scales::comma
+  ) +
+  labs(title = "Rice 2024/25 per-capita area harvested", fill = "m<sup>2</sup>") +
+  theme(
+    plot.title = element_markdown(),
+    legend.title = element_markdown(),
+    axis.title = element_blank()
+  )
+
+```
 
 ## Sorghum crop area per capita
 
