@@ -1763,6 +1763,79 @@ ggplot(df_spot_suitability_crop_share) +
 
 If we assume that the share of harvested area will rise or fall according to the change in suitability (a big assumption), then what would be the change in the share of harvested area?
 
+## Future crop area
+
+```{r}
+#| label: future_area
+#| message: false
+#| warning: false
+#| cache: true
+
+df_cassava_area_2022 <- read.csv("tab_data/cassava_area_national_share_2022.csv") |>
+  select(adm1_ref_name, cassava_Area_2022) |>
+ left_join(select(df_cassava_BA_opt, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name")
+
+df_cowpea_area_2022 <- read.csv("tab_data/cowpea_area_national_share_2022.csv") |>
+  select(adm1_ref_name, cowpea_Area_2022) |>
+ left_join(select(df_cowpea_BA_opt, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name")
+
+df_maize_area_2022 <- read.csv("tab_data/maize_area_national_share_2022.csv") |>
+  select(adm1_ref_name, maize_Area_2022) |>
+ left_join(select(df_maize_BA_opt, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name")
+
+df_rice_area_2024 <- read.csv("tab_data/rice_area_national_share_2024.csv") |>
+  select(adm1_ref_name, rice_Area_2024) |>
+ left_join(select(df_rice_BA_opt, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name")
+
+df_spot_area_2022 <- read.csv("tab_data/spot_area_national_share_2022.csv") |>
+  select(adm1_ref_name, spot_Area_2022) |>
+ left_join(select(df_spot_BA_opt, adm1_ref_name, optimal_pc_change), by = "adm1_ref_name")
+
+df_cassava_area_2030 <- df_cassava_area_2022 |> 
+  mutate(cassava_Area_2030 = (cassava_Area_2022 + (cassava_Area_2022 * (optimal_pc_change / 100)))
+  )
+
+df_cowpea_area_2030 <- df_cowpea_area_2022 |> 
+  mutate(cowpea_Area_2030 = (cowpea_Area_2022 + (cowpea_Area_2022 * (optimal_pc_change / 100)))
+  )
+
+df_maize_area_2030 <- df_maize_area_2022 |> 
+  mutate(maize_Area_2030 = (maize_Area_2022 + (maize_Area_2022 * (optimal_pc_change / 100)))
+  )
+
+df_rice_area_2030 <- df_rice_area_2024 |> 
+  mutate(rice_Area_2030 = (rice_Area_2024 + (rice_Area_2024 * (optimal_pc_change / 100)))
+  )
+
+df_spot_area_2030 <- df_spot_area_2022 |> 
+  mutate(spot_Area_2030 = (spot_Area_2022 + (spot_Area_2022 * (optimal_pc_change / 100)))
+  )
+
+
+df_crop_area_2030 <- left_join(
+  select(df_cassava_area_2030, adm1_ref_name, cassava_Area_2030),
+  left_join(
+    select(df_cowpea_area_2030, adm1_ref_name, cowpea_Area_2030),
+    left_join(
+      select(df_maize_area_2030, adm1_ref_name, maize_Area_2030),
+      left_join(
+        select(df_rice_area_2030, adm1_ref_name, rice_Area_2030),
+        select(df_spot_area_2030, adm1_ref_name, spot_Area_2030),
+        by = "adm1_ref_name"
+      ),
+      by = "adm1_ref_name"
+    ),
+    by = "adm1_ref_name"
+  ),
+  by = "adm1_ref_name"
+) 
+
+write.csv(df_crop_area_2030, "tab_data/crop_area_2030.csv", row.names = F )
+
+```
+
+
+
 ## Future crop area shares
 
 ```{r}
