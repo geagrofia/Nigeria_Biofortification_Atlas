@@ -3706,7 +3706,7 @@ writeVector(
 
 ```
 
-# Crop area per state as proportion of national total
+# Crop area per state as proportion of national total 2022-24
 
 ## Plantain/Banana national area share
 
@@ -3869,5 +3869,139 @@ df_spot_2022_national_share <- df_spot_2022_rename |>
 df_spot_2022_national_share[is.na(df_spot_2022_national_share)] <- 0
 
 write.csv(df_spot_2022_national_share, "tab_data/spot_area_national_share_2022.csv")
+
+```
+
+# Crop area per state as proportion of national total 2030
+
+```{r}
+#| label: load_crop_state_area_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_crop_area_2030 <- read.csv("tab_data/crop_area_2030.csv")
+
+```
+
+
+## Cassava national area share 2030
+
+```{r}
+#| label: cassava_state_area_share_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+cassava_area_2030_total <-  
+  df_crop_area_2030 |>
+  dplyr::summarise(total = sum(cassava_Area_2030, na.rm=T)) |> pull(total)
+
+df_cassava_2030_national_share <- df_crop_area_2030 |> 
+  mutate(cassava_Area_2030_pc = (cassava_Area_2030 / cassava_area_2030_total))  |>
+select(adm1_ref_name, cassava_Area_2030, cassava_Area_2030_pc)
+
+df_cassava_2030_national_share[is.na(df_cassava_2030_national_share)] <- 0
+
+write.csv(df_cassava_2030_national_share, "tab_data/cassava_area_national_share_2030.csv")
+
+```
+
+## Cowpea national area share 2030
+
+```{r}
+#| label: cowpea_state_area_share_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+cowpea_area_2030_total <-  
+  df_crop_area_2030 |>
+  dplyr::summarise(total = sum(cowpea_Area_2030, na.rm=T)) |> pull(total)
+
+df_cowpea_2030_national_share <- df_crop_area_2030 |> 
+  mutate(cowpea_Area_2030_pc = (cowpea_Area_2030 / cowpea_area_2030_total))  |>
+select(adm1_ref_name, cowpea_Area_2030, cowpea_Area_2030_pc) 
+
+df_cowpea_2030_national_share[is.na(df_cowpea_2030_national_share)] <- 0
+
+write.csv(df_cowpea_2030_national_share, "tab_data/cowpea_area_national_share_2030.csv")
+
+```
+
+## Maize national area share 2030
+
+```{r}
+#| label: maize_state_area_share_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+maize_area_2030_total <-  
+  df_crop_area_2030 |>
+  dplyr::summarise(total = sum(maize_Area_2030, na.rm=T)) |> pull(total)
+
+df_maize_2030_national_share <- df_crop_area_2030 |> 
+  mutate(maize_Area_2030_pc = (maize_Area_2030 / maize_area_2030_total))  |>
+select(adm1_ref_name, maize_Area_2030, maize_Area_2030_pc) 
+
+df_maize_2030_national_share[is.na(df_maize_2030_national_share)] <- 0
+
+write.csv(df_maize_2030_national_share, "tab_data/maize_area_national_share_2030.csv")
+
+```
+
+## Rice national area share 2030
+
+```{r}
+#| label: rice_state_area_share_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+rice_area_2030_total <-  
+  df_crop_area_2030 |>
+  dplyr::summarise(total = sum(rice_Area_2030, na.rm=T)) |> pull(total)
+
+df_rice_2030_national_share <- df_crop_area_2030 |> 
+  mutate(rice_Area_2030_pc = (rice_Area_2030 / rice_area_2030_total))  |>
+select(adm1_ref_name, rice_Area_2030, rice_Area_2030_pc) 
+
+df_rice_2030_national_share[is.na(df_rice_2030_national_share)] <- 0
+
+write.csv(df_rice_2030_national_share, "tab_data/rice_area_national_share_2030.csv")
+
+```
+
+## Sweet Potato national area share 2030
+
+```{r}
+#| label: spot_state_area_share_2030
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+#| 
+
+spot_area_2030_total <-  
+  df_crop_area_2030 |>
+  dplyr::summarise(total = sum(spot_Area_2030, na.rm=T)) |> pull(total)
+
+df_spot_2030_national_share <- df_crop_area_2030 |> 
+  mutate(spot_Area_2030_pc = (spot_Area_2030 / spot_area_2030_total))  |>
+select(adm1_ref_name, spot_Area_2030, spot_Area_2030_pc) 
+
+df_spot_2030_national_share[is.na(df_spot_2030_national_share)] <- 0
+
+write.csv(df_spot_2030_national_share, "tab_data/spot_area_national_share_2030.csv")
 
 ```
