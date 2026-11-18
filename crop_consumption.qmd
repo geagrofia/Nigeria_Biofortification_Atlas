@@ -6630,6 +6630,474 @@ ggplot(tidyterra::filter(vect_state_geo_GHS_crop, crop == "Yam")) +
 
 ```
 
+# 2030 Urbanisation Model
+
+We would like to develop a scenario for changes in the diet in Nigeria in 2030, and model those changes. 
+Our objective is to show spatially how that scenario would affect state-level consumption of 5 crops: maize, rice, cowpea, cassava and sweet potato. 
+
+We need a simple model which shows how urbanisation would affect the per capita consumption of those crops. The important thing is to show how differing rates of urbanisation would affect the existing spatial pattern.
+
+Per capita consumption = rural level × [(1 − u) + u × m], where u is the urban population share and m is the urban-to-rural ratio for that crop. The change from urbanisation is therefore rural level × (m − 1) × Δu.
+
+Evidence on direction. The multipliers are my judgement, because I found no quantified urban-versus-rural kilograms.
+
+Household survey data show rural families eating more maize and cassava (Petrikova et al, 2023).
+Rice demand is higher in urban areas, and rural demand for maize is lower (Ashagidigbi, 2019). 
+Rice consumption is nearly universal in urban households (99% versus 90% in rural).
+Cassava roots are eaten far less in urban households (4% versus 18%), but cassava flour is similar (18% versus 16%).
+Sweet potato is slightly lower in urban households (14% versus 17%).
+
+
+| Crop |	Urban/rural multiplier (central) |	Plausible range	| Confidence | 
+|------|-----------------------------------|------------------|------------|
+| Rice	|1.4|	1.2–1.8	| Direction strong, size weak |
+| Maize|	0.7|	0.5–0.9	| Direction good |
+| Cassava|	0.8 (roots ~0.5, gari/flour ~1.0) |	0.6–1.0	| Depends on the form eaten |
+| Cowpea	|0.95|	0.7–1.2	| No clear signal |
+| Sweet potato	|0.75|	0.5–1.0 |	Weak, mainly NW/NE |
+
+Rural diets are also changing. Rice consumption rose from 86% to 92% of households between 2010 and 2018 (a similar rise appears in maize flour). Model a separate time trend so you don’t credit all rice growth to urbanisation (Petrikova et al, 2023).
+
+Adoption lag. New urban residents probably don’t adopt urban diets immediately. Consider applying m only partially to the newly urbanised share.
+
+## Population rural/urban splits
+
+MICS puts the national urban share at 42.5% of the population, well below the UN-based 54.9% for 2025. That is partly a definitional gap: its sampling frame is the updated 2006 census, which classifies enumeration areas as urban or rural by fixed size cut-offs.
+
+Treat the MICS state shares as the ~2021 baseline.
+Apply the UN’s national change as a uniform shift on the logit scale. Going from 2021 to 2025 that is about +0.09, and to 2030 about +0.29, derived from the UN national path of roughly 52% (2020), 54.9% (2025) and 59.6% (2030).
+Report the results as MICS-definition urban shares for 2025 and 2030. States near 50% would gain the most (roughly +2 points by 2025 and +7 by 2030), and states near 5% or 95% almost nothing.
+
+I took the MICS values as the 2021 baseline and applied one uniform shift on the logit scale to every state. The shift is taken from the UN national path (about 52% in 2020, 54.9% in 2025, 59.6% in 2030). That works out to +0.095 for 2021→2025 and +0.287 for 2021→2030.
+
+With rough population weights of my own, the national mean comes to about 47% in 2025 and 51% in 2030. That is 4–8 points below the UN figures, which is expected given the MICS definition (urban/rural based on 2006 census enumeration areas).
+
+### Observations
+
+* Some state values look odd against the NDHS. Ebonyi (0.84) and Anambra (0.85) are very high, and Akwa Ibom (0.07), Abia (0.19) and Cross River (0.19) are very low. They are probably artefacts of the 2006 enumeration-area classification.
+* Borno (0.55) covers only the 7 accessible LGAs, which include Maiduguri, so it likely overstates the state.
+* Uniform logit shift: the shift is the same everywhere, so it doesn’t capture faster urbanisation in fast-growing states. If you have state-specific growth, apply it as a state-specific shift.
+
+### Load population splits
+
+```{r}
+#| label: load_MICS_based_urban_rural_share
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_MICS_urban_rural <- read.csv("tab_data/nigeria_state_urban_share_MICS_based.csv")
+
+df_MICS_urban_rural |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "Zone", "Urban share 2021 (MICS)",	"Urban share 2025 (Projected)",	"Urban share 2030 (Projected)"),
+    caption = "Urban-Rural population share 2021-2030",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+```
+
+## Urbanisation Model implementation
+
+Because urban consumption is defined as rural consumption times a multiplier, the 2023 split can be solved directly, and the projection reduces to one ratio.
+
+Notation: T is the 2023 total per capita for a crop in a state, u is the urban share, m is the urban/rural multiplier for that crop, R is rural per capita and U is urban per capita.
+
+1. Urban share in 2023. Interpolate between our 2021 and 2025 values. The midpoint is fine: u₂₃ = (u₂₁ + u₂₅)/2. Interpolating on the logit scale instead makes a negligible difference.
+
+2. Split the 2023 total. Since T = (1 − u₂₃)·R + u₂₃·m·R:
+
+R₂₃ = T ÷ [1 + u₂₃(m − 1)]
+U₂₃ = m × R₂₃
+
+This reproduces T exactly when you re-weight.
+
+3. Project to 2030. Hold R and U constant and let only the urban share change:
+
+T₂₀₃₀ = R₂₃ × [1 + u₂₀₃₀(m − 1)]
+Equivalently: T₂₀₃₀ = T₂₃ × [1 + u₂₀₃₀(m − 1)] ÷ [1 + u₂₃(m − 1)]
+
+The second form needs only T and the two urban shares per state and crop. The change in a crop’s per capita consumption depends only on m and on how far u moves.
+
+Worked example (Kano, T₂₃ = 40 kg): u₂₃ = (0.438 + 0.461)/2 = 0.450 and u₂₀₃₀ = 0.509.
+
+| Crop	| m	 | Rural (kg)	| Urban (kg)	| 2030 total (kg)	| Change |
+|-------|----|-------------|-------------|-----------------|--------|
+| Rice	| 1.4|	33.9	| 47.5	| 40.8	| +2.0% |
+| Maize	| 0.7|	46.2	| 32.3	| 39.2	| −2.1% |
+
+In the table, T = 40 kg is applied to each crop separately. In our data each crop will have its own T.
+
+```{r}
+#| label: load_crop_consumption
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_crop_state_results_benchmarked_smoothed <- 
+read.csv("tab_data/GHS food per capita outputs/crop_state_results_benchmarked_smoothed.csv")
+
+```
+
+#### Cassava 2030 consumption
+
+The biggest percentage changes in this model would be for Borno state, while the biggest in kilograms is for Rivers state. The differences due to urbanisation would be small, however.
+
+```{r}
+#| label: cassava_2030_consumption
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cassava_consumption <- filter(df_crop_state_results_benchmarked_smoothed, crop == "Cassava") |>
+  select(state, benchmarked_crop_equivalent_kg_person_year_state)
+
+df_cassava_consumption_2030 <- left_join(df_MICS_urban_rural, df_cassava_consumption, by = "state" )
+
+cassava_multiplier <- 0.8
+
+# u₂₃ = (u₂₁ + u₂₅)/2
+# R₂₃ = T ÷ [1 + u₂₃(m − 1)]
+# U₂₃ = m × R₂
+# T₂₀₃₀ = R₂₃ × [1 + u₂₀₃₀(m − 1)
+               
+df_cassava_consumption_2030 <- df_cassava_consumption_2030 |>
+  mutate(urban_share_2023 = (urban_share_2021_MICS + urban_share_2025)/2) |>
+  mutate(rural_cassava_cons_2023 = (benchmarked_crop_equivalent_kg_person_year_state / (1 + (urban_share_2023 * (cassava_multiplier - 1))))) |>
+  mutate(urban_cassava_cons_2023 = rural_cassava_cons_2023 * cassava_multiplier) |>
+  mutate(benchmarked_crop_equivalent_kg_person_year_state_2030 = 
+           (rural_cassava_cons_2023 * (1 - urban_share_2030)) +
+           (urban_cassava_cons_2023 * urban_share_2030)) |>
+  mutate(change_pc_capita_kg = benchmarked_crop_equivalent_kg_person_year_state_2030 - benchmarked_crop_equivalent_kg_person_year_state) |>
+  mutate(change_pc_capita_pc = (change_pc_capita_kg / benchmarked_crop_equivalent_kg_person_year_state) * 100 )
+
+
+df_cassava_consumption_2030 <- df_cassava_consumption_2030 |>
+  mutate(rural_cassava_cons_2023 = as.numeric(prettyunits::pretty_round(rural_cassava_cons_2023, digits = 2)))|>
+  mutate(urban_cassava_cons_2023 = as.numeric(prettyunits::pretty_round(urban_cassava_cons_2023, digits = 2)))|>
+  mutate(total_cassava_cons_2023 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state, digits = 2)))|>
+  mutate(total_cassava_cons_2030 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state_2030, digits = 2)))|>  
+  mutate(change_pc_capita_cassava_kg = as.numeric(prettyunits::pretty_round(change_pc_capita_kg, digits = 2))) |>  
+  mutate(change_pc_capita_cassava_pc = as.numeric(prettyunits::pretty_round(change_pc_capita_pc, digits = 2)))   
+  
+select(df_cassava_consumption_2030, state, rural_cassava_cons_2023, urban_share_2023, urban_cassava_cons_2023,total_cassava_cons_2023, urban_share_2030, total_cassava_cons_2030, change_pc_capita_cassava_kg, change_pc_capita_cassava_pc )   |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "rural consumption 2023", "urban share 2023",	"urban consumption 2023",	"total consumption 2023", "urban share 2030"	, "total consumption 2030", "change consumption (kg)", "change consumption (%)"),
+    caption = "",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+
+#### Cowpea 2030 consumption
+
+The biggest percentage changes in this model are for a number of states that experience urbanisation - such as Borno, Rivers, Delta and Kaduna, while the biggest in kilograms is again for Rivers state. The differences due to urbanisation would be small, however.
+
+```{r}
+#| label: cowpea_2030_consumption
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_cowpea_consumption <- filter(df_crop_state_results_benchmarked_smoothed, crop == "Cowpea") |>
+  select(state, benchmarked_crop_equivalent_kg_person_year_state)
+
+df_cowpea_consumption_2030 <- left_join(df_MICS_urban_rural, df_cowpea_consumption, by = "state" )
+
+cowpea_multiplier <- 0.95
+
+# u₂₃ = (u₂₁ + u₂₅)/2
+# R₂₃ = T ÷ [1 + u₂₃(m − 1)]
+# U₂₃ = m × R₂
+# T₂₀₃₀ = R₂₃ × [1 + u₂₀₃₀(m − 1)
+               
+df_cowpea_consumption_2030 <- df_cowpea_consumption_2030 |>
+  mutate(urban_share_2023 = (urban_share_2021_MICS + urban_share_2025)/2) |>
+  mutate(rural_cowpea_cons_2023 = (benchmarked_crop_equivalent_kg_person_year_state / (1 + (urban_share_2023 * (cowpea_multiplier - 1))))) |>
+  mutate(urban_cowpea_cons_2023 = rural_cowpea_cons_2023 * cowpea_multiplier) |>
+  mutate(benchmarked_crop_equivalent_kg_person_year_state_2030 = 
+           (rural_cowpea_cons_2023 * (1 - urban_share_2030)) +
+           (urban_cowpea_cons_2023 * urban_share_2030)) |>
+  mutate(change_pc_capita_kg = benchmarked_crop_equivalent_kg_person_year_state_2030 - benchmarked_crop_equivalent_kg_person_year_state) |>
+  mutate(change_pc_capita_pc = (change_pc_capita_kg / benchmarked_crop_equivalent_kg_person_year_state) * 100 )
+
+
+df_cowpea_consumption_2030 <- df_cowpea_consumption_2030 |>
+  mutate(rural_cowpea_cons_2023 = as.numeric(prettyunits::pretty_round(rural_cowpea_cons_2023, digits = 2)))|>
+  mutate(urban_cowpea_cons_2023 = as.numeric(prettyunits::pretty_round(urban_cowpea_cons_2023, digits = 2)))|>
+  mutate(total_cowpea_cons_2023 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state, digits = 2)))|>
+  mutate(total_cowpea_cons_2030 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state_2030, digits = 2)))|>  
+  mutate(change_pc_capita_cowpea_kg = as.numeric(prettyunits::pretty_round(change_pc_capita_kg, digits = 2))) |>  
+  mutate(change_pc_capita_cowpea_pc = as.numeric(prettyunits::pretty_round(change_pc_capita_pc, digits = 2)))
+  
+select(df_cowpea_consumption_2030, state, rural_cowpea_cons_2023, urban_share_2023, urban_cowpea_cons_2023,total_cowpea_cons_2023, urban_share_2030, total_cowpea_cons_2030, change_pc_capita_cowpea_kg, change_pc_capita_cowpea_pc)   |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "rural consumption 2023", "urban share 2023",	"urban consumption 2023",	"total consumption 2023", "urban share 2030"	, "total consumption 2030", "change consumption (kg)", "change consumption (%)"),
+    caption = "",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+
+#### Maize 2030 consumption
+
+The biggest percentage changes in this model are again for a number of states that experience urbanisation - such as Borno, Rivers, Delta and Kaduna, while the biggest in kilograms is for Plateau state. The differences due to urbanisation would be small, however.
+
+```{r}
+#| label: maize_2030_consumption
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_maize_consumption <- filter(df_crop_state_results_benchmarked_smoothed, crop == "Maize") |>
+  select(state, benchmarked_crop_equivalent_kg_person_year_state)
+
+df_maize_consumption_2030 <- left_join(df_MICS_urban_rural, df_maize_consumption, by = "state" )
+
+maize_multiplier <- 0.7
+
+# u₂₃ = (u₂₁ + u₂₅)/2
+# R₂₃ = T ÷ [1 + u₂₃(m − 1)]
+# U₂₃ = m × R₂
+# T₂₀₃₀ = R₂₃ × [1 + u₂₀₃₀(m − 1)
+               
+df_maize_consumption_2030 <- df_maize_consumption_2030 |>
+  mutate(urban_share_2023 = (urban_share_2021_MICS + urban_share_2025)/2) |>
+  mutate(rural_maize_cons_2023 = (benchmarked_crop_equivalent_kg_person_year_state / (1 + (urban_share_2023 * (maize_multiplier - 1))))) |>
+  mutate(urban_maize_cons_2023 = rural_maize_cons_2023 * maize_multiplier) |>
+  mutate(benchmarked_crop_equivalent_kg_person_year_state_2030 = 
+           (rural_maize_cons_2023 * (1 - urban_share_2030)) +
+           (urban_maize_cons_2023 * urban_share_2030)) |>
+  mutate(change_pc_capita_kg = benchmarked_crop_equivalent_kg_person_year_state_2030 - benchmarked_crop_equivalent_kg_person_year_state) |>
+  mutate(change_pc_capita_pc = (change_pc_capita_kg / benchmarked_crop_equivalent_kg_person_year_state) * 100 )
+
+
+df_maize_consumption_2030 <- df_maize_consumption_2030 |>
+  mutate(rural_maize_cons_2023 = as.numeric(prettyunits::pretty_round(rural_maize_cons_2023, digits = 2)))|>
+  mutate(urban_maize_cons_2023 = as.numeric(prettyunits::pretty_round(urban_maize_cons_2023, digits = 2)))|>
+  mutate(total_maize_cons_2023 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state, digits = 2)))|>
+  mutate(total_maize_cons_2030 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state_2030, digits = 2)))|>  
+  mutate(change_pc_capita_maize_kg = as.numeric(prettyunits::pretty_round(change_pc_capita_kg, digits = 2))) |>  
+  mutate(change_pc_capita_maize_pc = as.numeric(prettyunits::pretty_round(change_pc_capita_pc, digits = 2))) 
+  
+select(df_maize_consumption_2030, state, rural_maize_cons_2023, urban_share_2023, urban_maize_cons_2023,total_maize_cons_2023, urban_share_2030, total_maize_cons_2030, change_pc_capita_maize_kg, change_pc_capita_maize_pc)   |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "rural consumption 2023", "urban share 2023",	"urban consumption 2023",	"total consumption 2023", "urban share 2030"	, "total consumption 2030", "change consumption (kg)", "change consumption (%)"),
+    caption = "",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+
+#### Rice 2030 consumption
+
+The biggest percentage changes in this model are in Kaduna and Kano, while the biggest in kilograms is for Rivers state. The differences due to urbanisation would be small, however.
+
+```{r}
+#| label: rice_2030_consumption
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_rice_consumption <- filter(df_crop_state_results_benchmarked_smoothed, crop == "Rice") |>
+  select(state, benchmarked_crop_equivalent_kg_person_year_state)
+
+df_rice_consumption_2030 <- left_join(df_MICS_urban_rural, df_rice_consumption, by = "state" )
+
+rice_multiplier <- 1.4
+
+# u₂₃ = (u₂₁ + u₂₅)/2
+# R₂₃ = T ÷ [1 + u₂₃(m − 1)]
+# U₂₃ = m × R₂
+# T₂₀₃₀ = R₂₃ × [1 + u₂₀₃₀(m − 1)
+               
+df_rice_consumption_2030 <- df_rice_consumption_2030 |>
+  mutate(urban_share_2023 = (urban_share_2021_MICS + urban_share_2025)/2) |>
+  mutate(rural_rice_cons_2023 = (benchmarked_crop_equivalent_kg_person_year_state / (1 + (urban_share_2023 * (rice_multiplier - 1))))) |>
+  mutate(urban_rice_cons_2023 = rural_rice_cons_2023 * rice_multiplier) |>
+  mutate(benchmarked_crop_equivalent_kg_person_year_state_2030 = 
+           (rural_rice_cons_2023 * (1 - urban_share_2030)) +
+           (urban_rice_cons_2023 * urban_share_2030)) |>
+  mutate(change_pc_capita_kg = benchmarked_crop_equivalent_kg_person_year_state_2030 - benchmarked_crop_equivalent_kg_person_year_state) |>
+  mutate(change_pc_capita_pc = (change_pc_capita_kg / benchmarked_crop_equivalent_kg_person_year_state) * 100 )
+
+
+df_rice_consumption_2030 <- df_rice_consumption_2030 |>
+  mutate(rural_rice_cons_2023 = as.numeric(prettyunits::pretty_round(rural_rice_cons_2023, digits = 2)))|>
+  mutate(urban_rice_cons_2023 = as.numeric(prettyunits::pretty_round(urban_rice_cons_2023, digits = 2)))|>
+  mutate(total_rice_cons_2023 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state, digits = 2)))|>
+  mutate(total_rice_cons_2030 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state_2030, digits = 2)))|>  
+  mutate(change_pc_capita_rice_kg = as.numeric(prettyunits::pretty_round(change_pc_capita_kg, digits = 2))) |>  
+  mutate(change_pc_capita_rice_pc = as.numeric(prettyunits::pretty_round(change_pc_capita_pc, digits = 2))) 
+  
+select(df_rice_consumption_2030, state, rural_rice_cons_2023, urban_share_2023, urban_rice_cons_2023,total_rice_cons_2023, urban_share_2030, total_rice_cons_2030, change_pc_capita_rice_kg, change_pc_capita_rice_pc)   |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "rural consumption 2023", "urban share 2023",	"urban consumption 2023",	"total consumption 2023", "urban share 2030"	, "total consumption 2030", "change consumption (kg)", "change consumption (%)"),
+    caption = "",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+
+#### Sweet Potato 2030 consumption
+
+The biggest percentage changes in this model would be for Borno state, while the biggest in kilograms is for Zamfara state. The differences due to urbanisation would be small, however.
+
+```{r}
+#| label: spot_2030_consumption
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_spot_consumption <- filter(df_crop_state_results_benchmarked_smoothed, crop == "Sweet potato") |>
+  select(state, benchmarked_crop_equivalent_kg_person_year_state)
+
+df_spot_consumption_2030 <- left_join(df_MICS_urban_rural, df_spot_consumption, by = "state" )
+
+spot_multiplier <- 0.75
+
+# u₂₃ = (u₂₁ + u₂₅)/2
+# R₂₃ = T ÷ [1 + u₂₃(m − 1)]
+# U₂₃ = m × R₂
+# T₂₀₃₀ = R₂₃ × [1 + u₂₀₃₀(m − 1)
+               
+df_spot_consumption_2030 <- df_spot_consumption_2030 |>
+  mutate(urban_share_2023 = (urban_share_2021_MICS + urban_share_2025)/2) |>
+  mutate(rural_spot_cons_2023 = (benchmarked_crop_equivalent_kg_person_year_state / (1 + (urban_share_2023 * (spot_multiplier - 1))))) |>
+  mutate(urban_spot_cons_2023 = rural_spot_cons_2023 * spot_multiplier) |>
+  mutate(benchmarked_crop_equivalent_kg_person_year_state_2030 = 
+           (rural_spot_cons_2023 * (1 - urban_share_2030)) +
+           (urban_spot_cons_2023 * urban_share_2030)) |>
+  mutate(change_pc_capita_kg = benchmarked_crop_equivalent_kg_person_year_state_2030 - benchmarked_crop_equivalent_kg_person_year_state) |>
+  mutate(change_pc_capita_pc = (change_pc_capita_kg / benchmarked_crop_equivalent_kg_person_year_state) * 100 )
+
+
+df_spot_consumption_2030 <- df_spot_consumption_2030 |>
+  mutate(rural_spot_cons_2023 = as.numeric(prettyunits::pretty_round(rural_spot_cons_2023, digits = 2)))|>
+  mutate(urban_spot_cons_2023 = as.numeric(prettyunits::pretty_round(urban_spot_cons_2023, digits = 2)))|>
+  mutate(total_spot_cons_2023 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state, digits = 2)))|>
+  mutate(total_spot_cons_2030 = as.numeric(prettyunits::pretty_round(benchmarked_crop_equivalent_kg_person_year_state_2030, digits = 2)))|>  
+  mutate(change_pc_capita_spot_kg = as.numeric(prettyunits::pretty_round(change_pc_capita_kg, digits = 2))) |>  
+  mutate(change_pc_capita_spot_pc = as.numeric(prettyunits::pretty_round(change_pc_capita_pc, digits = 2))) 
+  
+select(df_spot_consumption_2030, state, rural_spot_cons_2023, urban_share_2023, urban_spot_cons_2023,total_spot_cons_2023, urban_share_2030, total_spot_cons_2030, change_pc_capita_spot_kg, change_pc_capita_spot_pc)   |> 
+  DT::datatable(
+    rownames = F,
+    colnames=c("State", "rural consumption 2023", "urban share 2023",	"urban consumption 2023",	"total consumption 2023", "urban share 2030"	, "total consumption 2030", "change consumption (kg)", "change consumption (%)"),
+    caption = "",
+    selection = list(mode = "none"),
+    editable = FALSE,
+    options = list(
+      digits = 0,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      # autoWidth = TRUE,
+      fixedColumns = list(leftColumns = 2),
+      lengthMenu = c(15, 40),
+      pageLength = 15
+    ))
+
+```
+
+```{r}
+#| label: MICS_based_urban_rural_share_consumption_save
+#| message: false
+#| warning: false
+#| cache: false
+#| results: asis
+
+df_crop_consumption_2030 <- left_join(
+  select(
+    df_cassava_consumption_2030,
+    state,
+    zone,
+    total_cassava_cons_2030
+  ),
+  left_join(
+    select(df_cowpea_consumption_2030, state, total_cowpea_cons_2030),
+    left_join(
+      select(df_maize_consumption_2030, state, total_maize_cons_2030),
+      left_join(
+        select(df_rice_consumption_2030, state, total_rice_cons_2030),
+        select(df_spot_consumption_2030, state, total_spot_cons_2030),
+        by = "state"
+      ),
+      by = "state"
+    ),
+    by = "state"
+  ),
+  by = "state"
+)
+
+
+write_csv(
+  df_crop_consumption_2030,
+  "tab_data/GHS food per capita outputs/crop_state_results_benchmarked_smoothed_2030.csv"
+)
+
+
+```
+
 
 
 # Appendix 1: Potential extra checks
